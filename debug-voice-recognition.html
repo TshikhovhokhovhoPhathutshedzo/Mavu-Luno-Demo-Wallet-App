@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Recognition Debug Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .debug-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        button {
+            background: #4a5568;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #2d3748;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background: #e2e8f0;
+        }
+        .debug-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .command-test {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🎤 Voice Recognition Debug Tool</h1>
+        <p>This tool will help debug why the voice assistant isn't recognizing your commands properly.</p>
+        
+        <div>
+            <button id="start-debug">Start Voice Debug</button>
+            <button id="test-commands">Test Command Recognition</button>
+            <button id="clear-log">Clear Log</button>
+        </div>
+        
+        <div id="status" class="status">Click "Start Voice Debug" to begin</div>
+        
+        <div id="debug-log" class="debug-info" style="display: none;">
+            <h3>Debug Information:</h3>
+            <div id="log-content"></div>
+        </div>
+        
+        <div class="command-test">
+            <h3>Test Commands (Try saying these):</h3>
+            <ul>
+                <li><strong>"balance"</strong> - Should trigger balance check</li>
+                <li><strong>"transactions"</strong> - Should trigger transaction history</li>
+                <li><strong>"electricity"</strong> - Should trigger electricity bill</li>
+                <li><strong>"airtime"</strong> - Should trigger airtime recharge</li>
+                <li><strong>"water"</strong> - Should trigger water bill</li>
+                <li><strong>"help"</strong> - Should show help message</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let recognition = null;
+        let isListening = false;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('start-debug').onclick = startVoiceDebug;
+            document.getElementById('test-commands').onclick = testCommandRecognition;
+            document.getElementById('clear-log').onclick = clearLog;
+        });
+        
+        function log(message) {
+            const logContent = document.getElementById('log-content');
+            const timestamp = new Date().toLocaleTimeString();
+            logContent.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            document.getElementById('debug-log').style.display = 'block';
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('log-content').innerHTML = '';
+            document.getElementById('debug-log').style.display = 'none';
+        }
+        
+        function startVoiceDebug() {
+            const statusEl = document.getElementById('status');
+            
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                statusEl.textContent = 'Speech recognition not supported';
+                log('ERROR: Speech recognition not supported in this browser');
+                return;
+            }
+            
+            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                statusEl.textContent = 'Speech recognition requires HTTPS or localhost';
+                log('ERROR: Not on HTTPS or localhost');
+                return;
+            }
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            recognition.maxAlternatives = 3;
+            
+            recognition.onstart = function() {
+                log('Voice recognition started');
+                statusEl.textContent = 'Listening... Say a command';
+                isListening = true;
+            };
+            
+            recognition.onresult = function(event) {
+                log(`Received ${event.results.length} results`);
+                
+                for (let i = 0; i < event.results.length; i++) {
+                    const result = event.results[i];
+                    const transcript = result[0].transcript;
+                    const confidence = result[0].confidence || 0;
+                    const isFinal = result.isFinal;
+                    
+                    log(`Result ${i + 1}: "${transcript}" (confidence: ${confidence.toFixed(2)}, final: ${isFinal})`);
+                    
+                    if (isFinal) {
+                        testCommandRecognition(transcript);
+                    }
+                }
+            };
+            
+            recognition.onerror = function(event) {
+                log(`ERROR: ${event.error}`);
+                statusEl.textContent = `Error: ${event.error}`;
+                isListening = false;
+            };
+            
+            recognition.onend = function() {
+                log('Voice recognition ended');
+                isListening = false;
+                statusEl.textContent = 'Stopped listening';
+            };
+            
+            recognition.start();
+            log('Starting voice recognition...');
+        }
+        
+        function testCommandRecognition(inputText = null) {
+            const testText = inputText || prompt('Enter text to test command recognition:');
+            if (!testText) return;
+            
+            log(`Testing command recognition for: "${testText}"`);
+            
+            const text = testText.toLowerCase().trim();
+            let recognized = false;
+            
+            if (text.includes('balance') || text.includes('how much') || text.includes('money') || text.includes('funds')) {
+                log('✅ Recognized as: BALANCE command');
+                recognized = true;
+            } else if (text.includes('transaction') || text.includes('history') || text.includes('recent') || text.includes('last')) {
+                log('✅ Recognized as: TRANSACTIONS command');
+                recognized = true;
+            } else if (text.includes('electricity') || text.includes('electric') || text.includes('power') || text.includes('eskom')) {
+                log('✅ Recognized as: ELECTRICITY command');
+                recognized = true;
+            } else if (text.includes('airtime') || text.includes('recharge') || text.includes('phone') || text.includes('mobile')) {
+                log('✅ Recognized as: AIRTIME command');
+                recognized = true;
+            } else if (text.includes('water') || text.includes('municipal')) {
+                log('✅ Recognized as: WATER command');
+                recognized = true;
+            } else if (text.includes('limit') || text.includes('daily') || text.includes('spending')) {
+                log('✅ Recognized as: LIMIT command');
+                recognized = true;
+            } else if (text.includes('help') || text.includes('what can you do') || text.includes('commands')) {
+                log('✅ Recognized as: HELP command');
+                recognized = true;
+            } else {
+                log('❌ NOT RECOGNIZED - Would show default help message');
+                log(`Available keywords: balance, money, transactions, history, electricity, power, airtime, phone, water, limit, help`);
+            }
+        }
+    </script>
+</body>
+</html>

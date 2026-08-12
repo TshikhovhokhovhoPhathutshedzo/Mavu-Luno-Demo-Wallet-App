@@ -1,0 +1,426 @@
+<%- include("partials/head") %>
+<link rel="stylesheet" href="/style/predictions.css">
+<body>
+    <main class="main">
+        <section class="main-card">
+            <div class="main-card-top">
+                <header class="user-head">
+                    <div class="user-head-left">
+                        <div class="user-name">
+                            <span>Financial Predictions</span>
+                            <span class="date">AI-powered expense forecasting and trend analysis</span>
+                        </div>
+                    </div>
+                    <div class="user-head-right">
+                        <a href="/" class="user-head-icon" role="button">
+                            <i class="bi bi-house"></i>
+                        </a>
+                    </div>
+                </header>
+            </div>
+            <div class="main-card-bottom">
+                <!-- Prediction Controls -->
+                <div class="prediction-section">
+                    <div class="section-header">
+                        <h3><ion-icon name="analytics-outline"></ion-icon> Prediction Settings</h3>
+                        <p>Configure your prediction parameters and data sources</p>
+                    </div>
+                    <div class="prediction-controls">
+                        <div class="control-group">
+                            <label for="data-source">Data Source</label>
+                            <select id="data-source" class="prediction-select">
+                                <option value="manual">Manual Input</option>
+                                <option value="database">From Database</option>
+                                <option value="transactions">Recent Transactions</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="prediction-type">Prediction Type</label>
+                            <select id="prediction-type" class="prediction-select">
+                                <option value="expenses">Expense Prediction</option>
+                                <option value="income">Income Prediction</option>
+                                <option value="balance">Balance Prediction</option>
+                                <option value="savings">Savings Prediction</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="horizon">Prediction Horizon</label>
+                            <select id="horizon" class="prediction-select">
+                                <option value="1">Next Day</option>
+                                <option value="7">Next Week</option>
+                                <option value="30">Next Month</option>
+                                <option value="90">Next 3 Months</option>
+                                <option value="365">Next Year</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label for="algorithm">Algorithm</label>
+                            <select id="algorithm" class="prediction-select">
+                                <option value="linear">Linear Regression</option>
+                                <option value="exponential">Exponential Smoothing</option>
+                                <option value="seasonal">Seasonal Decomposition</option>
+                                <option value="neural">Neural Network</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="manual-input-section" id="manual-input">
+                        <label for="past-data">Historical Data (comma-separated)</label>
+                        <input id="past-data" type="text" class="prediction-input" placeholder="120, 150, 110, 200, 175, 160, 140">
+                        <small>Enter your historical data points separated by commas</small>
+                    </div>
+                    
+                    <div class="prediction-actions">
+                        <button id="run-prediction" class="run-btn">
+                            <ion-icon name="play-outline"></ion-icon>
+                            Run Prediction
+                        </button>
+                        <button id="load-data" class="load-btn">
+                            <ion-icon name="cloud-download-outline"></ion-icon>
+                            Load from Database
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Prediction Results -->
+                <div class="prediction-section">
+                    <div class="section-header">
+                        <h3><ion-icon name="trending-up-outline"></ion-icon> Prediction Results</h3>
+                        <p>Your financial forecast and insights</p>
+                    </div>
+                    <div class="prediction-results" id="prediction-results">
+                        <div class="result-placeholder">
+                            <ion-icon name="analytics-outline"></ion-icon>
+                            <span>Configure settings and run prediction to see results</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts and Visualization -->
+                <div class="prediction-section">
+                    <div class="section-header">
+                        <h3><ion-icon name="bar-chart-outline"></ion-icon> Data Visualization</h3>
+                        <p>Interactive charts showing historical data and predictions</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="prediction-chart" height="400"></canvas>
+                    </div>
+                </div>
+
+                <!-- Insights and Recommendations -->
+                <div class="prediction-section">
+                    <div class="section-header">
+                        <h3><ion-icon name="bulb-outline"></ion-icon> Insights & Recommendations</h3>
+                        <p>AI-generated insights based on your financial patterns</p>
+                    </div>
+                    <div class="insights-container" id="insights-container">
+                        <div class="insight-placeholder">
+                            <ion-icon name="bulb-outline"></ion-icon>
+                            <span>Run prediction to get personalized insights</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <%- include("partials/floating-nav") %>
+    <script src="/js/floatingNav.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module">
+        import { PredictionService } from '/js/predictionService.js';
+        
+        // DOM Elements
+        const dataSource = document.getElementById('data-source');
+        const predictionType = document.getElementById('prediction-type');
+        const horizon = document.getElementById('horizon');
+        const algorithm = document.getElementById('algorithm');
+        const pastData = document.getElementById('past-data');
+        const runBtn = document.getElementById('run-prediction');
+        const loadBtn = document.getElementById('load-data');
+        const resultsContainer = document.getElementById('prediction-results');
+        const insightsContainer = document.getElementById('insights-container');
+        const ctx = document.getElementById('prediction-chart').getContext('2d');
+        
+        let chart = null;
+        let currentData = [];
+        let currentPrediction = 0;
+        
+        // Initialize
+        function init() {
+            // Set default values
+            pastData.value = '120, 150, 110, 200, 175, 160, 140, 180, 190, 165';
+            
+            // Event listeners
+            runBtn.addEventListener('click', runPrediction);
+            loadBtn.addEventListener('click', loadDataFromDatabase);
+            dataSource.addEventListener('change', toggleDataSource);
+            
+            // Run initial prediction
+            runPrediction();
+        }
+        
+        // Toggle data source visibility
+        function toggleDataSource() {
+            const manualInput = document.getElementById('manual-input');
+            if (dataSource.value === 'manual') {
+                manualInput.style.display = 'block';
+            } else {
+                manualInput.style.display = 'none';
+            }
+        }
+        
+        // Parse input values
+        function parseValues() {
+            return (pastData.value || '').split(',').map(s => Number(s.trim())).filter(n => !isNaN(n) && n > 0);
+        }
+        
+        // Load data from database
+        async function loadDataFromDatabase() {
+            try {
+                console.log('🔧 Loading data from database...');
+                showLoading(loadBtn);
+                const type = predictionType.value;
+                const days = parseInt(horizon.value) * 7; // Convert to days
+                
+                console.log('🔧 Prediction parameters:', { type, days });
+                
+                const data = await PredictionService.loadFromDatabase(type, days);
+                console.log('🔧 Data loaded from database:', data);
+                currentData = data;
+                
+                // Update the input field with loaded data
+                pastData.value = data.map(v => v.toFixed(2)).join(', ');
+                
+                showMessage('Data loaded successfully from database!', 'success');
+                runPrediction();
+            } catch (error) {
+                console.error('❌ Error loading data:', error);
+                showMessage('Failed to load data from database. Using sample data.', 'error');
+                // Use sample data as fallback
+                currentData = PredictionService.generateSampleData(predictionType.value, 30);
+                pastData.value = currentData.map(v => v.toFixed(2)).join(', ');
+                runPrediction();
+            } finally {
+                hideLoading(loadBtn);
+            }
+        }
+        
+        // Run prediction
+        function runPrediction() {
+            try {
+                console.log('🔧 Running prediction...');
+                showLoading(runBtn);
+                
+                let values;
+                if (dataSource.value === 'manual') {
+                    values = parseValues();
+                    console.log('🔧 Using manual values:', values);
+                } else {
+                    values = currentData.length > 0 ? currentData : parseValues();
+                    console.log('🔧 Using current data:', values);
+                }
+                
+                if (values.length < 3) {
+                    console.log('❌ Not enough data points:', values.length);
+                    showMessage('Enter at least 3 data points for accurate predictions.', 'error');
+                    return;
+                }
+                
+                const selectedAlgorithm = algorithm.value;
+                const selectedHorizon = parseInt(horizon.value);
+                const type = predictionType.value;
+                
+                console.log('🔧 Prediction settings:', { selectedAlgorithm, selectedHorizon, type, valuesLength: values.length });
+                
+                // Make prediction
+                currentPrediction = PredictionService.predictNext(values, selectedAlgorithm, selectedHorizon);
+                console.log('🔧 Prediction result:', currentPrediction);
+                currentData = values;
+                
+                // Display results
+                displayResults(values, currentPrediction, type, selectedHorizon);
+                
+                // Render chart
+                renderChart(values, currentPrediction, type);
+                
+                // Generate insights
+                generateInsights(values, currentPrediction, type);
+                
+                showMessage('Prediction completed successfully!', 'success');
+                
+            } catch (error) {
+                console.error('❌ Error running prediction:', error);
+                showMessage('Error running prediction. Please try again.', 'error');
+            } finally {
+                hideLoading(runBtn);
+            }
+        }
+        
+        // Display prediction results
+        function displayResults(values, prediction, type, horizon) {
+            const avg = values.reduce((a, b) => a + b, 0) / values.length;
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+            const trend = values.length > 1 ? ((values[values.length - 1] - values[0]) / values.length) : 0;
+            
+            const horizonText = horizon === 1 ? 'day' : horizon === 7 ? 'week' : horizon === 30 ? 'month' : horizon === 90 ? '3 months' : 'year';
+            const typeText = type.charAt(0).toUpperCase() + type.slice(1);
+            
+            resultsContainer.innerHTML = `
+                <div class="prediction-card">
+                    <h4>${typeText} Prediction</h4>
+                    <div class="prediction-value">R${prediction.toFixed(2)}</div>
+                    <p>Expected ${type} for the next ${horizonText}</p>
+                    
+                    <div class="prediction-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Average</div>
+                            <div class="detail-value">R${avg.toFixed(2)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Minimum</div>
+                            <div class="detail-value">R${min.toFixed(2)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Maximum</div>
+                            <div class="detail-value">R${max.toFixed(2)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Trend</div>
+                            <div class="detail-value">${trend > 0 ? '+' : ''}${trend.toFixed(2)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Render chart
+        function renderChart(values, prediction, type) {
+            const labels = values.map((_, i) => `Day ${i + 1}`).concat(['Prediction']);
+            const data = values.concat([prediction]);
+            
+            if (chart) chart.destroy();
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: type.charAt(0).toUpperCase() + type.slice(1),
+                        data,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Time Period'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Amount (R)'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+        
+        // Generate insights
+        function generateInsights(values, prediction, type) {
+            const insights = PredictionService.generateInsights(values, prediction, type);
+            
+            insightsContainer.innerHTML = insights.map(insight => `
+                <div class="insight-card">
+                    <div class="insight-type">${insight.type.toUpperCase()}</div>
+                    <h4>${insight.title}</h4>
+                    <p>${insight.message}</p>
+                </div>
+            `).join('');
+        }
+        
+        // Utility functions
+        function showLoading(button) {
+            button.classList.add('loading');
+            button.disabled = true;
+        }
+        
+        function hideLoading(button) {
+            button.classList.remove('loading');
+            button.disabled = false;
+        }
+        
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${type}-message`;
+            messageDiv.innerHTML = `<ion-icon name="${type === 'success' ? 'checkmark-circle' : type === 'error' ? 'alert-circle' : 'information-circle'}"></ion-icon> ${message}`;
+            
+            // Remove existing messages
+            document.querySelectorAll('.success-message, .error-message, .info-message').forEach(msg => msg.remove());
+            
+            // Add new message
+            document.querySelector('.prediction-actions').appendChild(messageDiv);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
+
+

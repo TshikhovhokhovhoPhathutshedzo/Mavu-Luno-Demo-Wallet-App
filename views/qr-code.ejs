@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code - Luno Wallet</title>
+    <link rel="stylesheet" href="/style/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        .qr-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .qr-header {
+            margin-bottom: 2rem;
+        }
+
+        .qr-header h1 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .qr-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .qr-code-display {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px dashed #e9ecef;
+        }
+
+        .qr-code-image {
+            max-width: 300px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .qr-info {
+            background: #e8f4fd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid #3498db;
+        }
+
+        .qr-info h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .qr-info p {
+            color: #34495e;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .qr-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .loading {
+            display: none;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        .qr-details {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+
+        .qr-details h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .detail-value {
+            color: #6c757d;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            .qr-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .qr-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern Sidebar Navigation -->
+    <div class="sidebar-container" id="sidebarContainer">
+        <!-- Visible Toggle Button -->
+        <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
+            <ion-icon name="menu-outline"></ion-icon>
+        </button>
+        
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <!-- Header Section -->
+            <div class="sidebar-header">
+                <div class="brand-section">
+                    <div class="brand-logo">LU</div>
+                    <div class="brand-text">
+                        <div class="brand-name">LunoBank</div>
+                        <div class="brand-subtitle">Banking App</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Section -->
+            <div class="sidebar-search">
+                <div class="search-input">
+                    <ion-icon name="search-outline"></ion-icon>
+                    <input type="text" placeholder="Search...">
+                </div>
+            </div>
+
+            <!-- Navigation Items -->
+            <div class="sidebar-nav">
+                <a href="/" class="nav-item" data-tooltip="Dashboard">
+                    <ion-icon name="home-outline"></ion-icon>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                
+                <a href="/transactions" class="nav-item" data-tooltip="Transactions">
+                    <ion-icon name="bar-chart-outline"></ion-icon>
+                    <span class="nav-text">Transactions</span>
+                </a>
+                
+                <a href="/ai/chat" class="nav-item" data-tooltip="AI Assistant">
+                    <ion-icon name="chatbubble-outline"></ion-icon>
+                    <span class="nav-text">AI Assistant</span>
+                </a>
+                
+                <a href="/analytics" class="nav-item" data-tooltip="Analytics">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span class="nav-text">Analytics</span>
+                </a>
+                
+                <a href="/statement" class="nav-item" data-tooltip="Bank Statement">
+                    <ion-icon name="document-text-outline"></ion-icon>
+                    <span class="nav-text">Statement</span>
+                </a>
+                
+                <a href="/marketplace" class="nav-item marketplace-item" data-tooltip="Marketplace">
+                    <ion-icon name="heart-outline"></ion-icon>
+                    <span class="nav-text">Marketplace</span>
+                </a>
+                
+                <a href="/currency" class="nav-item" data-tooltip="Currency">
+                    <ion-icon name="wallet-outline"></ion-icon>
+                    <span class="nav-text">Currency</span>
+                </a>
+                
+                <a href="/voice" class="nav-item" data-tooltip="Voice">
+                    <ion-icon name="share-outline"></ion-icon>
+                    <span class="nav-text">Voice</span>
+                </a>
+                
+                <a href="/predictions" class="nav-item" data-tooltip="Predictions">
+                    <ion-icon name="trending-up-outline"></ion-icon>
+                    <span class="nav-text">Predictions</span>
+                </a>
+                
+                <a href="/limits" class="nav-item" data-tooltip="Limits">
+                    <ion-icon name="speedometer-outline"></ion-icon>
+                    <span class="nav-text">Limits</span>
+                </a>
+                
+                <a href="/budget" class="nav-item" data-tooltip="Budget">
+                    <ion-icon name="pie-chart-outline"></ion-icon>
+                    <span class="nav-text">Budget</span>
+                </a>
+                
+                <a href="/bills" class="nav-item" data-tooltip="Bills">
+                    <ion-icon name="receipt-outline"></ion-icon>
+                    <span class="nav-text">Bills</span>
+                </a>
+                
+                <a href="/qr" class="nav-item active" data-tooltip="QR Code">
+                    <ion-icon name="qr-code-outline"></ion-icon>
+                    <span class="nav-text">My QR Code</span>
+                </a>
+                
+                <a href="/qr/scan" class="nav-item" data-tooltip="Scan QR">
+                    <ion-icon name="scan-outline"></ion-icon>
+                    <span class="nav-text">Scan QR Code</span>
+                </a>
+                
+                <a href="/deepface-auth/enrollment" class="nav-item" data-tooltip="Face Setup">
+                    <ion-icon name="camera-outline"></ion-icon>
+                    <span class="nav-text">Face Setup</span>
+                </a>
+            </div>
+
+            <!-- Footer Section -->
+            <div class="sidebar-footer">
+                <a href="/settings" class="nav-item" data-tooltip="Settings">
+                    <ion-icon name="settings-outline"></ion-icon>
+                    <span class="nav-text">Settings</span>
+                </a>
+                
+                <a href="/authorized/logout" class="nav-item logout-item" data-tooltip="Logout">
+                    <ion-icon name="log-out-outline"></ion-icon>
+                    <span class="nav-text">Logout</span>
+                </a>
+                
+                <div class="dark-mode-toggle" data-tooltip="Dark mode">
+                    <div class="toggle-label">
+                        <ion-icon name="moon-outline"></ion-icon>
+                        <span class="nav-text">Dark mode</span>
+                    </div>
+                    <div class="toggle-switch" id="darkModeToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    </div>
+
+    <main class="main">
+        <div class="container">
+            <div class="qr-container">
+            <div class="qr-header">
+                <h1>🔗 My QR Code</h1>
+                <p>Share this QR code to receive payments securely</p>
+            </div>
+
+            <div id="loading" class="loading">
+                <p>🔄 Generating your QR code...</p>
+            </div>
+
+            <div id="error" class="error" style="display: none;">
+                <p id="error-message"></p>
+            </div>
+
+            <div id="qr-content" style="display: none;">
+                <div class="qr-code-display">
+                    <img id="qr-image" class="qr-code-image" alt="Your QR Code">
+                </div>
+
+                <div class="qr-info">
+                    <h3>📱 How to use your QR code</h3>
+                    <p>• Show this QR code to others to receive payments</p>
+                    <p>• Others can scan it with their Luno Wallet app</p>
+                    <p>• Your QR code is unique and secure</p>
+                    <p>• Only you can receive payments through this code</p>
+                </div>
+
+                <div class="qr-details">
+                    <h4>🔍 QR Code Details</h4>
+                    <div class="detail-row">
+                        <span class="detail-label">User ID:</span>
+                        <span class="detail-value" id="user-id"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Username:</span>
+                        <span class="detail-value" id="username"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Account Number:</span>
+                        <span class="detail-value" id="account-number"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Generated:</span>
+                        <span class="detail-value" id="generated-time"></span>
+                    </div>
+                </div>
+
+                <div class="qr-actions">
+                    <button id="download-btn" class="btn btn-primary">
+                        📥 Download QR Code
+                    </button>
+                    <button id="refresh-btn" class="btn btn-secondary">
+                        🔄 Refresh QR Code
+                    </button>
+                    <a href="/qr/scan" class="btn btn-success">
+                        📷 Scan QR Code
+                    </a>
+                    <a href="/" class="btn btn-secondary">
+                        🏠 Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const qrContent = document.getElementById('qr-content');
+            const errorMessage = document.getElementById('error-message');
+            const qrImage = document.getElementById('qr-image');
+            const userId = document.getElementById('user-id');
+            const username = document.getElementById('username');
+            const accountNumber = document.getElementById('account-number');
+            const generatedTime = document.getElementById('generated-time');
+            const downloadBtn = document.getElementById('download-btn');
+            const refreshBtn = document.getElementById('refresh-btn');
+
+            // Load QR code data
+            async function loadQRCode() {
+                try {
+                    loading.style.display = 'block';
+                    error.style.display = 'none';
+                    qrContent.style.display = 'none';
+
+                    const response = await fetch('/qr/generate');
+                    const data = await response.json();
+
+                    if (data.success) {
+                        qrImage.src = data.qrCodeUrl;
+                        userId.textContent = data.userId;
+                        username.textContent = data.username;
+                        accountNumber.textContent = data.accountNumber;
+                        generatedTime.textContent = new Date().toLocaleString();
+                        
+                        loading.style.display = 'none';
+                        qrContent.style.display = 'block';
+                    } else {
+                        throw new Error(data.message || 'Failed to generate QR code');
+                    }
+                } catch (err) {
+                    console.error('Error loading QR code:', err);
+                    loading.style.display = 'none';
+                    error.style.display = 'block';
+                    errorMessage.textContent = err.message;
+                }
+            }
+
+            // Download QR code
+            downloadBtn.addEventListener('click', function() {
+                const link = document.createElement('a');
+                link.href = qrImage.src;
+                link.download = `luno-qr-code-${username.textContent}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            // Refresh QR code
+            refreshBtn.addEventListener('click', function() {
+                loadQRCode();
+            });
+
+            // Initial load
+            loadQRCode();
+        });
+    </script>
+
+    <!-- Navigation JavaScript -->
+    <script src="/js/floatingNav.js"></script>
+</body>
+</html>

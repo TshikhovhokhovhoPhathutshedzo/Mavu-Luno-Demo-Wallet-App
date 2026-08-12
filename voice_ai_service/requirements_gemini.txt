@@ -1,0 +1,32 @@
+# Enhanced Voice Assistant with Gemini Live API
+# Install with: pip install -r requirements_gemini.txt
+
+# Core dependencies
+google-genai>=0.8.0
+flask>=2.3.0
+flask-cors>=4.0.0
+
+# Audio processing
+pyaudio>=0.2.11
+soundfile>=0.12.1
+librosa>=0.10.1
+numpy>=1.24.0
+
+# Image processing
+opencv-python>=4.8.0
+Pillow>=10.0.0
+mss>=9.0.1
+
+# Database and utilities
+psycopg2-binary>=2.9.7
+python-dotenv>=1.0.0
+asyncio-mqtt>=0.13.0
+
+# Optional: Enhanced TTS (if not using Gemini's built-in TTS)
+# TTS>=0.22.0
+# torch>=2.0.0
+# torchaudio>=2.0.0
+
+# Development and debugging
+pytest>=7.4.0
+pytest-asyncio>=0.21.0

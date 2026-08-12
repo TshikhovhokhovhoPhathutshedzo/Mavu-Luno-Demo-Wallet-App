@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Verifying Deposit</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    #loading {
+      font-size: 1.5em;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">Verifying your deposit, please wait...</div>
+
+  <script>
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const reference = params.get('reference');
+      const userId = "<%= user.user_id %>"; // Injected from server session or template
+
+      if (!reference || !userId) {
+        document.getElementById('loading').innerText = 'Missing reference or user ID.';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/verify-deposit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ reference, userId })
+        });
+
+        const html = await res.text();
+        document.open();
+        document.write(html);
+        document.close();
+      } catch (error) {
+        console.error('Verification failed', error);
+        document.getElementById('loading').innerText = 'An error occurred while verifying your deposit.';
+      }
+    })();
+  </script>
+</body>
+</html>

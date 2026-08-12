@@ -1,0 +1,297 @@
+<%- include("partials/head") %>
+
+<style>
+  .chat-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    height: calc(100vh - 120px);
+    min-height: 600px;
+  }
+
+  .chat-main {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    max-height: 100%;
+  }
+
+  .chat-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .chat-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: #f8f9fa;
+    min-height: 200px;
+  }
+
+  .message {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: row;
+  }
+
+  .message.user {
+    justify-content: flex-end;
+  }
+
+  .message.bot {
+    justify-content: flex-start;
+  }
+
+  .message-content {
+    max-width: 70%;
+    padding: 12px 18px;
+    border-radius: 18px;
+    word-wrap: break-word;
+  }
+
+  .message.user .message-content {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+  }
+
+  .message.bot .message-content {
+    background: white;
+    color: #333;
+    border: 1px solid #e9ecef;
+  }
+
+  .message-time {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 5px;
+  }
+
+  .chat-input {
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #e9ecef;
+  }
+
+  .input-group {
+    display: flex;
+    gap: 10px;
+  }
+
+  .input-group input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #e9ecef;
+    border-radius: 25px;
+    outline: none;
+    font-size: 16px;
+  }
+
+  .input-group input:focus {
+    border-color: #667eea;
+  }
+
+  .input-group button {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .input-group button:hover {
+    opacity: 0.9;
+  }
+
+  .input-group button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .typing-indicator {
+    display: none;
+    color: #6c757d;
+    font-style: italic;
+    padding: 10px 0;
+  }
+
+  .quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .quick-action-btn {
+    padding: 8px 16px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .quick-action-btn:hover {
+    background: #e9ecef;
+  }
+</style>
+
+<body>
+  <%- include("partials/floating-nav") %>
+
+  <div class="chat-container">
+    <div class="chat-main">
+      <div class="chat-header">
+        <h2>🤖 AI Financial Assistant</h2>
+        <p>Powered by Google Gemini - Your intelligent financial companion</p>
+      </div>
+      
+      <div class="chat-messages" id="chatMessages">
+        <div class="message bot">
+          <div class="message-content">
+            <strong>🤖 LunoWallet AI:</strong> Hello! I'm your intelligent financial assistant powered by Google Gemini. I can analyze your spending patterns, provide personalized financial advice, and help you make smarter money decisions based on your actual account data. How can I assist you today? 💡
+            <div class="message-time"><%= new Date().toLocaleTimeString() %></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chat-input">
+        <div class="input-group">
+          <input type="text" id="messageInput" placeholder="Ask me anything about your finances..." autocomplete="off">
+          <button id="sendButton" type="button">Send</button>
+        </div>
+        
+        <div class="quick-actions">
+          <button class="quick-action-btn" onclick="askQuestion('What is my current balance?')">💰 Balance</button>
+          <button class="quick-action-btn" onclick="askQuestion('Analyze my spending patterns')">📊 Spending</button>
+          <button class="quick-action-btn" onclick="askQuestion('How can I improve my finances?')">💡 Advice</button>
+          <button class="quick-action-btn" onclick="askQuestion('What does my credit score mean?')">📈 Credit</button>
+          <button class="quick-action-btn" onclick="askQuestion('Help me with deposits and withdrawals')">💸 Transactions</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+
+    function addMessage(content, sender = 'bot') {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${sender}`;
+      
+      const messageContent = document.createElement('div');
+      messageContent.className = 'message-content';
+      
+      if (sender === 'bot') {
+        messageContent.innerHTML = `<strong>🤖 LunoWallet AI:</strong> ${content}`;
+      } else {
+        messageContent.innerHTML = `<strong>👤 You:</strong> ${content}`;
+      }
+      
+      const timeDiv = document.createElement('div');
+      timeDiv.className = 'message-time';
+      timeDiv.textContent = new Date().toLocaleTimeString();
+      
+      messageContent.appendChild(timeDiv);
+      messageDiv.appendChild(messageContent);
+      chatMessages.appendChild(messageDiv);
+      
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'typing-indicator';
+      typingDiv.id = 'typing-indicator';
+      typingDiv.textContent = 'AI is thinking...';
+      typingDiv.style.display = 'block';
+      chatMessages.appendChild(typingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      const typingIndicator = document.getElementById('typing-indicator');
+      if (typingIndicator) {
+        typingIndicator.remove();
+      }
+    }
+
+    async function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message) return;
+
+      // Add user message
+      addMessage(message, 'user');
+      messageInput.value = '';
+      sendButton.disabled = true;
+
+      // Show typing indicator
+      showTypingIndicator();
+
+      try {
+        const response = await fetch('/ai/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
+        
+        // Hide typing indicator
+        hideTypingIndicator();
+        
+        if (data.success) {
+          addMessage(data.response, 'bot');
+        } else {
+          addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+        }
+      } catch (error) {
+        hideTypingIndicator();
+        addMessage('Sorry, I\'m having trouble connecting. Please check your internet connection.', 'bot');
+        console.error('Error:', error);
+      } finally {
+        sendButton.disabled = false;
+      }
+    }
+
+    // Global function for quick actions
+    window.askQuestion = function(question) {
+      messageInput.value = question;
+      sendMessage();
+    };
+
+    // Event listeners
+    sendButton.addEventListener('click', sendMessage);
+    
+    messageInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Focus input on load
+    messageInput.focus();
+  </script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<%- include("partials/head") %>
+<body>
+    <main class="main">
+        <section class="main-card">
+            <div class="main-card-top">
+                <!-- heading -->
+                <header class="user-head">
+                    <div class="user-head-left">
+                        <div class="user-name">
+                            <span>Transaction History</span>
+                            <span class="date">View your financial activity</span>
+                        </div>
+                    </div>
+                    <div class="user-head-right">
+                        <a href="/" class="user-head-icon" role="button">
+                            <i class="bi bi-house"></i>
+                        </a>
+                    </div>
+                </header>
+                
+                <!-- Balance Display -->
+                <div class="balance-display">
+                    <div class="balance-amount">R<span><%= balance %></span></div>
+                    <div class="balance-label">Available Balance</div>
+                </div>
+                
+                <!-- Transaction Tabs -->
+                <div class="transaction-tabs">
+                    <button class="tab-btn active" onclick="showSection('all')">All</button>
+                    <button class="tab-btn" onclick="showSection('deposit')">Deposits</button>
+                    <button class="tab-btn" onclick="showSection('withdrawal')">Withdrawals</button>
+                    <button class="tab-btn" onclick="showSection('internal')">Transfers</button>
+                    <button class="tab-btn" onclick="showSection('bills')">Bills</button>
+                </div>
+            </div>
+            <div class="main-card-bottom">
+                <!-- Transaction List -->
+                <div class="transaction-main">
+                    <!-- Debug: Checking data variable -->
+                    <% console.log('EJS Debug - data type:', typeof data); %>
+                    <% console.log('EJS Debug - data value:', data); %>
+                    <% if (typeof data !== 'undefined' && data && data.length > 0) { %>
+                        <!-- All Transactions -->
+                        <div id="all" class="section active">
+                            <% data.forEach(element => { %>
+                                <% if (element.transaction_type === "credit" || element.transaction_type === "deposit") { %>
+                                    <% if (element.metadata && element.metadata.payment_type === "peer_to_peer" && element.metadata.direction === "received") { %>
+                                        <div class="transaction-card deposit">
+                                            <div class="transaction-header">
+                                                <div class="transaction-title">Received Money from <%= element.metadata.sender_name || element.metadata.sender_account || 'Unknown' %></div>
+                                                <div class="transaction-label income-label">💰 Income</div>
+                                            </div>
+                                            <div class="transaction-date"><%= element.created_date %></div>
+                                            <div class="transaction-channel"><%= element.formatted_description || 'Peer Transfer' %></div>
+                                            <div class="transaction-amount positive">+R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="transaction-card deposit">
+                                            <div class="transaction-header">
+                                                <div class="transaction-title">
+                                                    <% if (element.transaction_type === "credit") { %>
+                                                        Deposit
+                                                    <% } else { %>
+                                                        <%= element.transaction_type.charAt(0).toUpperCase() + element.transaction_type.slice(1) %>
+                                                    <% } %>
+                                                </div>
+                                                <div class="transaction-label income-label">💰 Income</div>
+                                            </div>
+                                            <div class="transaction-date"><%= element.created_date %></div>
+                                            <div class="transaction-channel"><%= element.payment_channel || 'Card Payment' %></div>
+                                            <div class="transaction-amount positive">+R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                        </div>
+                                    <% } %>
+                                <%} else if (element.transaction_type === "internal" && element.metadata && element.metadata.payment_type === "peer_to_peer") { %>
+                                    <% if (element.metadata.direction === "sent") { %>
+                                        <div class="transaction-card withdrawal">
+                                            <div class="transaction-header">
+                                                <div class="transaction-title">Sent Money to <%= element.metadata.receiver_name || element.metadata.receiver_account || 'Unknown' %></div>
+                                                <div class="transaction-label expense-label">💸 Expense</div>
+                                            </div>
+                                            <div class="transaction-date"><%= element.created_date %></div>
+                                            <div class="transaction-channel"><%= element.formatted_description || 'Peer Transfer' %></div>
+                                            <div class="transaction-amount negative">-R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="transaction-card deposit">
+                                            <div class="transaction-header">
+                                                <div class="transaction-title">Received Money from <%= element.metadata.sender_name || element.metadata.sender_account || 'Unknown' %></div>
+                                                <div class="transaction-label income-label">💰 Income</div>
+                                            </div>
+                                            <div class="transaction-date"><%= element.created_date %></div>
+                                            <div class="transaction-channel"><%= element.formatted_description || 'Peer Transfer' %></div>
+                                            <div class="transaction-amount positive">+R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                        </div>
+                                    <% } %>
+                                <%} else if (element.metadata && element.metadata.bill_type) { %>
+                                    <div class="transaction-card withdrawal">
+                                        <div class="transaction-header">
+                                            <div class="transaction-title">
+                                                <%= element.metadata.bill_type.charAt(0).toUpperCase() + element.metadata.bill_type.slice(1) %> Bill
+                                            </div>
+                                            <div class="transaction-label expense-label">🧾 Bill Payment</div>
+                                        </div>
+                                        <div class="transaction-date"><%= element.created_date %></div>
+                                        <div class="transaction-channel">
+                                            <% if (element.metadata.bill_type === 'electricity' && element.metadata.meter_number) { %>
+                                                Meter: <%= element.metadata.meter_number %>
+                                            <% } else if (element.metadata.bill_type === 'water' && element.metadata.meter_number) { %>
+                                                Meter: <%= element.metadata.meter_number %>
+                                            <% } else if (element.metadata.bill_type === 'airtime' && element.metadata.phone_number) { %>
+                                                Phone: <%= element.metadata.phone_number %>
+                                            <% } else { %>
+                                                Bill Payment
+                                            <% } %>
+                                        </div>
+                                        <div class="transaction-amount negative">-R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                    </div>
+                                <%} else if (element.transaction_type === "debit" || element.transaction_type === "withdrawal") { %>
+                                    <div class="transaction-card withdrawal">
+                                        <div class="transaction-header">
+                                            <div class="transaction-title">
+                                                <% if (element.transaction_type === "debit") { %>
+                                                    Withdrawal
+                                                <% } else { %>
+                                                    <%= element.transaction_type.charAt(0).toUpperCase() + element.transaction_type.slice(1) %>
+                                                <% } %>
+                                            </div>
+                                            <div class="transaction-label expense-label">💸 Expense</div>
+                                        </div>
+                                        <div class="transaction-date"><%= element.created_date %></div>
+                                        <div class="transaction-channel"><%= element.payment_channel || 'Bank Transfer' %></div>
+                                        <div class="transaction-amount negative">-R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                    </div>
+                                <%} else { %>
+                                    <div class="transaction-card withdrawal">
+                                        <div class="transaction-header">
+                                            <div class="transaction-title"><%= element.transaction_type.charAt(0).toUpperCase() + element.transaction_type.slice(1) %></div>
+                                            <div class="transaction-label expense-label">💸 Expense</div>
+                                        </div>
+                                        <div class="transaction-date"><%= element.created_date %></div>
+                                        <div class="transaction-channel"><%= element.payment_channel || 'Bank Transfer' %></div>
+                                        <div class="transaction-amount negative">-R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                    </div>
+                                <%}%>
+                            <% }); %>
+                        </div>
+                    
+                        <!-- Deposit Transactions -->
+                        <div id="deposit" class="section">
+                            <% data.forEach(element => { %>
+                                <% if (element.transaction_type === "credit" || element.transaction_type === "deposit") { %>
+                                    <% if (element.metadata && element.metadata.payment_type === "peer_to_peer" && element.metadata.direction === "received") { %>
+                                        <div class="transaction-card deposit">
+                                            <div class="transaction-header">
+                                                <div class="transaction-title">Received Money from <%= element.metadata.sender_name || element.metadata.sender_account || 'Unknown' %></div>
+                                                <div class="transaction-label income-label">💰 Income</div>
+                                            </div>
+                                            <div class="transaction-date"><%= element.created_date %></div>
+                                            <div class="transaction-channel"><%= element.formatted_description || 'Peer Transfer' %></div>
+                                            <div class="transaction-amount positive">+R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="transaction-card deposit">
+                                            <div class="transaction-header">
+                                                <div class="transaction-title">
+                                                    <% if (element.transaction_type === "credit") { %>
+                                                        Deposit
+                                                    <% } else { %>
+                                                        <%= element.transaction_type.charAt(0).toUpperCase() + element.transaction_type.slice(1) %>
+                                                    <% } %>
+                                                </div>
+                                                <div class="transaction-label income-label">💰 Income</div>
+                                            </div>
+                                            <div class="transaction-date"><%= element.created_date %></div>
+                                            <div class="transaction-channel"><%= element.payment_channel || 'Card Payment' %></div>
+                                            <div class="transaction-amount positive">+R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                        </div>
+                                    <% } %>
+                                <%}%>
+                            <%}); %>
+                        </div>
+                    
+                        <!-- Withdrawal Transactions -->
+                        <div id="withdrawal" class="section">
+                            <% data.forEach(element => { %>
+                                <% if (element.transaction_type === "debit" || element.transaction_type === "withdrawal") { %>
+                                    <div class="transaction-card withdrawal">
+                                        <div class="transaction-header">
+                                            <div class="transaction-title">
+                                                <% if (element.transaction_type === "debit") { %>
+                                                    Withdrawal
+                                                <% } else { %>
+                                                    <%= element.transaction_type.charAt(0).toUpperCase() + element.transaction_type.slice(1) %>
+                                                <% } %>
+                                            </div>
+                                            <div class="transaction-label expense-label">💸 Expense</div>
+                                        </div>
+                                        <div class="transaction-date"><%= element.created_date %></div>
+                                        <div class="transaction-channel"><%= element.payment_channel || 'Bank Transfer' %></div>
+                                        <div class="transaction-amount negative">-R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                    </div>
+                                <%}%>
+                            <%}); %>
+                        </div>
+                        
+                        <!-- Internal Transfer Transactions -->
+                        <div id="internal" class="section">
+                            <% data.forEach(element => { %>
+                                <% if (element.transaction_type === "internal" && element.metadata && element.metadata.payment_type === "peer_to_peer") { %>
+                                    <% if (element.metadata.direction === "sent") { %>
+                                        <div class="transaction-card withdrawal">
+                                            <div class="transaction-header">
+                                                <div class="transaction-title">Sent Money to <%= element.metadata.receiver_name || element.metadata.receiver_account || 'Unknown' %></div>
+                                                <div class="transaction-label expense-label">💸 Expense</div>
+                                            </div>
+                                            <div class="transaction-date"><%= element.created_date %></div>
+                                            <div class="transaction-channel"><%= element.formatted_description || 'Peer Transfer' %></div>
+                                            <div class="transaction-amount negative">-R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="transaction-card deposit">
+                                            <div class="transaction-header">
+                                                <div class="transaction-title">Received Money from <%= element.metadata.sender_name || element.metadata.sender_account || 'Unknown' %></div>
+                                                <div class="transaction-label income-label">💰 Income</div>
+                                            </div>
+                                            <div class="transaction-date"><%= element.created_date %></div>
+                                            <div class="transaction-channel"><%= element.formatted_description || 'Peer Transfer' %></div>
+                                            <div class="transaction-amount positive">+R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                        </div>
+                                    <% } %>
+                                <%}%>
+                            <%}); %>
+                        </div>
+                        
+                        <!-- Bills Transactions -->
+                        <div id="bills" class="section">
+                            <% data.forEach(element => { %>
+                                <% if (element.metadata && element.metadata.bill_type) { %>
+                                    <div class="transaction-card withdrawal">
+                                        <div class="transaction-header">
+                                            <div class="transaction-title">
+                                                <%= element.metadata.bill_type.charAt(0).toUpperCase() + element.metadata.bill_type.slice(1) %> Bill
+                                            </div>
+                                            <div class="transaction-label expense-label">🧾 Bill Payment</div>
+                                        </div>
+                                        <div class="transaction-date"><%= element.created_date %></div>
+                                        <div class="transaction-channel">
+                                            <% if (element.metadata.bill_type === 'electricity' && element.metadata.meter_number) { %>
+                                                Meter: <%= element.metadata.meter_number %>
+                                            <% } else if (element.metadata.bill_type === 'water' && element.metadata.meter_number) { %>
+                                                Meter: <%= element.metadata.meter_number %>
+                                            <% } else if (element.metadata.bill_type === 'airtime' && element.metadata.phone_number) { %>
+                                                Phone: <%= element.metadata.phone_number %>
+                                            <% } else { %>
+                                                Bill Payment
+                                            <% } %>
+                                        </div>
+                                        <div class="transaction-amount negative">-R<%= parseFloat(element.amount).toFixed(2) %></div>
+                                    </div>
+                                <%}%>
+                            <%}); %>
+                        </div>
+                    <% } else { %>
+                        <div class="no-transactions">
+                            <p><%= message || 'No transactions found' %></p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Navigation Bar -->
+    <%- include("partials/floating-nav") %>
+    
+    <script src="/js/floatingNav.js"></script>
+    
+    <script>
+        function showSection(sectionId) {
+            // Remove active class from all sections and tabs
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            // Add active class to selected section and tab
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+
+    <style>
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .transaction-label {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .income-label {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        .expense-label {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        
+        .transaction-amount.positive {
+            color: #059669;
+            font-weight: 700;
+        }
+        
+        .transaction-amount.negative {
+            color: #dc2626;
+            font-weight: 700;
+        }
+        
+        .transaction-card {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .transaction-card.deposit {
+            border-left-color: #10b981;
+        }
+        
+        .transaction-card.withdrawal {
+            border-left-color: #ef4444;
+        }
+    </style>
+</body>
+</html>

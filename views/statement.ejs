@@ -1,0 +1,428 @@
+<%- include("partials/head") %>
+<link rel="stylesheet" href="/style/statement.css">
+<body>
+    <main class="main">
+        <section class="main-card">
+            <div class="main-card-top">
+                <header class="user-head">
+                    <div class="user-head-left">
+                        <div class="user-name">
+                            <span>Bank Statement</span>
+                            <span class="date">Your financial activity and transaction history</span>
+                        </div>
+                    </div>
+                    <div class="user-head-right">
+                        <a href="/" class="user-head-icon" role="button">
+                            <i class="bi bi-house"></i>
+                        </a>
+                    </div>
+                </header>
+                
+                <!-- Account Overview -->
+                <div class="account-overview">
+                    <div class="account-info">
+                        <div class="account-details">
+                            <h3>Account Information</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="info-label">Account Holder:</span>
+                                    <span class="info-value"><%= accountInfo.username %></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Account Number:</span>
+                                    <span class="info-value"><%= accountInfo.account_number %></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Email:</span>
+                                    <span class="info-value"><%= accountInfo.email %></span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Statement Period:</span>
+                                    <span class="info-value"><%= statementPeriod.from %> - <%= statementPeriod.to %></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="balance-info">
+                            <div class="current-balance">
+                                <span class="balance-label">Current Balance</span>
+                                <span class="balance-amount">R<%= currentBalance %></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="main-card-bottom">
+                <!-- Summary Cards -->
+                <div class="summary-grid">
+                    <div class="summary-card income">
+                        <div class="summary-icon">
+                            <i class="bi bi-arrow-down-left"></i>
+                        </div>
+                        <div class="summary-content">
+                            <div class="summary-amount">R<%= summary.totalIncome %></div>
+                            <div class="summary-label">Total Income</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card expenses">
+                        <div class="summary-icon">
+                            <i class="bi bi-arrow-up-right"></i>
+                        </div>
+                        <div class="summary-content">
+                            <div class="summary-amount">R<%= summary.totalExpenses %></div>
+                            <div class="summary-label">Total Expenses</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card net">
+                        <div class="summary-icon">
+                            <i class="bi bi-calculator"></i>
+                        </div>
+                        <div class="summary-content">
+                            <div class="summary-amount <%= summary.netAmount >= 0 ? 'positive' : 'negative' %>">
+                                R<%= summary.netAmount %>
+                            </div>
+                            <div class="summary-label">Net Amount</div>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-card count">
+                        <div class="summary-icon">
+                            <i class="bi bi-list-ul"></i>
+                        </div>
+                        <div class="summary-content">
+                            <div class="summary-amount"><%= summary.transactionCount %></div>
+                            <div class="summary-label">Transactions</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button id="generatePdfBtn" class="action-btn primary">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                        Generate PDF Statement
+                    </button>
+                    <button id="downloadCsvBtn" class="action-btn secondary">
+                        <i class="bi bi-download"></i>
+                        Download CSV
+                    </button>
+                    <button id="printBtn" class="action-btn secondary">
+                        <i class="bi bi-printer"></i>
+                        Print Statement
+                    </button>
+                </div>
+
+                <!-- Monthly Summary Chart -->
+                <div class="chart-section">
+                    <div class="section-header">
+                        <h3><i class="bi bi-bar-chart"></i> Monthly Summary</h3>
+                        <p>Income vs Expenses over the last 6 months</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Transaction History -->
+                <div class="transactions-section">
+                    <div class="section-header">
+                        <h3><i class="bi bi-clock-history"></i> Transaction History</h3>
+                        <div class="transaction-filters">
+                            <select id="typeFilter" class="filter-select">
+                                <option value="all">All Transactions</option>
+                                <option value="deposit">Deposits Only</option>
+                                <option value="withdrawal">Withdrawals Only</option>
+                            </select>
+                            <select id="statusFilter" class="filter-select">
+                                <option value="all">All Status</option>
+                                <option value="success">Successful Only</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="transactions-table-container">
+                        <table class="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Reference</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsTableBody">
+                                <% if (transactions && transactions.length > 0) { %>
+                                    <% transactions.forEach(transaction => { %>
+                                        <tr class="transaction-row" data-type="<%= transaction.transaction_type %>" data-status="<%= transaction.transaction_status %>">
+                                            <td class="transaction-date">
+                                                <div class="date-primary"><%= transaction.formatted_date %></div>
+                                                <div class="date-secondary"><%= transaction.transaction_time %></div>
+                                            </td>
+                                            <td class="transaction-type">
+                                                <div class="type-container">
+                                                    <span class="type-badge <%= transaction.transaction_type %>">
+                                                        <% if (transaction.transaction_type === 'credit') { %>
+                                                            Deposit
+                                                        <% } else if (transaction.transaction_type === 'debit') { %>
+                                                            <% if (transaction.metadata && transaction.metadata.bill_type) { %>
+                                                                Bill Payment
+                                                            <% } else { %>
+                                                                Withdrawal
+                                                            <% } %>
+                                                        <% } else { %>
+                                                            <%= transaction.transaction_type.charAt(0).toUpperCase() + transaction.transaction_type.slice(1) %>
+                                                        <% } %>
+                                                    </span>
+                                                    <span class="type-label <%= (transaction.transaction_type === 'deposit' || transaction.transaction_type === 'credit') ? 'income' : 'expense' %>">
+                                                        <% if (transaction.transaction_type === 'deposit' || transaction.transaction_type === 'credit') { %>
+                                                            💰 Income
+                                                        <% } else { %>
+                                                            💸 Expense
+                                                        <% } %>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="transaction-description">
+                                                <div class="description-primary">
+                                                    <%= transaction.payment_channel || 'Bank Transfer' %>
+                                                </div>
+                                                <div class="description-secondary">
+                                                    <%= (transaction.transaction_type === 'deposit' || transaction.transaction_type === 'credit') ? 'Money received' : 'Payment made' %>
+                                                </div>
+                                            </td>
+                                            <td class="transaction-amount <%= (transaction.transaction_type === 'deposit' || transaction.transaction_type === 'credit') ? 'positive' : 'negative' %>">
+                                                <%= (transaction.transaction_type === 'deposit' || transaction.transaction_type === 'credit') ? '+' : '-' %>R<%= transaction.amount %>
+                                            </td>
+                                            <td class="transaction-status">
+                                                <span class="status-badge <%= transaction.transaction_status %>">
+                                                    <%= transaction.transaction_status.charAt(0).toUpperCase() + transaction.transaction_status.slice(1) %>
+                                                </span>
+                                            </td>
+                                            <td class="transaction-reference">
+                                                <span class="reference-text"><%= transaction.reference %></span>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6" class="no-transactions">
+                                            <div class="empty-state">
+                                                <i class="bi bi-receipt"></i>
+                                                <p>No transactions found for this period</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <%- include("partials/floating-nav") %>
+    <script src="/js/floatingNav.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Monthly chart data
+        const monthlyData = <%- JSON.stringify(monthlyData) %>;
+        
+        // Initialize monthly chart
+        if (monthlyData && monthlyData.length > 0) {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: monthlyData.map(item => {
+                        const date = new Date(item.month + '-01');
+                        return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                    }),
+                    datasets: [{
+                        label: 'Income',
+                        data: monthlyData.map(item => parseFloat(item.total_income)),
+                        backgroundColor: '#22c55e',
+                        borderRadius: 4
+                    }, {
+                        label: 'Expenses',
+                        data: monthlyData.map(item => parseFloat(item.total_expenses)),
+                        backgroundColor: '#ef4444',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Filter functionality
+        document.getElementById('typeFilter').addEventListener('change', filterTransactions);
+        document.getElementById('statusFilter').addEventListener('change', filterTransactions);
+
+        function filterTransactions() {
+            const typeFilter = document.getElementById('typeFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const rows = document.querySelectorAll('.transaction-row');
+
+            rows.forEach(row => {
+                const transactionType = row.dataset.type;
+                const transactionStatus = row.dataset.status;
+
+                const typeMatch = typeFilter === 'all' || transactionType === typeFilter;
+                const statusMatch = statusFilter === 'all' || transactionStatus === statusFilter;
+
+                if (typeMatch && statusMatch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Generate PDF functionality
+        document.getElementById('generatePdfBtn').addEventListener('click', async function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/statement/generate-pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ period: '6months' })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Statement generated successfully! Check your email for the PDF.');
+                } else {
+                    alert('Error generating statement: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating statement. Please try again.');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Download CSV functionality
+        document.getElementById('downloadCsvBtn').addEventListener('click', function() {
+            const transactions = <%- JSON.stringify(transactions) %>;
+            
+            if (transactions.length === 0) {
+                alert('No transactions to download');
+                return;
+            }
+
+            const csvContent = generateCSV(transactions);
+            downloadCSV(csvContent, 'bank-statement.csv');
+        });
+
+        // Print functionality
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+
+        function generateCSV(transactions) {
+            const headers = ['Date', 'Type', 'Description', 'Amount', 'Status', 'Reference'];
+            const csvRows = [headers.join(',')];
+
+            transactions.forEach(transaction => {
+                const row = [
+                    transaction.formatted_date,
+                    transaction.transaction_type,
+                    transaction.payment_channel || 'Bank Transfer',
+                    transaction.amount,
+                    transaction.transaction_status,
+                    transaction.reference
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            return csvRows.join('\n');
+        }
+
+        function downloadCSV(csvContent, filename) {
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+
+    <style>
+        .type-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .type-label {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            width: fit-content;
+        }
+        
+        .type-label.income {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        .type-label.expense {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        
+        .transaction-amount.positive {
+            color: #059669;
+            font-weight: 700;
+        }
+        
+        .transaction-amount.negative {
+            color: #dc2626;
+            font-weight: 700;
+        }
+    </style>
+</body>
+</html>

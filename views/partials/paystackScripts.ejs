@@ -1,0 +1,800 @@
+<!-- Paystack CSS Override to handle CORS errors -->
+<style>
+/* Override Paystack button styles to handle CSS loading errors */
+.paystack-button {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 12px 24px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+}
+
+.paystack-button:hover {
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4) !important;
+}
+
+.paystack-button:active {
+    transform: translateY(0) !important;
+}
+
+/* Hide any broken Paystack elements */
+iframe[src*="paystack"] {
+    border: none !important;
+    border-radius: 8px !important;
+}
+
+/* Suppress console errors for Paystack CSS */
+</style>
+
+<!-- Global Paystack Error Suppression Script -->
+<script>
+(function() {
+    'use strict';
+    
+    // Store original console methods
+    const originalError = console.error;
+    const originalWarn = console.warn;
+    const originalLog = console.log;
+    
+    // Override console.error
+    console.error = function(...args) {
+        const message = args[0];
+        if (typeof message === 'string' && (
+            message.includes('button.min.css') ||
+            message.includes('paystack.com') ||
+            message.includes('ERR_BLOCKED_BY_RESPONSE') ||
+            message.includes('NotSameOrigin') ||
+            message.includes('403 (Forbidden)') ||
+            message.includes('net::ERR_BLOCKED_BY_RESPONSE') ||
+            message.includes('Refused to load the stylesheet') ||
+            message.includes('violates the following Content Security Policy') ||
+            message.includes('checkout.paystack.com')
+        )) {
+            // Suppress Paystack-related errors
+            return;
+        }
+        originalError.apply(console, args);
+    };
+    
+    // Override console.warn
+    console.warn = function(...args) {
+        const message = args[0];
+        if (typeof message === 'string' && (
+            message.includes('button.min.css') ||
+            message.includes('paystack.com') ||
+            message.includes('ERR_BLOCKED_BY_RESPONSE') ||
+            message.includes('NotSameOrigin') ||
+            message.includes('Refused to load the stylesheet') ||
+            message.includes('violates the following Content Security Policy') ||
+            message.includes('checkout.paystack.com')
+        )) {
+            // Suppress Paystack-related warnings
+            return;
+        }
+        originalWarn.apply(console, args);
+    };
+    
+    // Override fetch to prevent CSS requests
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options) {
+        if (typeof url === 'string' && (
+            url.includes('button.min.css') ||
+            url.includes('paystack.com/public/css/')
+        )) {
+            // Return a rejected promise to prevent the request
+            return Promise.reject(new Error('CSS request blocked by Luno'));
+        }
+        return originalFetch.apply(this, arguments);
+    };
+    
+    // Override XMLHttpRequest to prevent CSS requests
+    const originalXHROpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(method, url, ...args) {
+        if (typeof url === 'string' && (
+            url.includes('button.min.css') ||
+            url.includes('paystack.com/public/css/')
+        )) {
+            // Block the request
+            throw new Error('CSS request blocked by Luno');
+        }
+        return originalXHROpen.apply(this, [method, url, ...args]);
+    };
+    
+    // Global error handler
+    window.addEventListener('error', function(e) {
+        if (e.message && (
+            e.message.includes('button.min.css') ||
+            e.message.includes('paystack.com') ||
+            e.message.includes('ERR_BLOCKED_BY_RESPONSE') ||
+            e.message.includes('Refused to load the stylesheet') ||
+            e.message.includes('violates the following Content Security Policy') ||
+            e.message.includes('checkout.paystack.com')
+        )) {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Unhandled promise rejection handler
+    window.addEventListener('unhandledrejection', function(e) {
+        if (e.reason && e.reason.message && (
+            e.reason.message.includes('button.min.css') ||
+            e.reason.message.includes('paystack.com') ||
+            e.reason.message.includes('ERR_BLOCKED_BY_RESPONSE') ||
+            e.reason.message.includes('Refused to load the stylesheet') ||
+            e.reason.message.includes('violates the following Content Security Policy') ||
+            e.reason.message.includes('checkout.paystack.com')
+        )) {
+            e.preventDefault();
+            return false;
+        }
+    });
+})();
+</script>
+
+<!-- deposit -->
+<script>
+        // Paystack error suppression is now handled by the global script above
+
+        const methodSelect = document.getElementById('deposit-method');
+        const depositForm = document.getElementById('deposit-form');
+        const depositDetails = document.getElementById('deposit-details');
+        
+        depositForm.addEventListener('submit', function(e) {
+          e.preventDefault(); // Stop normal form submission
+        
+          const method = methodSelect.value;
+          if (method === 'paystack') {
+            checkAnomalyBeforePaystack();
+          }
+        });
+        
+        async function checkAnomalyBeforePaystack() {
+          const amount = parseFloat(document.getElementById('deposit-amount').value);
+        
+          if (!amount || amount <= 0) {
+            return;
+          }
+        
+          try {
+            // First check daily limits using the limit manager
+            console.log('Checking daily limits for deposit:', { amount });
+            
+            if (window.limitManager) {
+              const limitCheck = await window.limitManager.checkTransactionLimit('deposit', amount);
+              console.log('Daily limits check result:', limitCheck);
+
+              if (!limitCheck.allowed) {
+                // Daily limit exceeded - handled by new notification system
+                return;
+              }
+            } else {
+              // Fallback to API call if limit manager not available
+              console.log('Limit manager not available, using API fallback');
+              const limitsResponse = await fetch('/api/check-deposit-limits', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  amount: amount
+                })
+              });
+
+              const limitsData = await limitsResponse.json();
+              console.log('Daily limits check result:', limitsData);
+
+              if (!limitsData.success || limitsData.limitExceeded) {
+                // Daily limit exceeded - handled by new notification system
+                return;
+              }
+            }
+
+            // Daily limits check passed, now check for anomalies
+            console.log('Daily limits check passed, checking anomalies with:', { amount });
+            const response = await fetch('/api/check-anomalies', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                amount: amount
+              })
+            });
+
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            const data = await response.json();
+            console.log('Response data:', data);
+
+            if (data.success) {
+              // No anomalies detected, proceed to Paystack
+              payWithPaystack(data.userEmail);
+            } else if (data.requiresVerification) {
+              // Anomalies detected, show verification modal
+              showAnomalyVerificationModal(data.anomalies, 'deposit', { amount, userEmail: data.userEmail });
+            } else if (data.message && data.message.includes('not authenticated')) {
+              // Authentication error - redirect to login
+              setTimeout(() => {
+                window.location.href = '/';
+              }, 2000);
+            } else if (data.requiresSetup) {
+              // Security questions not set up
+              setTimeout(() => {
+                window.location.href = '/settings';
+              }, 3000);
+            }
+          } catch (error) {
+            console.error('Error checking limits/anomalies:', error);
+            console.error('Error details:', error.message);
+          }
+        }
+        
+        // Make payWithPaystack globally accessible
+        window.payWithPaystack = function(userEmail) {
+          // Check if PaystackPop is available
+          if (typeof PaystackPop === 'undefined' || !window.paystackReady) {
+            console.error('PaystackPop is not available. Please check if the Paystack script is loaded.');
+            alert('Payment service is loading. Please wait a moment and try again.');
+            
+            // Wait for PaystackPop to be available
+            const checkPaystack = setInterval(() => {
+              if (typeof PaystackPop !== 'undefined' && window.paystackReady) {
+                clearInterval(checkPaystack);
+                window.payWithPaystack(userEmail); // Retry
+              }
+            }, 100);
+            
+            // Timeout after 5 seconds
+            setTimeout(() => {
+              clearInterval(checkPaystack);
+              if (typeof PaystackPop === 'undefined' || !window.paystackReady) {
+                alert('Payment service failed to load. Please refresh the page and try again.');
+              }
+            }, 5000);
+            
+            return;
+          }
+
+          const amountElement = document.getElementById('deposit-amount');
+          if (!amountElement) {
+            console.error('Deposit amount element not found');
+            alert('Error: Deposit form not found. Please refresh the page and try again.');
+            return;
+          }
+
+          const amount = amountElement.value;
+        
+          if (!userEmail) {
+            alert('Error: User email not available. Please try again.');
+            return;
+          }
+          
+          try {
+        // Note: Paystack iframe may show security warning about sandbox attributes
+        // This is a known issue with Paystack's iframe implementation and doesn't affect functionality
+        // The warning "An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing"
+        // is a security warning from the browser but doesn't affect payment processing
+        // Also note: Paystack logo may fail to load due to network issues - this doesn't affect payment functionality
+        // Paystack CSS loading errors (button.min.css) are also known issues and don't affect payment functionality
+            let handler = PaystackPop.setup({
+              key: 'pk_test_272ab5757d045c4266021e9262b0db781ccee923', // YOUR PUBLIC KEY
+              email: userEmail,
+              amount: Math.round(Number(amount) * 100), // ZAR cents (integer)
+              currency: "ZAR",
+              ref: 'DEP-' + Math.floor((Math.random() * 1000000000) + 1),
+              callback: function(response) {
+                alert('Payment successful! Reference: ' + response.reference);
+          
+                // Process deposit directly since anomalies were already checked
+                processDepositAfterPayment(response.reference, Number(amount), userEmail);
+              },
+              onClose: function() {
+                window.location.href = `
+                /?message=${encodeURIComponent('Transaction was cancelled.')}&display=block`;
+              }
+
+            });
+            
+            handler.openIframe();
+          } catch (error) {
+            console.error('Error setting up Paystack payment:', error);
+            alert('Error initializing payment. Please try again.');
+          }
+        }
+        
+</script>
+<!-- withdrawal -->
+<script>
+  const withdrawForm = document.getElementById('withdrawal-form');
+  const withdrawAmountInput = document.getElementById('withdrawl-amount');
+
+  const availableBalance = parseFloat(document.getElementById('available-balance')?.textContent || '0');
+
+  withdrawForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    // Normalize entered amount to a numeric value with 2 decimals
+    const rawAmount = parseFloat(withdrawAmountInput.value);
+    const amount = isNaN(rawAmount) ? 0 : Math.round(rawAmount * 100) / 100;
+
+    if (!amount || amount <= 0) {
+      return;
+    }
+
+    if (amount > availableBalance) {
+      return;
+    }
+
+            // Disable the withdrawal button to prevent multiple requests
+        const withdrawButton = document.querySelector('button[type="submit"]');
+        if (withdrawButton) {
+          withdrawButton.disabled = true;
+          withdrawButton.textContent = 'Processing...';
+        }
+
+        // Check if biometric verification is required
+        checkBiometricAndProcessWithdrawal(Number(amount));
+  });
+
+
+</script>
+
+
+<!-- Load Paystack script after DOM is ready -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Load Paystack script dynamically
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    script.onload = function() {
+      console.log('Paystack script loaded successfully');
+      // Set a flag to indicate Paystack is ready
+      window.paystackReady = true;
+    };
+    script.onerror = function() {
+      console.error('Failed to load Paystack script');
+      window.paystackReady = false;
+    };
+    document.head.appendChild(script);
+  });
+</script>
+
+<!-- Biometric Verification Functions -->
+<script>
+// Global variables for biometric verification
+let currentBiometricPattern = null;
+let biometricCanvas = null;
+let biometricCtx = null;
+let isDrawingBiometric = false;
+let biometricPatternAttempts = [];
+let selectedBiometricType = null;
+
+// Function to process deposit after Paystack payment (anomalies already checked)
+async function processDepositAfterPayment(reference, amount, email) {
+    try {
+        const response = await fetch('/api/verify-deposit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                reference: reference,
+                amount: amount,
+                email: email,
+                anomalyVerified: true // Mark as already verified
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update balance in real-time
+            if (typeof updateBalance === 'function') {
+                updateBalance(data.amount);
+            }
+            
+            // Transaction successful
+            const message = data.message || 'Deposit successful!';
+            window.location.href = `/?message=${encodeURIComponent(message)}&amount=${data.amount}&display=block`;
+        } else {
+            // Error occurred
+            const errorMessage = data.message || data.error || 'Deposit failed. Please try again.';
+            console.error('Deposit error:', data);
+            window.location.href = `/?message=${encodeURIComponent(errorMessage)}&display=block`;
+        }
+    } catch (error) {
+        console.error('Error processing deposit:', error);
+        window.location.href = `/?message=${encodeURIComponent('An error occurred while processing your deposit.')}&display=block`;
+    }
+}
+
+// Function to check biometric and process deposit (kept for compatibility)
+async function checkBiometricAndProcessDeposit(reference, amount, email) {
+    try {
+        // First, try to process without biometric to see if it's required
+        const response = await fetch('/api/verify-deposit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                reference: reference,
+                amount: amount,
+                email: email
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // No verification required, transaction successful
+            const message = data.message || 'Deposit successful!';
+            window.location.href = `/?message=${encodeURIComponent(message)}&amount=${data.amount}&display=block`;
+        } else if (data.requiresVerification) {
+            // Anomaly verification required
+            showAnomalyVerificationModal(data.anomalies, 'deposit', { reference, amount, email });
+        } else {
+            // Other error
+            const errorMessage = data.message || data.error || 'Deposit failed. Please try again.';
+            console.error('Deposit error:', data);
+            window.location.href = `/?message=${encodeURIComponent(errorMessage)}&display=block`;
+        }
+    } catch (error) {
+        console.error('Error processing deposit:', error);
+        window.location.href = `/?message=${encodeURIComponent('An error occurred while processing your deposit.')}&display=block`;
+    }
+}
+
+// Function to check biometric and process withdrawal
+async function checkBiometricAndProcessWithdrawal(amount) {
+    try {
+        // First check daily limits using the limit manager
+        console.log('Checking daily limits for withdrawal:', { amount });
+        
+        if (window.limitManager) {
+            const limitCheck = await window.limitManager.checkTransactionLimit('withdrawal', amount);
+            console.log('Daily limits check result:', limitCheck);
+
+            if (!limitCheck.allowed) {
+                // Daily limit exceeded, show error
+                const responseMessage = document.querySelector('.withdraw-message');
+                responseMessage.style.display = 'block';
+                responseMessage.innerHTML = limitCheck.reason || 'This withdrawal would exceed your daily limit.';
+                if (limitCheck.details) {
+                    responseMessage.innerHTML += `<br><small>Used today: R${limitCheck.details.currentUsage.toFixed(2)} | Limit: R${limitCheck.details.dailyLimit.toFixed(2)} | Remaining: R${limitCheck.details.remaining.toFixed(2)}</small>`;
+                    responseMessage.innerHTML += `<br><button onclick="window.limitManager.forceRefresh()" style="margin-top: 10px; padding: 5px 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Refresh Limits</button>`;
+                }
+                
+                // Re-enable button
+                const withdrawButton = document.querySelector('button[type="submit"]');
+                if (withdrawButton) {
+                    withdrawButton.disabled = false;
+                    withdrawButton.textContent = 'Withdraw Now';
+                }
+                return;
+            }
+        } else {
+            // Fallback to API call if limit manager not available
+            console.log('Limit manager not available, using API fallback');
+            const limitsResponse = await fetch('/api/check-withdrawal-limits', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    amount: amount
+                })
+            });
+
+            const limitsData = await limitsResponse.json();
+            console.log('Daily limits check result:', limitsData);
+
+            if (!limitsData.success || limitsData.limitExceeded) {
+                // Daily limit exceeded - handled by new notification system
+                // Re-enable button
+                const withdrawButton = document.querySelector('button[type="submit"]');
+                if (withdrawButton) {
+                    withdrawButton.disabled = false;
+                    withdrawButton.textContent = 'Withdraw Now';
+                }
+                return;
+            }
+        }
+
+        // Daily limits check passed, now process withdrawal
+        console.log('Daily limits check passed, processing withdrawal');
+        const response = await fetch('/api/withdraw', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                amount: amount
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update balance in real-time
+            if (typeof updateBalance === 'function') {
+                updateBalance(data.balance);
+            }
+            
+            // No verification required, transaction successful
+            const message = data.message || 'Withdrawal successful!';
+            window.location.href = `/?message=${encodeURIComponent(message)}&display=block`;
+        } else if (data.requiresVerification) {
+            // Anomaly verification required
+            showAnomalyVerificationModal(data.anomalies, 'withdrawal', { amount });
+        } else if (data.requiresSetup) {
+            // Security questions not set up
+            setTimeout(() => {
+                window.location.href = '/settings';
+            }, 3000);
+        } else {
+            // Other error - re-enable button
+            const withdrawButton = document.querySelector('button[type="submit"]');
+            if (withdrawButton) {
+                withdrawButton.disabled = false;
+                withdrawButton.textContent = 'Withdraw Now';
+            }
+            console.error('Withdrawal error:', data);
+        }
+    } catch (error) {
+        console.error('Error processing withdrawal:', error);
+        
+        // Re-enable button on error
+        const withdrawButton = document.querySelector('button[type="submit"]');
+        if (withdrawButton) {
+            withdrawButton.disabled = false;
+            withdrawButton.textContent = 'Withdraw Now';
+        }
+    }
+}
+
+// Function to show anomaly verification modal
+function showAnomalyVerificationModal(anomalies, transactionType, transactionData) {
+    // Initialize the anomaly verification system
+    if (window.anomalyVerification) {
+        window.anomalyVerification.init();
+        window.anomalyVerification.showModal(anomalies, transactionType, transactionData);
+    } else {
+        console.error('Anomaly verification system not loaded');
+        alert('Security verification system not available. Please try again.');
+    }
+}
+
+// Function to show biometric verification modal (kept for compatibility)
+function showBiometricModal(availablePatterns, transactionType, transactionData) {
+    // Create modal HTML
+    const modalHTML = `
+        <div id="biometric-modal" class="modal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+            <div class="box" style="background: white; padding: 20px; border-radius: 10px; max-width: 400px; width: 90%; max-height: 80vh; overflow-y: auto;">
+                <h2>Biometric Verification Required</h2>
+                <p>Please verify your identity using your behavioral pattern to complete this ${transactionType}.</p>
+                
+                <div class="pattern-selection" style="margin: 20px 0;">
+                    <label>Select Pattern Type:</label>
+                    <select id="biometric-pattern-type" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;">
+                        ${availablePatterns.map(pattern => `<option value="${pattern}">${pattern.charAt(0).toUpperCase() + pattern.slice(1)} Pattern</option>`).join('')}
+                    </select>
+                </div>
+
+                <div class="pattern-drawing" style="margin: 20px 0;">
+                    <label>Draw your pattern:</label>
+                    <canvas id="biometric-canvas" width="300" height="200" style="border: 2px solid #ddd; border-radius: 5px; margin: 10px 0; cursor: crosshair;"></canvas>
+                    <div style="text-align: center; margin: 10px 0;">
+                        <button id="clear-biometric-canvas" style="padding: 8px 16px; margin: 0 5px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">Clear</button>
+                        <button id="submit-biometric-pattern" style="padding: 8px 16px; margin: 0 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Verify Pattern</button>
+                    </div>
+                </div>
+
+                <div id="biometric-error" style="color: red; margin: 10px 0; display: none;"></div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="cancel-biometric" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Initialize biometric canvas
+    initializeBiometricCanvas();
+    
+    // Store transaction data
+    window.currentTransactionData = { type: transactionType, data: transactionData };
+
+    // Add event listeners
+    document.getElementById('cancel-biometric').addEventListener('click', closeBiometricModal);
+    document.getElementById('clear-biometric-canvas').addEventListener('click', clearBiometricCanvas);
+    document.getElementById('submit-biometric-pattern').addEventListener('click', submitBiometricPattern);
+    document.getElementById('biometric-pattern-type').addEventListener('change', function() {
+        selectedBiometricType = this.value;
+    });
+}
+
+// Initialize biometric canvas
+function initializeBiometricCanvas() {
+    biometricCanvas = document.getElementById('biometric-canvas');
+    biometricCtx = biometricCanvas.getContext('2d');
+    selectedBiometricType = document.getElementById('biometric-pattern-type').value;
+    
+    // Set canvas style
+    biometricCtx.strokeStyle = '#007bff';
+    biometricCtx.lineWidth = 3;
+    biometricCtx.lineCap = 'round';
+
+    // Add event listeners
+    biometricCanvas.addEventListener('mousedown', startBiometricDrawing);
+    biometricCanvas.addEventListener('mousemove', drawBiometric);
+    biometricCanvas.addEventListener('mouseup', stopBiometricDrawing);
+    biometricCanvas.addEventListener('touchstart', handleBiometricTouch);
+    biometricCanvas.addEventListener('touchmove', handleBiometricTouch);
+    biometricCanvas.addEventListener('touchend', stopBiometricDrawing);
+}
+
+// Biometric drawing functions
+function startBiometricDrawing(e) {
+    e.preventDefault();
+    isDrawingBiometric = true;
+    currentBiometricPattern = [];
+    const point = getBiometricCanvasPoint(e);
+    currentBiometricPattern.push(point);
+    biometricCtx.beginPath();
+    biometricCtx.moveTo(point.x, point.y);
+}
+
+function drawBiometric(e) {
+    e.preventDefault();
+    if (!isDrawingBiometric) return;
+    
+    const point = getBiometricCanvasPoint(e);
+    currentBiometricPattern.push(point);
+    biometricCtx.lineTo(point.x, point.y);
+    biometricCtx.stroke();
+}
+
+function stopBiometricDrawing() {
+    isDrawingBiometric = false;
+    if (currentBiometricPattern && currentBiometricPattern.length > 0) {
+        biometricPatternAttempts = [currentBiometricPattern];
+    }
+}
+
+function handleBiometricTouch(e) {
+    e.preventDefault();
+    if (e.type === 'touchstart') {
+        startBiometricDrawing(e.touches[0]);
+    } else if (e.type === 'touchmove') {
+        drawBiometric(e.touches[0]);
+    }
+}
+
+function getBiometricCanvasPoint(e) {
+    const rect = biometricCanvas.getBoundingClientRect();
+    return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        timestamp: Date.now(),
+        pressure: e.pressure || 0.5
+    };
+}
+
+function clearBiometricCanvas() {
+    biometricCtx.clearRect(0, 0, biometricCanvas.width, biometricCanvas.height);
+    currentBiometricPattern = [];
+    biometricPatternAttempts = [];
+}
+
+function closeBiometricModal() {
+    const modal = document.getElementById('biometric-modal');
+    if (modal) {
+        modal.remove();
+    }
+    biometricCanvas = null;
+    biometricCtx = null;
+    currentBiometricPattern = null;
+    biometricPatternAttempts = [];
+}
+
+// Submit biometric pattern for verification
+async function submitBiometricPattern() {
+    if (!currentBiometricPattern || currentBiometricPattern.length < 5) {
+        showBiometricError('Please draw a complete pattern (at least 5 points)');
+        return;
+    }
+
+    const patternData = {
+        coordinates: currentBiometricPattern.map(p => [p.x, p.y]),
+        timing: calculateBiometricTiming(currentBiometricPattern),
+        pressure: currentBiometricPattern.map(p => p.pressure || 0.5)
+    };
+
+    const biometricData = {
+        patternType: selectedBiometricType,
+        patternData: patternData
+    };
+
+    try {
+        const transactionData = window.currentTransactionData;
+        let response;
+
+        if (transactionData.type === 'deposit') {
+            response = await fetch('/api/verify-deposit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...transactionData.data,
+                    biometricPattern: biometricData
+                })
+            });
+        } else if (transactionData.type === 'withdrawal') {
+            response = await fetch('/api/withdraw', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...transactionData.data,
+                    biometricPattern: biometricData
+                })
+            });
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update balance in real-time
+            if (typeof updateBalance === 'function') {
+                if (transactionData.type === 'deposit') {
+                    updateBalance(data.amount);
+                } else {
+                    updateBalance(data.balance);
+                }
+            }
+            
+            closeBiometricModal();
+            if (transactionData.type === 'deposit') {
+                window.location.href = `/?message=${encodeURIComponent(data.message)}&amount=${data.amount}&display=block`;
+            } else {
+                window.location.href = `/?message=${encodeURIComponent(data.message)}&display=block`;
+            }
+        } else {
+            showBiometricError(data.message || 'Pattern verification failed. Please try again.');
+        }
+    } catch (error) {
+        console.error('Biometric verification error:', error);
+        showBiometricError('Error during verification. Please try again.');
+    }
+}
+
+function calculateBiometricTiming(pattern) {
+    const timings = [];
+    for (let i = 1; i < pattern.length; i++) {
+        timings.push(pattern[i].timestamp - pattern[i-1].timestamp);
+    }
+    return timings;
+}
+
+function showBiometricError(message) {
+    const errorDiv = document.getElementById('biometric-error');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+}
+</script>

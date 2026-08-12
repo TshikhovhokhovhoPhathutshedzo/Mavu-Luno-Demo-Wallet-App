@@ -1,0 +1,373 @@
+<%- include("partials/head") %>
+<body>
+    <main class="main">
+        <section class="main-card">
+            <div class="main-card-top">
+                <header class="user-head">
+                    <div class="user-head-left">
+                        <div class="user-name">
+                            <span>Daily Limits</span>
+                            <span class="date">Set limits and track usage</span>
+                        </div>
+                    </div>
+                    <div class="user-head-right">
+                        <a href="/" class="user-head-icon" role="button">
+                            <i class="bi bi-house"></i>
+                        </a>
+                    </div>
+                </header>
+            </div>
+            <div class="main-card-bottom" style="display:flex; flex-direction:column; gap:16px;">
+                <div class="settings-card" style="padding:14px;">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; align-items:end;">
+                        <div>
+                            <label class="settings-label">Daily Deposit Limit (R)</label>
+                            <input id="deposit-limit" type="number" class="modern-modal-input" placeholder="e.g., 5000" min="0" step="0.01" value="">
+                        </div>
+                        <div>
+                            <label class="settings-label">Daily Withdrawal Limit (R)</label>
+                            <input id="withdraw-limit" type="number" class="modern-modal-input" placeholder="e.g., 2000" min="0" step="0.01" value="">
+                        </div>
+                        <button id="save-limits" class="submit-btn" style="padding:10px 14px;">Save Limits</button>
+                    </div>
+                    <div id="save-msg" style="margin-top:8px;"></div>
+                </div>
+                
+                <div class="settings-card" style="padding:14px;">
+                    <h3 style="margin:0 0 10px 0;">Quick Actions</h3>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button id="disable-deposit-limit" class="submit-btn" style="padding:8px 12px; background:#ef4444;">Disable Deposit Limit</button>
+                        <button id="disable-withdraw-limit" class="submit-btn" style="padding:8px 12px; background:#ef4444;">Disable Withdrawal Limit</button>
+                        <button id="refresh-status" class="submit-btn" style="padding:8px 12px; background:#6b7280;">Refresh Status</button>
+                    </div>
+                </div>
+                <div class="settings-card" style="padding:14px;">
+                    <h3 style="margin:0 0 10px 0;">Usage Today</h3>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <span>Deposits: <span id="deposit-usage">R0.00</span></span>
+                            <span id="deposit-limit-text" style="color:#6b7280; font-size:0.9em;">No limit set</span>
+                        </div>
+                        <div style="height:10px; background:#e5e7eb; border-radius:6px; overflow:hidden; margin-bottom:14px;">
+                            <div id="deposit-bar" style="height:100%; width:0%; background:#2563eb; transition:width 0.3s ease;"></div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <span>Withdrawals: <span id="withdraw-usage">R0.00</span></span>
+                            <span id="withdraw-limit-text" style="color:#6b7280; font-size:0.9em;">No limit set</span>
+                        </div>
+                        <div style="height:10px; background:#e5e7eb; border-radius:6px; overflow:hidden;">
+                            <div id="withdraw-bar" style="height:100%; width:0%; background:#22c55e; transition:width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                    <div id="alerts" style="margin-top:10px; color:#ef4444; font-weight:600;"></div>
+                </div>
+                
+                <div class="settings-card" style="padding:14px;">
+                    <h3 style="margin:0 0 10px 0;">Limit History</h3>
+                    <div id="limit-history" style="max-height:200px; overflow-y:auto;">
+                        <div style="text-align:center; color:#6b7280; padding:20px;">Loading history...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <%- include("partials/floating-nav") %>
+    <script src="/js/floatingNav.js"></script>
+    <script>
+        (function(){
+            // API endpoints
+            const API_BASE = '/api/limits';
+            
+            // DOM elements
+            const depositLimitInput = document.getElementById('deposit-limit');
+            const withdrawLimitInput = document.getElementById('withdraw-limit');
+            const saveLimitsBtn = document.getElementById('save-limits');
+            const saveMsg = document.getElementById('save-msg');
+            const depositUsage = document.getElementById('deposit-usage');
+            const withdrawUsage = document.getElementById('withdraw-usage');
+            const depositLimitText = document.getElementById('deposit-limit-text');
+            const withdrawLimitText = document.getElementById('withdraw-limit-text');
+            const depositBar = document.getElementById('deposit-bar');
+            const withdrawBar = document.getElementById('withdraw-bar');
+            const alerts = document.getElementById('alerts');
+            const limitHistory = document.getElementById('limit-history');
+            const disableDepositBtn = document.getElementById('disable-deposit-limit');
+            const disableWithdrawBtn = document.getElementById('disable-withdraw-limit');
+            const refreshBtn = document.getElementById('refresh-status');
+            
+            // State
+            let currentLimits = { deposit: null, withdrawal: null };
+            let currentUsage = { deposit: { amountRands: 0 }, withdrawal: { amountRands: 0 } };
+            
+            // Utility functions
+            function showMessage(message, isError = false) {
+                saveMsg.textContent = message;
+                saveMsg.style.color = isError ? '#ef4444' : '#059669';
+                setTimeout(() => { saveMsg.textContent = ''; }, 3000);
+            }
+            
+            function formatCurrency(amount) {
+                return 'R' + parseFloat(amount).toFixed(2);
+            }
+            
+            // API functions
+            async function apiCall(endpoint, options = {}) {
+                try {
+                    const response = await fetch(API_BASE + endpoint, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...options.headers
+                        },
+                        ...options
+                    });
+                    
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.message || 'API call failed');
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('API call failed:', error);
+                    throw error;
+                }
+            }
+            
+            // Load current limits and usage
+            async function loadLimits() {
+                try {
+                    const [limitsResponse, statusResponse] = await Promise.all([
+                        apiCall(''),
+                        apiCall('/status')
+                    ]);
+                    
+                    currentLimits = limitsResponse.limits;
+                    currentUsage = statusResponse.usage;
+                    
+                    // Update UI
+                    depositLimitInput.value = currentLimits.deposit ? currentLimits.deposit.amountRands : '';
+                    withdrawLimitInput.value = currentLimits.withdrawal ? currentLimits.withdrawal.amountRands : '';
+                    
+                    renderUsage();
+                } catch (error) {
+                    showMessage('Failed to load limits: ' + error.message, true);
+                }
+            }
+            
+            // Render usage information
+            function renderUsage() {
+                // Update usage amounts
+                depositUsage.textContent = formatCurrency(currentUsage.deposit.amountRands);
+                withdrawUsage.textContent = formatCurrency(currentUsage.withdrawal.amountRands);
+                
+                // Update limit text
+                depositLimitText.textContent = currentLimits.deposit ? 
+                    `Limit: ${formatCurrency(currentLimits.deposit.amountRands)}` : 'No limit set';
+                withdrawLimitText.textContent = currentLimits.withdrawal ? 
+                    `Limit: ${formatCurrency(currentLimits.withdrawal.amountRands)}` : 'No limit set';
+                
+                // Update progress bars
+                if (currentLimits.deposit) {
+                    const depositPercent = Math.min(100, (currentUsage.deposit.amountRands / currentLimits.deposit.amountRands) * 100);
+                    depositBar.style.width = depositPercent + '%';
+                } else {
+                    depositBar.style.width = '0%';
+                }
+                
+                if (currentLimits.withdrawal) {
+                    const withdrawPercent = Math.min(100, (currentUsage.withdrawal.amountRands / currentLimits.withdrawal.amountRands) * 100);
+                    withdrawBar.style.width = withdrawPercent + '%';
+                } else {
+                    withdrawBar.style.width = '0%';
+                }
+                
+                // Update alerts
+                let alertMessages = [];
+                if (currentLimits.deposit && currentUsage.deposit.amountRands > currentLimits.deposit.amountRands * 0.9) {
+                    alertMessages.push('Near deposit limit');
+                }
+                if (currentLimits.deposit && currentUsage.deposit.amountRands > currentLimits.deposit.amountRands) {
+                    alertMessages.push('Deposit limit exceeded');
+                }
+                if (currentLimits.withdrawal && currentUsage.withdrawal.amountRands > currentLimits.withdrawal.amountRands * 0.9) {
+                    alertMessages.push('Near withdrawal limit');
+                }
+                if (currentLimits.withdrawal && currentUsage.withdrawal.amountRands > currentLimits.withdrawal.amountRands) {
+                    alertMessages.push('Withdrawal limit exceeded');
+                }
+                
+                alerts.textContent = alertMessages.join('. ') + (alertMessages.length ? '.' : '');
+            }
+            
+            // Load limit history
+            async function loadHistory() {
+                try {
+                    const response = await apiCall('/history?limit=10');
+                    const history = response.history;
+                    
+                    if (history.length === 0) {
+                        limitHistory.innerHTML = '<div style="text-align:center; color:#6b7280; padding:20px;">No history available</div>';
+                        return;
+                    }
+                    
+                    limitHistory.innerHTML = history.map(entry => `
+                        <div style="padding:8px; border-bottom:1px solid #e5e7eb; font-size:0.9em;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-weight:600; text-transform:capitalize;">${entry.limitType}</span>
+                                <span style="color:#6b7280; font-size:0.8em;">${new Date(entry.changedAt).toLocaleDateString()}</span>
+                            </div>
+                            <div style="color:#6b7280; font-size:0.8em;">
+                                ${entry.oldLimit ? formatCurrency(entry.oldLimit.amountRands) : 'No limit'} → ${formatCurrency(entry.newLimit.amountRands)}
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    limitHistory.innerHTML = '<div style="text-align:center; color:#ef4444; padding:20px;">Failed to load history</div>';
+                }
+            }
+            
+            // Save limits
+            async function saveLimits() {
+                const depositValue = depositLimitInput.value.trim();
+                const withdrawValue = withdrawLimitInput.value.trim();
+                
+                console.log('🔧 Save limits - Input values:', { depositValue, withdrawValue });
+                
+                // Check if both fields are empty
+                if (!depositValue && !withdrawValue) {
+                    console.log('❌ Both fields are empty');
+                    showMessage('Please enter at least one limit amount', true);
+                    return;
+                }
+                
+                const depositAmount = depositValue ? parseFloat(depositValue) : NaN;
+                const withdrawAmount = withdrawValue ? parseFloat(withdrawValue) : NaN;
+                
+                console.log('🔧 Parsed amounts:', { depositAmount, withdrawAmount });
+                
+                // Validate that at least one amount is valid
+                if ((depositValue && isNaN(depositAmount)) || (withdrawValue && isNaN(withdrawAmount))) {
+                    console.log('❌ Invalid numbers detected');
+                    showMessage('Please enter valid numbers for the limits', true);
+                    return;
+                }
+                
+                // Check if at least one valid amount is provided
+                if (isNaN(depositAmount) && isNaN(withdrawAmount)) {
+                    console.log('❌ No valid amounts provided');
+                    showMessage('Please enter at least one valid limit amount', true);
+                    return;
+                }
+                
+                console.log('✅ Validation passed, proceeding with save');
+                
+                try {
+                    const promises = [];
+                    
+                    if (!isNaN(depositAmount) && depositAmount > 0) {
+                        promises.push(apiCall('/set', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                limitType: 'deposit',
+                                amount: depositAmount,
+                                reason: 'User set via web interface'
+                            })
+                        }));
+                    }
+                    
+                    if (!isNaN(withdrawAmount) && withdrawAmount > 0) {
+                        promises.push(apiCall('/set', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                limitType: 'withdrawal',
+                                amount: withdrawAmount,
+                                reason: 'User set via web interface'
+                            })
+                        }));
+                    }
+                    
+                    await Promise.all(promises);
+                    showMessage('Limits saved successfully');
+                    await loadLimits();
+                    await loadHistory();
+                    
+                    // Notify limit manager to refresh limits
+                    if (window.limitManager) {
+                        await window.limitManager.forceRefresh();
+                        console.log('✅ Limit manager refreshed after limit update');
+                    }
+                } catch (error) {
+                    showMessage('Failed to save limits: ' + error.message, true);
+                }
+            }
+            
+            // Disable limit
+            async function disableLimit(limitType) {
+                if (!confirm(`Are you sure you want to disable your daily ${limitType} limit? This will allow unlimited ${limitType}s.`)) {
+                    return;
+                }
+                
+                try {
+                    await apiCall(`/${limitType}`, {
+                        method: 'DELETE',
+                        body: JSON.stringify({
+                            reason: 'User disabled via web interface'
+                        })
+                    });
+                    
+                    showMessage(`${limitType.charAt(0).toUpperCase() + limitType.slice(1)} limit disabled`);
+                    await loadLimits();
+                    await loadHistory();
+                    
+                    // Notify limit manager to refresh limits
+                    if (window.limitManager) {
+                        await window.limitManager.forceRefresh();
+                        console.log('✅ Limit manager refreshed after limit disable');
+                    }
+                } catch (error) {
+                    showMessage(`Failed to disable ${limitType} limit: ` + error.message, true);
+                }
+            }
+            
+            // Event listeners
+            saveLimitsBtn.onclick = function() {
+                console.log('🔧 Save limits button clicked!');
+                saveLimits();
+            };
+            disableDepositBtn.onclick = () => disableLimit('deposit');
+            disableWithdrawBtn.onclick = () => disableLimit('withdrawal');
+            refreshBtn.onclick = () => {
+                loadLimits();
+                loadHistory();
+                showMessage('Status refreshed');
+            };
+            
+            // Debug function to test validation
+            window.debugLimits = function() {
+                console.log('🔧 Debug limits - Current input values:');
+                console.log('Deposit input value:', depositLimitInput.value);
+                console.log('Withdraw input value:', withdrawLimitInput.value);
+                console.log('Deposit input type:', typeof depositLimitInput.value);
+                console.log('Withdraw input type:', typeof withdrawLimitInput.value);
+                console.log('Deposit input length:', depositLimitInput.value.length);
+                console.log('Withdraw input length:', withdrawLimitInput.value.length);
+                
+                const depositValue = depositLimitInput.value.trim();
+                const withdrawValue = withdrawLimitInput.value.trim();
+                console.log('After trim - Deposit:', depositValue, 'Withdraw:', withdrawValue);
+                
+                const depositAmount = depositValue ? parseFloat(depositValue) : NaN;
+                const withdrawAmount = withdrawValue ? parseFloat(withdrawValue) : NaN;
+                console.log('Parsed amounts - Deposit:', depositAmount, 'Withdraw:', withdrawAmount);
+                console.log('Is NaN - Deposit:', isNaN(depositAmount), 'Withdraw:', isNaN(withdrawAmount));
+            };
+            
+            // Initialize
+            loadLimits();
+            loadHistory();
+        })();
+    </script>
+</body>
+</html>
+
+

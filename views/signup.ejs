@@ -1,0 +1,42 @@
+<%- include("partials/head") %>
+    <div class="auth">
+        <div class="go-back">
+            <a href="/authorized/login" role="button"><i class="bi bi-arrow-left-short"></i></a>
+        </div>
+        <div class="logo">
+            <img src="/images/logo-removebg-preview.png" alt="App logo">
+        </div>
+    
+        <div class="auth-form">
+            <form action="/authorized/signup" id="login" class="login" method="POST">
+                <h3 class="auth-heading">Create Account</h3>
+    
+                <!--Error message placeholder -->
+                <% if (locals.message) { %>
+                    <div class="auth-error" id="login-error" style="display: <%= display %>;">
+                        <%= message %>
+                    </div>
+                 <% } else { %>
+                    <div class="auth-error" id="login-error" style="display: none;">
+                        <%= locals.message %>
+                    </div>
+                 <% } %>
+
+                <input type="text" name="email" placeholder="Email" required>
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" 
+                required>
+                <input type="submit" value="Sign up">
+            </form>
+    
+            <div class="google-auth">
+                <span class="google-auth-head">- or sign up with -</span>
+                <a href="/authorized/google" role="button">
+                    <i class="bi bi-google"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

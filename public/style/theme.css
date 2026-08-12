@@ -1,0 +1,68 @@
+/* Light/Dark theme overrides without changing existing CSS */
+
+:root {
+  --bg: #f5f7fb;
+  --card-bg: #ffffff;
+  --text: #111827;
+  --subtext: #4b5563;
+  --border: #e5e7eb;
+}
+
+[data-theme="dark"] body {
+  background: #0b1220 !important;
+  color: #e5e7eb !important;
+}
+
+[data-theme="dark"] .main,
+[data-theme="dark"] .main-card,
+[data-theme="dark"] .main-card-top,
+[data-theme="dark"] .main-card-bottom {
+  background: transparent !important;
+}
+
+[data-theme="dark"] .main-card,
+[data-theme="dark"] .settings-card,
+[data-theme="dark"] .op-card,
+[data-theme="dark"] .box,
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .modern-modal,
+[data-theme="dark"] .modern-modal-content {
+  background: #0f172a !important;
+  color: #e5e7eb !important;
+  border-color: #1f2a44 !important;
+}
+
+[data-theme="dark"] .user-head .user-name span,
+[data-theme="dark"] .balance-amount,
+[data-theme="dark"] .balance-label,
+[data-theme="dark"] .identifier,
+[data-theme="dark"] .category {
+  color: #e5e7eb !important;
+}
+
+[data-theme="dark"] .modal,
+[data-theme="dark"] .modern-modal {
+  backdrop-filter: blur(1.5px) saturate(120%);
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: #0b1220 !important;
+  color: #e5e7eb !important;
+  border-color: #1f2a44 !important;
+}
+
+/* Legacy bottom nav dark theme styles removed - now using floating navigation */
+
+[data-theme="dark"] .dep-with-card,
+[data-theme="dark"] .submit-btn,
+[data-theme="dark"] .cancel-button {
+  color: inherit;
+}
+
+[data-theme="dark"] a { color: #93c5fd; }
+[data-theme="dark"] a:hover { color: #bfdbfe; }
+
+
+

@@ -1,0 +1,893 @@
+<%- include("partials/head") %>
+<body>
+    <main class="main">
+        <section class="main-card">
+            <div class="main-card-top">
+                <!-- heading -->
+                <header class="user-head">
+                    <div class="user-head-left">
+                        <div class="user-name">
+                            <span>Hi,<%- user.username ? (user.username.charAt(0).toUpperCase() + user.username.slice(1)).replace(/[<>]/g, '') : 'User' %>!</span>
+                            <span class="date"><%- user.email ? user.email.replace(/[<>]/g, '') : '' %></span>
+                        </div>
+                    </div>
+                    <div class="user-head-right">
+                        <a href="/authorized/logout" class="user-head-icon" role="button">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </a>
+                    </div>
+                </header>
+                <!-- summary details -->
+                <div class="flipping-card-container">
+                    <!-- Flip Button -->
+                    <button id="flip-button" class="flip-button">🔄 Flip</button>
+                    
+                    <div class="card-wrapper">
+                        <!-- Front of the card -->
+                        <div class="card-front">
+                            <div class="card-background">
+                                <div class="card-content">
+                                    <!-- Top section with Mastercard logo and chip -->
+                                    <div class="card-header">
+                                        <div class="mastercard-logo">
+                                            <div class="mc-circle mc-red"></div>
+                                            <div class="mc-circle mc-orange"></div>
+                                            <span class="mc-text">Master Card</span>
+                                        </div>
+                                        <div class="emv-chip">
+                                            <div class="chip-lines">
+                                                <div class="chip-line"></div>
+                                                <div class="chip-line"></div>
+                                                <div class="chip-line"></div>
+                                                <div class="chip-line"></div>
+                                                <div class="chip-line"></div>
+                                                <div class="chip-line"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Card number section -->
+                                    <div class="card-number-section">
+                                        <div class="card-number-label">Card Number</div>
+                                        <div class="card-number">
+                                            <% if (locals.card && card) { %>
+                                                <% const cardGroups = card.card_number.match(/.{1,4}/g); %>
+                                                <% cardGroups.forEach(group => { %>
+                                                    <span class="number-group"><%= group %></span>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <span class="number-group">****</span>
+                                                <span class="number-group">****</span>
+                                                <span class="number-group">****</span>
+                                                <span class="number-group">****</span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Card holder name removed to create space for balance -->
+                                    
+                                    <!-- Expiry date -->
+                                    <div class="card-expiry">
+                                        <div class="expiry-label">Valid Thru</div>
+                                        <div class="expiry-date">
+                                            <% if (locals.card && card) { %>
+                                                <%= card.expire_date %>
+                                            <% } else { %>
+                                                --/--
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Balance display -->
+                                    <div class="card-balance">
+                                        <div class="balance-amount">R<span id="available-balance"><%= amount %></span></div>
+                                        <div class="balance-label">Available Balance</div>
+                                        <!-- Debug: Raw amount value: <%= amount %> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Back of the card -->
+                        <div class="card-back">
+                            <div class="card-background">
+                                <div class="card-content">
+                                    <!-- Magnetic stripe -->
+                                    <div class="magnetic-stripe"></div>
+                                    
+                                    <!-- Signature panel -->
+                                    <div class="signature-panel">
+                                        <div class="signature-line"></div>
+                                        <div class="signature-text">Authorized Signature</div>
+                                    </div>
+                                    
+                                    <!-- CVV section -->
+                                    <div class="cvv-section">
+                                        <div class="cvv-label">CVV</div>
+                                        <div class="cvv-number">
+                                            <% if (locals.card && card && card.cvv) { %>
+                                                <%= card.cvv %>
+                                            <% } else if (locals.card && card) { %>
+                                                <%= card.cvv || '---' %>
+                                            <% } else { %>
+                                                ---
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Account number -->
+                                    <div class="account-section">
+                                        <div class="account-label">Account No.</div>
+                                        <div class="account-number"><%= accountNumber %></div>
+                                    </div>
+                                    
+                                    <!-- Flip instruction -->
+                                    <div class="flip-instruction">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                        <span>Tap to flip</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dep-with">
+                    <div class="button-container">
+                        <div class="button-row">
+                            <button id="open-deposit" class="dep-with-card deposit-btn">
+                                <i class="bi bi-plus-circle"></i>
+                                <span>Deposit</span>
+                            </button>
+                            <button id="open-withdrawl" class="dep-with-card withdraw-btn">
+                                <i class="bi bi-dash-circle"></i>
+                                <span>Withdraw</span>
+                            </button>
+                        </div>
+                        <div class="button-row">
+                            <button id="open-send-money" class="dep-with-card send-btn">
+                                <i class="bi bi-send"></i>
+                                <span>Send Money</span>
+                            </button>
+                        </div>
+                        <div class="button-row">
+                            <a href="/qr" class="dep-with-card qr-display-btn" style="text-decoration: none; color: inherit;">
+                                <i class="bi bi-qr-code"></i>
+                                <span>My QR Code</span>
+                            </a>
+                            <a href="/qr/scan" class="dep-with-card qr-scan-btn" style="text-decoration: none; color: inherit;">
+                                <i class="bi bi-camera"></i>
+                                <span>Scan QR</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>          
+            </div>
+            <div class="main-card-bottom">
+                <!-- summary transaction -->
+                <section class="trans-summary">
+                    <div class="trans-top">
+                        <span>Operations</span>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <a href="/transactions">view all</a>
+                        </div>
+                    </div>
+                    <div class="trans-bottom">
+                        <span>Recent</span>
+                        <div class="operations">
+                            <% if (locals.summary && summary && summary.length > 0) { %>
+                                <% summary.forEach(card => { %>
+                                    <% if (card.transaction_type === "debit" || card.transaction_type === "withdrawal") { %>
+                                        <% if (card.metadata && card.metadata.bill_type) { %>
+                                            <div class="op-card">
+                                                <div class="op-card-left">
+                                                    <div class="op-card-image">
+                                                        <div style="font-size: 2rem; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">🧾</div>
+                                                    </div>
+                                                    <div class="op-card-details">
+                                                        <span class="identifier"><%= card.metadata.bill_type.charAt(0).toUpperCase() + card.metadata.bill_type.slice(1) %> Bill</span>
+                                                        <span class="category">🧾 Bill Payment</span>
+                                                    </div>
+                                                </div>
+                                                <div class="op-card-right">
+                                                    <p class="c-withdraw">-R<%= parseFloat(card.amount).toFixed(2) %></p>
+                                                </div>
+                                            </div>
+                                        <% } else { %>
+                                            <div class="op-card">
+                                                <div class="op-card-left">
+                                                    <div class="op-card-image">
+                                                        <img src="/images/argent.png" alt="">
+                                                    </div>
+                                                    <div class="op-card-details">
+                                                        <span class="identifier">
+                                                            <% if (card.transaction_type === "debit") { %>
+                                                                Withdrawal
+                                                            <% } else { %>
+                                                                <%= card.transaction_type %>
+                                                            <% } %>
+                                                        </span>
+                                                        <span class="category">💸 Expense</span>
+                                                    </div>
+                                                </div>
+                                                <div class="op-card-right">
+                                                    <p class="c-withdraw">-R<%= parseFloat(card.amount).toFixed(2) %></p>
+                                                </div>
+                                            </div>
+                                        <% } %>
+                                    <% } else if (card.transaction_type === "credit" || card.transaction_type === "deposit") { %>
+                                        <% if (card.metadata && card.metadata.payment_type === "peer_to_peer" && card.metadata.direction === "received") { %>
+                                            <div class="op-card">
+                                                <div class="op-card-left">
+                                                    <div class="op-card-image">
+                                                        <img src="/images/deposit.png" alt="">
+                                                    </div>
+                                                    <div class="op-card-details">
+                                                        <span class="identifier">Received Money from <%= card.metadata.sender_name || card.metadata.sender_account || 'Unknown' %></span>
+                                                        <span class="category">💰 Income</span>
+                                                    </div>
+                                                </div>
+                                                <div class="op-card-right">
+                                                    <p class="c-deposit">+R<%= parseFloat(card.amount).toFixed(2) %></p>
+                                                </div>
+                                            </div>
+                                        <% } else { %>
+                                            <div class="op-card">
+                                                <div class="op-card-left">
+                                                    <div class="op-card-image">
+                                                        <img src="/images/deposit.png" alt="">
+                                                    </div>
+                                                    <div class="op-card-details">
+                                                        <span class="identifier">
+                                                            <% if (card.transaction_type === "credit") { %>
+                                                                Deposit
+                                                            <% } else { %>
+                                                                <%= card.transaction_type %>
+                                                            <% } %>
+                                                        </span>
+                                                        <span class="category">💰 Income</span>
+                                                    </div>
+                                                </div>
+                                                <div class="op-card-right">
+                                                    <p class="c-deposit">+R<%= parseFloat(card.amount).toFixed(2) %></p>
+                                                </div>
+                                            </div>
+                                        <% } %>
+                                    <% } else if (card.transaction_type === "internal" && card.metadata && card.metadata.payment_type === "peer_to_peer") { %>
+                                        <% if (card.metadata.direction === "sent") { %>
+                                            <div class="op-card">
+                                                <div class="op-card-left">
+                                                    <div class="op-card-image">
+                                                        <img src="/images/argent.png" alt="">
+                                                    </div>
+                                                    <div class="op-card-details">
+                                                        <span class="identifier">Sent Money to <%= card.metadata.receiver_name || card.metadata.receiver_account || 'Unknown' %></span>
+                                                        <span class="category"><%= card.formatted_description || 'Peer Transfer' %></span>
+                                                    </div>
+                                                </div>
+                                                <div class="op-card-right">
+                                                    <p class="c-withdraw">-R<%= parseFloat(card.amount).toFixed(2) %></p>
+                                                </div>
+                                            </div>
+                                        <% } else { %>
+                                            <div class="op-card">
+                                                <div class="op-card-left">
+                                                    <div class="op-card-image">
+                                                        <img src="/images/deposit.png" alt="">
+                                                    </div>
+                                                    <div class="op-card-details">
+                                                        <span class="identifier">Received Money from <%= card.metadata.sender_name || card.metadata.sender_account || 'Unknown' %></span>
+                                                        <span class="category"><%= card.formatted_description || 'Peer Transfer' %></span>
+                                                    </div>
+                                                </div>
+                                                <div class="op-card-right">
+                                                    <p class="c-deposit">+R<%= parseFloat(card.amount).toFixed(2) %></p>
+                                                </div>
+                                            </div>
+                                        <% } %>
+                                    <% } else { %>
+                                        <div class="op-card">
+                                            <div class="op-card-left">
+                                                <div class="op-card-image">
+                                                    <img src="/images/deposit.png" alt="">
+                                                </div>
+                                                <div class="op-card-details">
+                                                    <span class="identifier"><%= card.transaction_type %></span>
+                                                    <span class="category"><%= card.payment_channel || 'Card Payment' %></span>
+                                                </div>
+                                            </div>
+                                            <div class="op-card-right">
+                                                <p class="c-deposit">+R<%= parseFloat(card.amount).toFixed(2) %></p>
+                                            </div>
+                                        </div>
+                                    <% }%>
+                                <% }); %>
+                            <% } else { %>
+                                <div class="no-transactions">
+                                    <p>No transactions yet</p>
+                                </div>
+                            <% }%>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+        
+        
+        <!-- Deposit Modal -->
+        
+        <!-- Floating SCAN Button -->
+        <button id="scan-fab" style="position: fixed; right: 20px; bottom: 90px; z-index: 1000; background: #2563eb; color: #fff; border: none; border-radius: 28px; padding: 12px 18px; box-shadow: 0 8px 24px rgba(37,99,235,0.25); font-weight: 700; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <i class="bi bi-qr-code-scan"></i>
+            <span>SCAN</span>
+        </button>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function(){
+                const scanFab = document.getElementById('scan-fab');
+                if (scanFab) {
+                    scanFab.addEventListener('click', function(){
+                        window.location.href = '/scan';
+                    });
+                }
+            });
+        </script>
+        
+        <section id="modalOpen" class="modal">
+           <div class="box">
+                <h2>Deposit</h2>
+                <div class="auth-error" id="login-error" style="display: none;"></div>
+                <form id="deposit-form">
+                  <div class="form-group">
+                    <label for="deposit-amount">Amount</label>
+                    <input type="number" id="deposit-amount" placeholder="Enter amount to deposit" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="deposit-method">Payment Method</label>
+                    <select id="deposit-method" required>
+                      <option value="paystack">Paystack</option>
+                    </select>
+                  </div>
+        
+                  <!-- Dynamic Payment Details -->
+                  <div id="deposit-details" class="payment-details" style="display: none;"></div>
+            
+                  <button type="submit" class="submit-btn">Deposit Now</button>
+                </form>
+                <div class="close-modal">
+                    <button id="close-btn" class="cancel-button">Cancel</button>
+                </div>
+           </div>
+        </section>
+        <!-- withdrawal Modal  -->
+        <section id="wModalOpen" class="modal">
+            <div class="box">
+                 <h2>Withdraw</h2>
+                 <form id="withdrawal-form">
+                   <div class="form-group">
+                     <label for="withdrawl-amount">Amount</label>
+                     <input type="number" id="withdrawl-amount" placeholder="Enter amount to withdraw" required>
+                   </div>
+
+                   <!-- Dynamic Payment Details -->
+                   <div id="withdrawal-details" class="payment-details" style="display: none;"></div>
+             
+                   <button type="submit" class="submit-btn">Withdraw Now</button>
+                 </form>
+                 <div class="close-modal">
+                     <button id="w-close-btn" class="cancel-button">Cancel</button>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Send Money Modal -->
+        <section id="sendMoneyModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>Send Money to User</h2>
+                
+                <!-- Step 1: Payment Details -->
+                <form id="send-money-form" class="payment-step" data-step="1">
+                    <div id="send-money-message" class="message" style="display: none;"></div>
+                    
+                    <div class="form-group">
+                        <label for="receiver-account">Receiver Account Number</label>
+                        <input type="text" id="receiver-account" placeholder="Enter 9-digit account number" maxlength="9" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="send-amount">Amount (ZAR)</label>
+                        <input type="number" id="send-amount" placeholder="Enter amount to send" min="1" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Your Account Number</label>
+                        <input type="text" value="<%= accountNumber %>" readonly style="background-color: #f5f5f5;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Available Balance</label>
+                        <input type="text" value="R<%= amount %>" readonly style="background-color: #f5f5f5;">
+                    </div>
+                    
+                    
+                    <button type="submit" class="submit-btn">Send Verification Code</button>
+                </form>
+
+                <!-- Step 2: Verification Code -->
+                <form id="verification-form" class="payment-step verification-popup" data-step="2" style="display: none;">
+                    <div id="verification-message" class="message" style="display: none;"></div>
+                    
+                    <div class="verification-info">
+                        <h3>📧 Verification Code Sent</h3>
+                        <p>We've sent a 6-digit verification code to your email address.</p>
+                        <p>Please check your email and enter the code below to complete the payment.</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="verification-code">Verification Code</label>
+                        <input type="text" id="verification-code" placeholder="Enter 6-digit code" maxlength="6" required>
+                    </div>
+                    
+                    <div class="payment-summary">
+                        <h4>Payment Summary</h4>
+                        <div class="summary-item">
+                            <span>To:</span>
+                            <span id="summary-receiver">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Amount:</span>
+                            <span id="summary-amount">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Reference:</span>
+                            <span id="summary-reference">-</span>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="verification-actions">
+                        <button type="button" id="cancel-verification-btn" class="cancel-btn">Cancel</button>
+                        <button type="button" id="resend-code-btn" class="secondary-btn">Resend Code</button>
+                        <button type="submit" class="submit-btn">Complete Payment</button>
+                    </div>
+                </form>
+                
+                <div class="close-modal">
+                    <button id="send-close-btn" class="cancel-button">Cancel</button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <!-- success message -->
+    <% if (locals.message) { %>
+        <div class="response-success" id="close-message" style="display: block;">
+            <%= message %>
+            <div class="success-close" id="close-success">
+                <button class="cancel-button">Cancel</button>
+            </div>
+        </div>
+    <% } else { %>
+        <div class="response-success" id="close-message" style="display: none;">
+            <div class="success-close" id="close-success">
+                <button class="cancel-button">Cancel</button>
+            </div>
+        </div>
+    <% }%>
+    
+    <%- include("partials/floating-nav") %>
+
+     <!-- js -->
+     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+     <script src="https://kit.fontawesome.com/f9b4791500.js" crossorigin="anonymous"></script>
+     
+     <script src="/js/floatingNav.js"></script>
+
+     <script>
+        const openDepositModal = document.getElementById("open-deposit");
+        const closeDepositModal = document.getElementById("close-btn");
+        const depositModal = document.getElementById("modalOpen");
+
+        const openWithdrawlModal = document.getElementById("open-withdrawl");
+        const closeWithdrawalModal = document.getElementById("w-close-btn");
+        const withdrawalModal = document.getElementById("wModalOpen");
+
+        const openSendMoneyModal = document.getElementById("open-send-money");
+        const closeSendMoneyModal = document.getElementById("send-close-btn");
+        const sendMoneyModal = document.getElementById("sendMoneyModal");
+
+        const success = document.getElementById("close-success");
+        const closeSuccesss = document.getElementById("close-message");
+        
+        // Message elements for send money modal
+        const sendMoneyMessage = document.getElementById("send-money-message");
+        const verificationMessage = document.getElementById("verification-message");
+        
+        // Add CSS for message styling
+        const style = document.createElement('style');
+        style.textContent = `
+            .message {
+                padding: 10px;
+                margin: 10px 0;
+                border-radius: 4px;
+                font-weight: 500;
+            }
+            .message.error {
+                background-color: #ffebee;
+                color: #c62828;
+                border: 1px solid #ffcdd2;
+            }
+            .message.success {
+                background-color: #e8f5e8;
+                color: #2e7d32;
+                border: 1px solid #c8e6c9;
+            }
+            .message.info {
+                background-color: #e3f2fd;
+                color: #1565c0;
+                border: 1px solid #bbdefb;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Handle URL parameters for QR scan integration
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const recipientAccount = urlParams.get('recipient_account');
+            
+            if (recipientAccount) {
+                // Pre-fill the receiver account field
+                const receiverAccountInput = document.getElementById('receiver-account');
+                if (receiverAccountInput) {
+                    receiverAccountInput.value = recipientAccount;
+                    // Add visual indicator that this was pre-filled from QR scan
+                    receiverAccountInput.style.backgroundColor = '#e8f5e8';
+                    receiverAccountInput.style.borderColor = '#4caf50';
+                    receiverAccountInput.setAttribute('readonly', 'true');
+                    
+                    // Add a small indicator text
+                    const indicator = document.createElement('small');
+                    indicator.textContent = '📱 Pre-filled from QR scan';
+                    indicator.style.color = '#4caf50';
+                    indicator.style.fontStyle = 'italic';
+                    receiverAccountInput.parentNode.appendChild(indicator);
+                }
+                
+                // Open the send money modal automatically
+                sendMoneyModal.style.display = 'flex';
+                
+                // Clear the URL parameter to avoid reopening on refresh
+                const newUrl = window.location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+            }
+        });
+
+        openDepositModal.addEventListener("click", function openModal1 () {
+            depositModal.style.display = 'flex';
+        })
+
+        closeDepositModal.addEventListener("click", () =>{
+            depositModal.style.display = 'none';
+        })
+
+        openWithdrawlModal.addEventListener("click", function openModal1 () {
+            withdrawalModal.style.display = 'flex';
+        })
+
+        closeWithdrawalModal.addEventListener("click", () =>{
+            withdrawalModal.style.display = 'none';
+        })
+
+        openSendMoneyModal.addEventListener("click", function openModal1 () {
+            sendMoneyModal.style.display = 'flex';
+        })
+
+        closeSendMoneyModal.addEventListener("click", () =>{
+            sendMoneyModal.style.display = 'none';
+        })
+
+        success.addEventListener("click", ()=>{
+            closeSuccesss.style.display = 'none';
+        })
+
+
+        // Send Money Functionality
+        const sendMoneyForm = document.getElementById('send-money-form');
+        const verificationForm = document.getElementById('verification-form');
+        // Old message elements removed - using new notification system
+        const cancelVerificationBtn = document.getElementById('cancel-verification-btn');
+        const resendCodeBtn = document.getElementById('resend-code-btn');
+        const summaryReceiver = document.getElementById('summary-receiver');
+        const summaryAmount = document.getElementById('summary-amount');
+        const summaryReference = document.getElementById('summary-reference');
+
+        let currentPaymentReference = null;
+
+        // Handle send money form submission
+        sendMoneyForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const receiverAccount = document.getElementById('receiver-account').value.trim();
+            const amount = document.getElementById('send-amount').value.trim();
+            
+            // Validation
+            if (!receiverAccount || receiverAccount.length !== 9) {
+                showMessage(sendMoneyMessage, 'Please enter a valid 9-digit account number.', 'error');
+                return;
+            }
+            
+            if (!amount || parseFloat(amount) <= 0) {
+                showMessage(sendMoneyMessage, 'Please enter a valid amount.', 'error');
+                return;
+            }
+
+            // Check if sending to own account
+            const ownAccountNumber = '<%= accountNumber %>';
+            if (receiverAccount === ownAccountNumber) {
+                showMessage(sendMoneyMessage, 'You cannot send money to yourself.', 'error');
+                return;
+            }
+
+            try {
+                showMessage(sendMoneyMessage, 'Processing payment...', 'info');
+                
+                const response = await fetch('/api/payments/initiate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        receiverAccountNumber: receiverAccount,
+                        amount: parseFloat(amount)
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentPaymentReference = data.paymentReference;
+                    
+                    // Update summary
+                    summaryReceiver.textContent = receiverAccount;
+                    summaryAmount.textContent = `R${parseFloat(amount).toFixed(2)}`;
+                    summaryReference.textContent = data.paymentReference;
+                    
+                    // Switch to verification step
+                    sendMoneyForm.style.display = 'none';
+                    verificationForm.style.display = 'block';
+                    showMessage(verificationMessage, 'Verification code sent to your email. Please check your inbox.', 'success');
+                } else {
+                    showMessage(sendMoneyMessage, data.message || 'Failed to initiate payment.', 'error');
+                }
+            } catch (error) {
+                console.error('Error initiating payment:', error);
+                showMessage(sendMoneyMessage, 'Network error. Please try again.', 'error');
+            }
+        });
+
+        // Handle verification form submission
+        verificationForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const verificationCode = document.getElementById('verification-code').value.trim();
+            
+            if (!verificationCode || verificationCode.length !== 6) {
+                showMessage(verificationMessage, 'Please enter a valid 6-digit verification code.', 'error');
+                return;
+            }
+
+            try {
+                showMessage(verificationMessage, 'Verifying payment...', 'info');
+                
+                const response = await fetch('/api/payments/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        paymentReference: currentPaymentReference,
+                        verificationCode: verificationCode
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(verificationMessage, 'Payment sent successfully!', 'success');
+                    
+                    // Update balance in real-time
+                    const balanceElement = document.getElementById('available-balance');
+                    if (balanceElement) {
+                        balanceElement.textContent = parseFloat(data.newBalance).toFixed(2);
+                    }
+                    
+                    // Close modal after 2 seconds
+                    setTimeout(() => {
+                        sendMoneyModal.style.display = 'none';
+                        resetSendMoneyForms();
+                        
+                        // Show success message
+                        const successMessage = document.getElementById('close-message');
+                        successMessage.textContent = `Payment of R${data.amount} sent successfully to ${data.receiver}!`;
+                        successMessage.style.display = 'block';
+                    }, 2000);
+                } else {
+                    showMessage(verificationMessage, data.message || 'Verification failed.', 'error');
+                }
+            } catch (error) {
+                console.error('Error verifying payment:', error);
+                showMessage(verificationMessage, 'Network error. Please try again.', 'error');
+            }
+        });
+
+        // Handle cancel verification
+        cancelVerificationBtn.addEventListener('click', function() {
+            resetSendMoneyForms();
+        });
+
+        // Handle resend code
+        resendCodeBtn.addEventListener('click', async function() {
+            try {
+                showMessage(verificationMessage, 'Resending verification code...', 'info');
+                
+                const response = await fetch('/api/payments/initiate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        receiverAccountNumber: document.getElementById('receiver-account').value.trim(),
+                        amount: parseFloat(document.getElementById('send-amount').value.trim())
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentPaymentReference = data.paymentReference;
+                    showMessage(verificationMessage, 'New verification code sent to your email.', 'success');
+                } else {
+                    showMessage(verificationMessage, data.message || 'Failed to resend code.', 'error');
+                }
+            } catch (error) {
+                console.error('Error resending code:', error);
+                showMessage(verificationMessage, 'Network error. Please try again.', 'error');
+            }
+        });
+
+        // Helper function to show messages - removed old message system
+        function showMessage(element, message, type) {
+            if (element) {
+                element.textContent = message;
+                element.className = `message ${type}`;
+                element.style.display = 'block';
+                
+                // Auto-hide after 5 seconds for info messages
+                if (type === 'info') {
+                    setTimeout(() => {
+                        element.style.display = 'none';
+                    }, 5000);
+                }
+            }
+        }
+
+        // Helper function to reset forms
+        function resetSendMoneyForms() {
+            sendMoneyForm.reset();
+            verificationForm.reset();
+            sendMoneyForm.style.display = 'block';
+            verificationForm.style.display = 'none';
+            currentPaymentReference = null;
+            
+            // Hide message elements
+            if (sendMoneyMessage) {
+                sendMoneyMessage.style.display = 'none';
+            }
+            if (verificationMessage) {
+                verificationMessage.style.display = 'none';
+            }
+            
+            // Reset receiver account field styling and remove QR scan indicators
+            const receiverAccountInput = document.getElementById('receiver-account');
+            if (receiverAccountInput) {
+                receiverAccountInput.style.backgroundColor = '';
+                receiverAccountInput.style.borderColor = '';
+                receiverAccountInput.removeAttribute('readonly');
+                
+                // Remove QR scan indicator if it exists
+                const indicator = receiverAccountInput.parentNode.querySelector('small');
+                if (indicator && indicator.textContent.includes('QR scan')) {
+                    indicator.remove();
+                }
+            }
+        }
+
+        // Close modal handler
+        closeSendMoneyModal.addEventListener('click', function() {
+            sendMoneyModal.style.display = 'none';
+            resetSendMoneyForms();
+        });
+
+        // Close modal when clicking outside of it
+        sendMoneyModal.addEventListener('click', function(e) {
+            if (e.target === sendMoneyModal) {
+                sendMoneyModal.style.display = 'none';
+                resetSendMoneyForms();
+            }
+        });
+
+        // Global function to update balance in real-time
+        function updateBalance(newBalance) {
+            const balanceElement = document.getElementById('available-balance');
+            if (balanceElement) {
+                balanceElement.textContent = parseFloat(newBalance).toFixed(2);
+            }
+        }
+
+        // Function to refresh transaction history
+        async function refreshTransactionHistory() {
+            try {
+                const response = await fetch('/transactions');
+                if (response.ok) {
+                    // Reload the page to show updated transactions
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Error refreshing transactions:', error);
+            }
+        }
+
+                // Flipping Card Functionality - Button Only
+        document.addEventListener('DOMContentLoaded', function() {
+            const cardWrapper = document.querySelector('.card-wrapper');
+            const flipButton = document.getElementById('flip-button');
+            
+            if (cardWrapper && flipButton) {
+                console.log('🎴 Card wrapper and flip button found, setting up flip functionality...');
+                
+                // Add flip button functionality
+                flipButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔄 Flip button clicked!');
+                    
+                    // Toggle the flipped class
+                    cardWrapper.classList.toggle('flipped');
+                    
+                    // Update button text based on card state
+                    if (cardWrapper.classList.contains('flipped')) {
+                        flipButton.textContent = '🔄 Show Front';
+                    } else {
+                        flipButton.textContent = '🔄 Flip';
+                    }
+                    
+                    // Add haptic feedback for mobile devices
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate(50);
+                    }
+                });
+                
+                console.log('✅ Flip functionality set up successfully!');
+            } else {
+                console.log('❌ Card wrapper or flip button not found!');
+            }
+        });
+
+
+     </script>
+
+     <!-- paystack logic -->
+      <%- include("partials/paystackScripts") %>
+     
+     <!-- Include anomaly verification script -->
+     <script src="/js/anomalyVerification.js"></script>
+     <link rel="stylesheet" href="/style/anomalyVerification.css">
+     
+     <!-- Notification Manager -->
+     <script src="/js/notificationManager.js"></script>
+     
+     <!-- Debug script for send money issues -->
+     <script src="/debug-send-money.js"></script>
+     
+</body>
+</html>

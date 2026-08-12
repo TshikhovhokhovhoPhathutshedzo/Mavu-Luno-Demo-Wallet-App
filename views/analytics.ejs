@@ -1,0 +1,425 @@
+<%- include("partials/head") %>
+<link rel="stylesheet" href="/style/analytics.css">
+<body>
+    <main class="main">
+        <section class="main-card">
+            <div class="main-card-top">
+                <header class="user-head">
+                    <div class="user-head-left">
+                        <div class="user-name">
+                            <span>Financial Analytics</span>
+                            <span class="date">Your spending insights and financial trends</span>
+                        </div>
+                    </div>
+                    <div class="user-head-right">
+                        <a href="/" class="user-head-icon" role="button">
+                            <i class="bi bi-house"></i>
+                        </a>
+                    </div>
+                </header>
+                
+                <!-- Balance Overview -->
+                <div class="balance-overview">
+                    <div class="balance-card">
+                        <div class="balance-amount">R<%= currentBalance %></div>
+                        <div class="balance-label">Current Balance</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-value">R<%= insights.currentMonthExpenses %></div>
+                        <div class="insight-label">This Month's Spending</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-value <%= (financialHealth && financialHealth.level) ? financialHealth.level.toLowerCase() : 'poor' %>">
+                            <%= (financialHealth && financialHealth.score) ? financialHealth.score : '0' %>
+                        </div>
+                        <div class="insight-label">Financial Health Score</div>
+                    </div>
+                    <div class="insight-card">
+                        <div class="insight-value"><%= (insights && insights.averageTransactionSize) ? insights.averageTransactionSize : '0.00' %></div>
+                        <div class="insight-label">Avg Transaction Size</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="main-card-bottom">
+                <!-- Financial Insights Cards -->
+                <div class="insights-grid">
+                    <div class="insight-card-large">
+                        <div class="insight-header">
+                            <i class="bi bi-graph-up-arrow"></i>
+                            <h3>Spending Prediction</h3>
+                        </div>
+                        <div class="prediction-content">
+                            <div class="prediction-amount">R<%= spendingPrediction %></div>
+                            <div class="prediction-label">Expected spending this week</div>
+                            <div class="prediction-note">Based on your recent spending patterns</div>
+                        </div>
+                    </div>
+                    
+                    <div class="insight-card-large">
+                        <div class="insight-header">
+                            <i class="bi bi-arrow-up-right"></i>
+                            <h3>Spending Trend</h3>
+                        </div>
+                        <div class="trend-content">
+                            <div class="trend-value <%= insights.spendingChange >= 0 ? 'trend-up' : 'trend-down' %>">
+                                <%= insights.spendingChange >= 0 ? '+' : '' %><%= insights.spendingChange %>%
+                            </div>
+                            <div class="trend-label">vs last month</div>
+                            <div class="trend-note">
+                                <%= insights.spendingChange >= 0 ? 'Spending increased' : 'Spending decreased' %> this month
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Health & Bills Analysis -->
+                <div class="analysis-grid">
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <i class="bi bi-heart-pulse"></i>
+                            <h3>Financial Health</h3>
+                        </div>
+                        <div class="health-content">
+                            <div class="health-score">
+                                <div class="score-circle <%= (financialHealth && financialHealth.level) ? financialHealth.level.toLowerCase() : 'poor' %>">
+                                    <span class="score-number"><%= (financialHealth && financialHealth.score) ? financialHealth.score : '0' %></span>
+                                    <span class="score-label">/100</span>
+                                </div>
+                                <div class="score-level"><%= (financialHealth && financialHealth.level) ? financialHealth.level : 'Poor' %></div>
+                            </div>
+                            <% if (financialHealth && financialHealth.recommendations && financialHealth.recommendations.length > 0) { %>
+                                <div class="recommendations">
+                                    <h4>Recommendations:</h4>
+                                    <ul>
+                                        <% financialHealth.recommendations.forEach(rec => { %>
+                                            <li><%= rec %></li>
+                                        <% }); %>
+                                    </ul>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <div class="analysis-card">
+                        <div class="analysis-header">
+                            <i class="bi bi-receipt"></i>
+                            <h3>Bills Analysis</h3>
+                        </div>
+                        <div class="bills-content">
+                            <% if (typeof billsData !== 'undefined' && billsData && billsData.length > 0) { %>
+                                <% billsData.forEach(bill => { %>
+                                    <div class="bill-item">
+                                        <div class="bill-type">
+                                            <i class="bi bi-<%= bill.billType === 'electricity' ? 'lightning' : bill.billType === 'water' ? 'droplet' : 'phone' %>"></i>
+                                            <%= bill.billType.charAt(0).toUpperCase() + bill.billType.slice(1) %>
+                                        </div>
+                                        <div class="bill-stats">
+                                            <span class="bill-count"><%= bill.count %> bills</span>
+                                            <span class="bill-total">R<%= bill.totalAmount %></span>
+                                            <span class="bill-avg">R<%= bill.averageAmount %> avg</span>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <div class="empty-state">
+                                    <i class="bi bi-receipt"></i>
+                                    <p>No bills data available</p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Patterns & Trends -->
+                <div class="patterns-grid">
+                    <div class="pattern-card">
+                        <div class="pattern-header">
+                            <i class="bi bi-calendar-week"></i>
+                            <h3>Spending by Day</h3>
+                        </div>
+                        <div class="pattern-content">
+                            <canvas id="dailyChart" height="150"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="pattern-card">
+                        <div class="pattern-header">
+                            <i class="bi bi-clock"></i>
+                            <h3>Spending by Hour</h3>
+                        </div>
+                        <div class="pattern-content">
+                            <canvas id="hourlyChart" height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="bi bi-pie-chart"></i> Spending by Category</h3>
+                            <p>Breakdown of your expenses</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pieChart" height="200"></canvas>
+                        </div>
+                        <div class="chart-legend" id="pieLegend"></div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3><i class="bi bi-bar-chart"></i> Income vs Expenses</h3>
+                            <p>Monthly comparison over time</p>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="barChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="recent-transactions">
+                    <div class="section-header">
+                        <h3><i class="bi bi-clock-history"></i> Recent Transactions</h3>
+                        <a href="/transactions" class="view-all-btn">View All</a>
+                    </div>
+                    <div class="transactions-list">
+                        <% if (recentTransactions && recentTransactions.length > 0) { %>
+                            <% recentTransactions.slice(0, 8).forEach(transaction => { %>
+                                <div class="transaction-item">
+                                    <div class="transaction-icon">
+                                        <% if (transaction.transaction_type === 'credit') { %>
+                                            <i class="bi bi-arrow-down-left"></i>
+                                        <% } else if (transaction.metadata && transaction.metadata.bill_type) { %>
+                                            <i class="bi bi-<%= transaction.metadata.bill_type === 'electricity' ? 'lightning' : transaction.metadata.bill_type === 'water' ? 'droplet' : 'phone' %>"></i>
+                                        <% } else { %>
+                                            <i class="bi bi-arrow-up-right"></i>
+                                        <% } %>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <div class="transaction-type">
+                                            <% if (transaction.transaction_type === 'credit') { %>
+                                                Deposit
+                                            <% } else if (transaction.metadata && transaction.metadata.bill_type) { %>
+                                                <%= transaction.metadata.bill_type.charAt(0).toUpperCase() + transaction.metadata.bill_type.slice(1) %> Bill
+                                            <% } else { %>
+                                                Withdrawal
+                                            <% } %>
+                                        </div>
+                                        <div class="transaction-reference"><%= transaction.reference %></div>
+                                        <div class="transaction-date"><%= transaction.formatted_date %> <%= transaction.formatted_time %></div>
+                                    </div>
+                                    <div class="transaction-amount <%= transaction.transaction_type === 'credit' ? 'positive' : 'negative' %>">
+                                        <%= transaction.transaction_type === 'credit' ? '+' : '-' %>R<%= transaction.amount %>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <i class="bi bi-receipt"></i>
+                                <p>No recent transactions found</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <%- include("partials/floating-nav") %>
+    <script src="/js/floatingNav.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Real data from server
+        const categoryData = <%- JSON.stringify(categoryData || []) %>;
+        const monthlyData = <%- JSON.stringify(monthlyData || {labels: [], income: [], expenses: []}) %>;
+        const dailyPatterns = <%- JSON.stringify(dailyPatterns || {days: [], hours: []}) %>;
+        const spendingTrends = <%- JSON.stringify(spendingTrends || {months: [], expenses: [], income: []}) %>;
+        const billsData = <%- JSON.stringify(billsData || []) %>;
+        const financialHealth = <%- JSON.stringify(financialHealth || {score: 0, level: 'Poor', recommendations: []}) %>;
+        
+        // Chart colors
+        const colors = ['#2563eb', '#22c55e', '#f59e0b', '#ef4444', '#6366f1', '#8b5cf6', '#06b6d4', '#f97316'];
+        
+        // Pie Chart - Spending by Category
+        if (categoryData && categoryData.length > 0) {
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: categoryData.map(item => item.label),
+                    datasets: [{
+                        data: categoryData.map(item => item.amount),
+                        backgroundColor: colors.slice(0, categoryData.length),
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            // Create custom legend
+            const pieLegend = document.getElementById('pieLegend');
+            categoryData.forEach((item, index) => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `
+                    <div class="legend-color" style="background-color: ${colors[index]}"></div>
+                    <span class="legend-label">${item.label}</span>
+                    <span class="legend-value">R${item.amount.toFixed(2)} (${item.percentage}%)</span>
+                `;
+                pieLegend.appendChild(legendItem);
+            });
+        } else {
+            document.getElementById('pieChart').style.display = 'none';
+            document.getElementById('pieLegend').innerHTML = '<p class="no-data">No spending data available</p>';
+        }
+        
+        // Bar Chart - Income vs Expenses
+        if (monthlyData && monthlyData.labels.length > 0) {
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: monthlyData.labels,
+                    datasets: [{
+                        label: 'Income',
+                        data: monthlyData.income,
+                        backgroundColor: '#22c55e',
+                        borderRadius: 4
+                    }, {
+                        label: 'Expenses',
+                        data: monthlyData.expenses,
+                        backgroundColor: '#ef4444',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            document.getElementById('barChart').style.display = 'none';
+            document.querySelector('#barChart').parentNode.innerHTML = '<p class="no-data">No monthly data available</p>';
+        }
+
+        // Daily Patterns Chart - Spending by Day
+        if (dailyPatterns && dailyPatterns.days && dailyPatterns.days.length > 0) {
+            const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+            new Chart(dailyCtx, {
+                type: 'bar',
+                data: {
+                    labels: dailyPatterns.days.map(day => day.day),
+                    datasets: [{
+                        label: 'Spending (R)',
+                        data: dailyPatterns.days.map(day => parseFloat(day.amount)),
+                        backgroundColor: '#6366f1',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        } else {
+            document.getElementById('dailyChart').style.display = 'none';
+            document.querySelector('#dailyChart').parentNode.innerHTML = '<p class="no-data">No daily data available</p>';
+        }
+
+        // Hourly Patterns Chart - Spending by Hour
+        if (dailyPatterns && dailyPatterns.hours && dailyPatterns.hours.length > 0) {
+            const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
+            new Chart(hourlyCtx, {
+                type: 'line',
+                data: {
+                    labels: dailyPatterns.hours.map(hour => hour.hour + ':00'),
+                    datasets: [{
+                        label: 'Spending (R)',
+                        data: dailyPatterns.hours.map(hour => parseFloat(hour.amount)),
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        } else {
+            document.getElementById('hourlyChart').style.display = 'none';
+            document.querySelector('#hourlyChart').parentNode.innerHTML = '<p class="no-data">No hourly data available</p>';
+        }
+
+        // Console log for debugging
+        console.log('📊 Analytics Data Loaded:');
+        console.log('- Category Data:', categoryData);
+        console.log('- Monthly Data:', monthlyData);
+        console.log('- Daily Patterns:', dailyPatterns);
+        console.log('- Financial Health:', financialHealth);
+        console.log('- Bills Data:', billsData);
+    </script>
+</body>
+</html>
+
+

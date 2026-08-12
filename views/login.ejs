@@ -1,0 +1,218 @@
+<%- include("partials/head") %>
+    <div class="auth">
+        <div class="logo">
+            <img src="/images/logo-removebg-preview.png" alt="App logo">
+        </div>
+    
+        <div class="auth-form">
+            <form action="/authorized/login" id="login" class="login" method="POST">
+                <h3 class="auth-heading">Login to your Account</h3>
+    
+                <!-- Message placeholder -->
+                <% if (message && message.length > 0) { %>
+                    <% if ((typeof messageType !== 'undefined' && messageType === "success") || message.includes("Account Created Successfully")) { %>
+                        <div class="auth-success" id="login-message" style="display: block; color: #10b981; background-color: #d1fae5; border: 1px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; text-align: center;">
+                          ✅ <%= message %>
+                        </div>
+                    <% } else { %>
+                        <div class="auth-error" id="login-error" style="display: block; color: #dc3545; background-color: #f8d7da; border: 1px solid #dc3545; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500; text-align: center;">
+                          ❌ <%= message %>
+                        </div>
+                    <% } %>
+                  <% } else { %>
+                    <div class="auth-error" id="login-error" style="display: none;">
+                        <%= locals.message %>
+                    </div>
+                 <% } %>
+    
+                <input type="text" name="email" placeholder="Email or Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <input type="submit" value="Sign in">
+            </form>
+            <div style="text-align:center; margin: 18px 0 0 0;">
+                <button id="face-login-btn" class="modern-modal-btn" style="width:100%; background:linear-gradient(135deg,#2563eb 0%,#764ba2 100%);color:#fff; text-decoration:none; display:inline-block; padding:12px; border-radius:8px; border:none; cursor:pointer;">🔵 Sign in with Face</button>
+            </div>
+    
+            <div class="google-auth">
+                <span class="google-auth-head">-or sign in with-</span>
+                <a href="/authorized/google" role="button">
+                    <i class="bi bi-google"></i>
+                </a>
+            </div>
+    
+            <div class="alternative-auth">
+                <span>Don't have an account? <a href="/authorized/signup">Sign up</a></span>
+                <br>
+                <span style="margin-top: 10px; display: inline-block;">
+                    <a href="/forgot-password" style="color: #2563eb; text-decoration: none; font-size: 14px;">Forgot your password?</a>
+                </span>
+            </div>
+        </div>
+    </div>
+    <!-- Face Login Modal -->
+    <div id="face-login-modal" class="modern-modal" style="display:none;">
+      <div class="modern-modal-content">
+        <span class="modern-modal-icon"><i class="bi bi-emoji-smile"></i></span>
+        <div class="modern-modal-title">Sign in with Face</div>
+        <div class="modern-modal-subtitle">Allow camera access and look at the camera.</div>
+        <video id="face-login-video" width="240" height="180" autoplay muted style="border-radius:12px; background:#222;"></video>
+        <div style="margin:10px 0;">
+          <button id="face-login-capture-btn" class="modern-modal-btn">Capture & Sign In</button>
+        </div>
+        <div id="face-login-error" style="color:#dc3545; font-size:0.95em; margin-bottom:8px; display:none;"></div>
+        <div class="modern-modal-cancel" id="face-login-cancel">Cancel</div>
+      </div>
+    </div>
+    
+</body>
+</html>
+<script>
+// --- Face Login ---
+const faceLoginBtn = document.getElementById('face-login-btn');
+const faceLoginModal = document.getElementById('face-login-modal');
+const faceLoginVideo = document.getElementById('face-login-video');
+const faceLoginCaptureBtn = document.getElementById('face-login-capture-btn');
+const faceLoginError = document.getElementById('face-login-error');
+const faceLoginCancel = document.getElementById('face-login-cancel');
+let faceLoginStream = null;
+
+// Check if face login elements exist before using them
+if (!faceLoginBtn || !faceLoginModal || !faceLoginVideo || !faceLoginCaptureBtn || !faceLoginError || !faceLoginCancel) {
+  console.warn('Face login elements not found, skipping face login setup');
+} else {
+  function closeFaceLoginModal() {
+    faceLoginModal.style.display = 'none';
+    if (faceLoginStream) {
+      faceLoginStream.getTracks().forEach(track => track.stop());
+      faceLoginStream = null;
+    }
+    faceLoginVideo.srcObject = null;
+    faceLoginError.style.display = 'none';
+  }
+  
+  faceLoginBtn.onclick = async function() {
+    faceLoginModal.style.display = 'block';
+    try {
+      faceLoginStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      faceLoginVideo.srcObject = faceLoginStream;
+    } catch {
+      faceLoginError.textContent = 'Camera access denied.';
+      faceLoginError.style.display = 'block';
+    }
+  };
+}
+if (faceLoginCaptureBtn && faceLoginBtn && faceLoginModal && faceLoginVideo && faceLoginError && faceLoginCancel) {
+  faceLoginCaptureBtn.onclick = async function() {
+    if (!faceLoginStream) return;
+    faceLoginCaptureBtn.disabled = true;
+    if (faceLoginError) faceLoginError.style.display = 'none';
+    
+    // Show processing state
+    faceLoginCaptureBtn.textContent = 'Processing...';
+    faceLoginCaptureBtn.style.background = '#6b7280';
+  
+  const canvas = document.createElement('canvas');
+  canvas.width = faceLoginVideo.videoWidth || 640;
+  canvas.height = faceLoginVideo.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(faceLoginVideo, 0, 0, canvas.width, canvas.height);
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+  
+  // Validate the data URL
+  if (!dataUrl || dataUrl === 'data:image/jpeg;base64,undefined' || dataUrl === 'data:image/jpeg;base64,') {
+    throw new Error('Failed to capture image from video');
+  }
+  
+  try {
+    console.log('Sending face authentication request...');
+    console.log('Image data length:', dataUrl.length);
+    
+    const res = await fetch('/deepface-auth/verify-login-json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageData: dataUrl })
+    });
+    
+    console.log('Response status:', res.status);
+    const data = await res.json();
+    console.log('Response data:', data);
+    
+    if (data.success) {
+      // Show welcome message for successful login
+      faceLoginError.style.color = '#10b981';
+      faceLoginError.innerHTML = `
+        <div style="text-align: center; padding: 15px;">
+          <div style="font-size: 1.2em; margin-bottom: 10px;">✅ ${data.message}</div>
+          <div style="font-size: 0.9em; color: #666;">
+            <div>Face authentication successful!</div>
+            <div>Welcome back to LunoWallet</div>
+            <div>Similarity: ${data.similarity || 'N/A'}</div>
+          </div>
+        </div>
+      `;
+      faceLoginError.style.display = 'block';
+      
+      // Handle successful face authentication
+      if (data.success && data.user_id) {
+        console.log('Face authentication successful, preparing redirect...');
+        console.log('User data:', data.user);
+        
+        // Store user data in session storage
+        sessionStorage.setItem('face_login_user_id', data.user_id);
+        sessionStorage.setItem('face_login_username', data.user?.username || '');
+        sessionStorage.setItem('face_login_email', data.user?.email || '');
+        sessionStorage.setItem('face_login_account', data.user?.account_number || '');
+        
+        // Wait a bit longer to ensure session is fully established
+        setTimeout(() => {
+          console.log('Redirecting to dashboard...');
+          window.location.href = data.redirect || '/';
+        }, 3000);
+      } else {
+        // Fallback redirect
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+      }
+    } else {
+      // Show error message for failed verification
+      faceLoginError.style.color = '#dc2626';
+      faceLoginError.innerHTML = `
+        <div style="text-align: center; padding: 15px;">
+          <div style="font-size: 1.2em; margin-bottom: 10px;">❌ ${data.message || 'Face authentication failed'}</div>
+          <div style="font-size: 0.9em; color: #666;">
+            <div>Please try again or use email/password login</div>
+          </div>
+        </div>
+      `;
+      faceLoginError.style.display = 'block';
+      
+      // Add fallback option
+      const fallbackDiv = document.createElement('div');
+      fallbackDiv.innerHTML = `
+        <div style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #ffc107;">
+          <p style="margin: 0 0 8px 0; color: #856404; font-size: 0.9em;">💡 Having trouble with face login?</p>
+          <button onclick="closeFaceLoginModal()" style="background: #ffc107; color: #856404; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85em; cursor: pointer;">
+            Use Email/Password Instead
+          </button>
+        </div>
+      `;
+      faceLoginError.parentNode.appendChild(fallbackDiv);
+    }
+  } catch (error) {
+    console.error('Face login error:', error);
+    faceLoginError.textContent = 'Network error. Please check your connection and try again.';
+    faceLoginError.style.display = 'block';
+  } finally {
+    if (faceLoginCaptureBtn) {
+      faceLoginCaptureBtn.disabled = false;
+      faceLoginCaptureBtn.textContent = 'Capture & Sign In';
+      faceLoginCaptureBtn.style.background = '';
+    }
+  }
+  };
+}
+if (faceLoginCancel && faceLoginBtn && faceLoginModal && faceLoginVideo && faceLoginError && faceLoginCaptureBtn) {
+  faceLoginCancel.onclick = closeFaceLoginModal;
+}
+</script>

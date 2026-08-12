@@ -1,0 +1,72 @@
+<%- include("partials/head") %>
+<body>
+    <main class="main">
+        <section class="main-card">
+            <div class="main-card-top">
+                <header class="user-head">
+                    <div class="user-head-left">
+                        <div class="user-name">
+                            <span>Market Place</span>
+                            <span class="date">Discover and purchase services</span>
+                        </div>
+                    </div>
+                    <div class="user-head-right">
+                        <a href="/" class="user-head-icon" role="button">
+                            <i class="bi bi-house"></i>
+                        </a>
+                    </div>
+                </header>
+            </div>
+            <div class="main-card-bottom" style="display:flex; flex-direction:column; gap:16px;">
+                <div class="settings-card" style="padding:14px;">
+                    <h3 style="margin-bottom: 16px; color: var(--text-primary);">Available Services</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div class="marketplace-item" style="padding: 16px; border: 1px solid var(--input-borders); border-radius: var(--br-2); background: var(--cards-container);">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <ion-icon name="card-outline" style="font-size: 24px; color: var(--primary-accent);"></ion-icon>
+                                <div>
+                                    <h4 style="margin: 0; color: var(--text-primary);">Premium Card</h4>
+                                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Enhanced features</p>
+                                </div>
+                            </div>
+                            <p style="margin: 0 0 12px 0; color: var(--text-secondary); font-size: 0.9rem;">Get premium banking features with our enhanced card service.</p>
+                            <button class="submit-btn" style="width: 100%; padding: 8px 12px; font-size: 0.9rem;">Learn More</button>
+                        </div>
+                        
+                        <div class="marketplace-item" style="padding: 16px; border: 1px solid var(--input-borders); border-radius: var(--br-2); background: var(--cards-container);">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <ion-icon name="shield-checkmark-outline" style="font-size: 24px; color: var(--primary-accent);"></ion-icon>
+                                <div>
+                                    <h4 style="margin: 0; color: var(--text-primary);">Security Plus</h4>
+                                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Advanced protection</p>
+                                </div>
+                            </div>
+                            <p style="margin: 0 0 12px 0; color: var(--text-secondary); font-size: 0.9rem;">Enhanced security features for your peace of mind.</p>
+                            <button class="submit-btn" style="width: 100%; padding: 8px 12px; font-size: 0.9rem;">Learn More</button>
+                        </div>
+                        
+                        <div class="marketplace-item" style="padding: 16px; border: 1px solid var(--input-borders); border-radius: var(--br-2); background: var(--cards-container);">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <ion-icon name="analytics-outline" style="font-size: 24px; color: var(--primary-accent);"></ion-icon>
+                                <div>
+                                    <h4 style="margin: 0; color: var(--text-primary);">Analytics Pro</h4>
+                                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Detailed insights</p>
+                                </div>
+                            </div>
+                            <p style="margin: 0 0 12px 0; color: var(--text-secondary); font-size: 0.9rem;">Advanced analytics and reporting for your finances.</p>
+                            <button class="submit-btn" style="width: 100%; padding: 8px 12px; font-size: 0.9rem;">Learn More</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <%- include("partials/floating-nav") %>
+    
+    <script src="/js/floatingNav.js"></script>
+    
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="https://kit.fontawesome.com/f9b4791500.js" crossorigin="anonymous"></script>
+</body>
+</html>

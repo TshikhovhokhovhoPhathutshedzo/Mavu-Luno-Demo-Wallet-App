@@ -1,0 +1,698 @@
+<%- include("partials/head") %>
+<link rel="stylesheet" href="/style/currency.css">
+<body>
+    <main class="main">
+        <section class="main-card">
+            <div class="main-card-top">
+                <header class="user-head">
+                    <div class="user-head-left">
+                        <div class="user-name">
+                            <span>Currency Exchange</span>
+                            <span class="date">Live rates • Real-time conversion • Global currencies</span>
+                        </div>
+                    </div>
+                    <div class="user-head-right">
+                        <a href="/" class="user-head-icon" role="button">
+                            <i class="bi bi-house"></i>
+                        </a>
+                    </div>
+                </header>
+            </div>
+            <div class="main-card-bottom">
+                <!-- App Currency Setting -->
+                <div class="currency-section">
+                    <div class="section-header">
+                        <h3><ion-icon name="settings-outline"></ion-icon> App Currency</h3>
+                        <p>Set your default currency for the entire app</p>
+                    </div>
+                    <div class="currency-setting-card">
+                        <div class="currency-selector">
+                            <label for="default-currency">Default Currency</label>
+                            <div class="currency-input-group">
+                                <select id="default-currency" class="currency-select">
+                                    <option value="ZAR">🇿🇦 ZAR - South African Rand</option>
+                                    <option value="USD">🇺🇸 USD - US Dollar</option>
+                                    <option value="EUR">🇪🇺 EUR - Euro</option>
+                                    <option value="GBP">🇬🇧 GBP - British Pound</option>
+                                    <option value="NGN">🇳🇬 NGN - Nigerian Naira</option>
+                                    <option value="KES">🇰🇪 KES - Kenyan Shilling</option>
+                                    <option value="CAD">🇨🇦 CAD - Canadian Dollar</option>
+                                    <option value="AUD">🇦🇺 AUD - Australian Dollar</option>
+                                    <option value="JPY">🇯🇵 JPY - Japanese Yen</option>
+                                    <option value="CHF">🇨🇭 CHF - Swiss Franc</option>
+                                    <option value="CNY">🇨🇳 CNY - Chinese Yuan</option>
+                                    <option value="INR">🇮🇳 INR - Indian Rupee</option>
+                                    <option value="BRL">🇧🇷 BRL - Brazilian Real</option>
+                                    <option value="MXN">🇲🇽 MXN - Mexican Peso</option>
+                                    <option value="RUB">🇷🇺 RUB - Russian Ruble</option>
+                                </select>
+                                <button id="save-default" class="save-btn">
+                                    <ion-icon name="checkmark-outline"></ion-icon>
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Currency Converter -->
+                <div class="currency-section">
+                    <div class="section-header">
+                        <h3><ion-icon name="swap-horizontal-outline"></ion-icon> Currency Converter</h3>
+                        <p>Convert between different currencies instantly</p>
+                    </div>
+                    <div class="converter-card">
+                        <div class="converter-form">
+                            <div class="amount-input">
+                                <label for="amt">Amount</label>
+                                <input id="amt" type="number" step="0.01" min="0" placeholder="0.00" class="amount-field" autocomplete="off" inputmode="decimal" style="pointer-events: auto; cursor: text; z-index: 1000; position: relative; background: white; color: black;">
+                            </div>
+                            
+                            <div class="currency-inputs">
+                                <div class="from-currency">
+                                    <label for="from">From</label>
+                                    <select id="from" class="currency-select">
+                                        <option value="ZAR">🇿🇦 ZAR - South African Rand</option>
+                                        <option value="USD">🇺🇸 USD - US Dollar</option>
+                                        <option value="EUR">🇪🇺 EUR - Euro</option>
+                                        <option value="GBP">🇬🇧 GBP - British Pound</option>
+                                        <option value="NGN">🇳🇬 NGN - Nigerian Naira</option>
+                                        <option value="KES">🇰🇪 KES - Kenyan Shilling</option>
+                                        <option value="CAD">🇨🇦 CAD - Canadian Dollar</option>
+                                        <option value="AUD">🇦🇺 AUD - Australian Dollar</option>
+                                        <option value="JPY">🇯🇵 JPY - Japanese Yen</option>
+                                        <option value="CHF">🇨🇭 CHF - Swiss Franc</option>
+                                        <option value="CNY">🇨🇳 CNY - Chinese Yuan</option>
+                                        <option value="INR">🇮🇳 INR - Indian Rupee</option>
+                                        <option value="BRL">🇧🇷 BRL - Brazilian Real</option>
+                                        <option value="MXN">🇲🇽 MXN - Mexican Peso</option>
+                                        <option value="RUB">🇷🇺 RUB - Russian Ruble</option>
+                                    </select>
+                                </div>
+                                
+                                <button id="swap-currencies" class="swap-btn">
+                                    <ion-icon name="swap-horizontal-outline"></ion-icon>
+                                </button>
+                                
+                                <div class="to-currency">
+                                    <label for="to">To</label>
+                                    <select id="to" class="currency-select">
+                                        <option value="USD">🇺🇸 USD - US Dollar</option>
+                                        <option value="EUR">🇪🇺 EUR - Euro</option>
+                                        <option value="GBP">🇬🇧 GBP - British Pound</option>
+                                        <option value="ZAR">🇿🇦 ZAR - South African Rand</option>
+                                        <option value="NGN">🇳🇬 NGN - Nigerian Naira</option>
+                                        <option value="KES">🇰🇪 KES - Kenyan Shilling</option>
+                                        <option value="CAD">🇨🇦 CAD - Canadian Dollar</option>
+                                        <option value="AUD">🇦🇺 AUD - Australian Dollar</option>
+                                        <option value="JPY">🇯🇵 JPY - Japanese Yen</option>
+                                        <option value="CHF">🇨🇭 CHF - Swiss Franc</option>
+                                        <option value="CNY">🇨🇳 CNY - Chinese Yuan</option>
+                                        <option value="INR">🇮🇳 INR - Indian Rupee</option>
+                                        <option value="BRL">🇧🇷 BRL - Brazilian Real</option>
+                                        <option value="MXN">🇲🇽 MXN - Mexican Peso</option>
+                                        <option value="RUB">🇷🇺 RUB - Russian Ruble</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <button id="convert" class="convert-btn">
+                                <ion-icon name="calculator-outline"></ion-icon>
+                                Convert
+                            </button>
+                        </div>
+                        
+                        <div id="fx-result" class="conversion-result">
+                            <div class="result-placeholder">
+                                <ion-icon name="arrow-forward-outline"></ion-icon>
+                                <span>Enter amount and click convert</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Major Currencies -->
+                <div class="currency-section">
+                    <div class="section-header">
+                        <h3><ion-icon name="trending-up-outline"></ion-icon> Major Currencies</h3>
+                        <p>Live exchange rates for major world currencies</p>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div id="connection-status" class="connection-indicator" style="display: none;">
+                                <ion-icon name="wifi-outline"></ion-icon>
+                                <span>Live Data</span>
+                            </div>
+                            <button id="refresh" class="refresh-btn">
+                                <ion-icon name="refresh-outline"></ion-icon>
+                                Refresh Rates
+                            </button>
+                        </div>
+                    </div>
+                    <div class="major-currencies-grid" id="major-currencies">
+                        <!-- Major currencies will be populated here -->
+                    </div>
+                </div>
+
+                <!-- All Exchange Rates -->
+                <div class="currency-section">
+                    <div class="section-header">
+                        <h3><ion-icon name="list-outline"></ion-icon> All Exchange Rates</h3>
+                        <p>Complete list of available exchange rates</p>
+                    </div>
+                    <div class="rates-grid" id="rates">
+                        <!-- All rates will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <%- include("partials/floating-nav") %>
+    <script src="/js/floatingNav.js"></script>
+    <script type="module">
+        import { CurrencyService } from '/js/currencyService.js';
+        
+        // Initialize currency service
+        CurrencyService.init();
+        
+        // DOM elements
+        const select = document.getElementById('default-currency');
+        const saveBtn = document.getElementById('save-default');
+        const ratesGrid = document.getElementById('rates');
+        const majorCurrenciesGrid = document.getElementById('major-currencies');
+        const refreshBtn = document.getElementById('refresh');
+        const connectionStatus = document.getElementById('connection-status');
+        const amt = document.getElementById('amt');
+        const from = document.getElementById('from');
+        const to = document.getElementById('to');
+        const convertBtn = document.getElementById('convert');
+        const swapBtn = document.getElementById('swap-currencies');
+        const fxResult = document.getElementById('fx-result');
+
+        // State management
+        let isLoading = false;
+        let currentRates = null;
+
+        // Render major currencies section
+        function renderMajorCurrencies(data) {
+            majorCurrenciesGrid.innerHTML = '';
+            const majorCurrencies = CurrencyService.getMajorCurrencies();
+            
+            majorCurrencies.forEach(code => {
+                if (data.rates && data.rates[code]) {
+                    const info = CurrencyService.getCurrencyInfo(code);
+                    const rate = CurrencyService.formatRate(data.rates[code]);
+                    
+                    const card = document.createElement('div');
+                    card.className = 'major-currency-card';
+                    card.innerHTML = `
+                        <div class="currency-header">
+                            <div class="currency-flag-large">${info.flag}</div>
+                            <div class="currency-info">
+                                <div class="currency-code">${code}</div>
+                                <div class="currency-name">${info.name}</div>
+                            </div>
+                        </div>
+                        <div class="currency-rate">${rate}</div>
+                        <div class="currency-base">1 ${data.base} = ${rate} ${code}</div>
+                    `;
+                    majorCurrenciesGrid.appendChild(card);
+                }
+            });
+        }
+
+        // Render all exchange rates
+        function renderAllRates(data) {
+            ratesGrid.innerHTML = '';
+            const allCurrencies = CurrencyService.getAllCurrencies();
+            
+            allCurrencies.forEach(code => {
+                if (data.rates && data.rates[code] && code !== data.base) {
+                    const info = CurrencyService.getCurrencyInfo(code);
+                    const rate = CurrencyService.formatRate(data.rates[code]);
+                    
+                    const card = document.createElement('div');
+                    card.className = 'rate-card';
+                    card.innerHTML = `
+                        <div class="rate-header">
+                            <div class="rate-flag">${info.flag}</div>
+                            <div class="rate-code">${code}</div>
+                        </div>
+                        <div class="rate-value">${rate}</div>
+                    `;
+                    ratesGrid.appendChild(card);
+                }
+            });
+        }
+
+        // Load and display rates
+        async function loadRates() {
+            if (isLoading) return;
+            
+            try {
+                isLoading = true;
+                refreshBtn.disabled = true;
+                refreshBtn.innerHTML = '<ion-icon name="refresh-outline"></ion-icon> Loading...';
+                
+            const base = select.value || 'ZAR';
+            const data = await CurrencyService.getRates(base);
+                currentRates = data;
+                
+                renderMajorCurrencies(data);
+                renderAllRates(data);
+                
+                // Update connection status
+                if (data.mock) {
+                    connectionStatus.style.display = 'flex';
+                    connectionStatus.className = 'connection-indicator offline';
+                    connectionStatus.innerHTML = '<ion-icon name="cloud-offline-outline"></ion-icon><span>Demo Data</span>';
+                    showMessage('Using demo rates (APIs unavailable). All features work normally!', 'info');
+                } else {
+                    connectionStatus.style.display = 'flex';
+                    connectionStatus.className = 'connection-indicator';
+                    connectionStatus.innerHTML = '<ion-icon name="wifi-outline"></ion-icon><span>Live Data</span>';
+                    showMessage('Live rates updated successfully!', 'success');
+                }
+                
+            } catch (error) {
+                console.error('Error loading rates:', error);
+                showMessage('Failed to load rates. Please check your internet connection.', 'error');
+            } finally {
+                isLoading = false;
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = '<ion-icon name="refresh-outline"></ion-icon> Refresh Rates';
+            }
+        }
+
+        // Show success/error/info messages
+        function showMessage(message, type) {
+            // Remove existing messages
+            const existingMessages = document.querySelectorAll('.success-message, .error-message, .info-message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'success' ? 'success-message' : 
+                                  type === 'error' ? 'error-message' : 'info-message';
+            
+            const iconName = type === 'success' ? 'checkmark-circle' : 
+                           type === 'error' ? 'alert-circle' : 'information-circle';
+            
+            messageDiv.innerHTML = `
+                <ion-icon name="${iconName}-outline"></ion-icon>
+                ${message}
+            `;
+            
+            // Insert after the first section
+            const firstSection = document.querySelector('.currency-section');
+            firstSection.insertAdjacentElement('afterend', messageDiv);
+            
+            // Auto-remove after 5 seconds for info messages, 3 seconds for others
+            const timeout = type === 'info' ? 5000 : 3000;
+            setTimeout(() => {
+                messageDiv.remove();
+            }, timeout);
+        }
+
+        // Convert currency
+        async function convertCurrency() {
+            const amount = Number(amt.value || 0);
+            if (!amount || amount <= 0) {
+                fxResult.innerHTML = `
+                    <div class="error-message">
+                        <ion-icon name="alert-circle-outline"></ion-icon>
+                        Please enter a valid amount
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                convertBtn.disabled = true;
+                convertBtn.innerHTML = '<ion-icon name="hourglass-outline"></ion-icon> Converting...';
+                
+                const result = await CurrencyService.convert(amount, from.value, to.value);
+                const fromInfo = CurrencyService.getCurrencyInfo(from.value);
+                const toInfo = CurrencyService.getCurrencyInfo(to.value);
+                
+                fxResult.className = 'conversion-result has-result';
+                fxResult.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1.5rem; font-weight: 700; color: #15803d; margin-bottom: 0.5rem;">
+                            <span style="font-size: 2rem;">${fromInfo.flag}</span>
+                            <span>${CurrencyService.formatCurrency(amount, from.value)}</span>
+                        </div>
+                        <div style="font-size: 1.2rem; color: #0369a1; margin-bottom: 0.5rem;">
+                            <ion-icon name="arrow-down-outline"></ion-icon>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1.5rem; font-weight: 700; color: #15803d;">
+                            <span style="font-size: 2rem;">${toInfo.flag}</span>
+                            <span>${CurrencyService.formatCurrency(result, to.value)}</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #6b7280; margin-top: 0.5rem;">
+                            Rate: 1 ${from.value} = ${CurrencyService.formatRate(result / amount)} ${to.value}
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error converting currency:', error);
+                fxResult.className = 'conversion-result';
+                fxResult.innerHTML = `
+                    <div class="error-message">
+                        <ion-icon name="alert-circle-outline"></ion-icon>
+                        Conversion failed. Please try again.
+                    </div>
+                `;
+            } finally {
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '<ion-icon name="calculator-outline"></ion-icon> Convert';
+            }
+        }
+
+        // Swap currencies
+        function swapCurrencies() {
+            const fromValue = from.value;
+            const toValue = to.value;
+            from.value = toValue;
+            to.value = fromValue;
+            
+            // Trigger conversion if amount is entered
+            if (amt.value) {
+                convertCurrency();
+            }
+        }
+
+        // Initialize the page
+        function init() {
+            console.log('Initializing currency page...');
+            const def = CurrencyService.getDefaultCurrency();
+            select.value = def;
+            from.value = def;
+            
+            // Ensure amount input is enabled and working
+            console.log('Setting up amount input...');
+            if (amt) {
+                // Completely reset and enable the input field
+                amt.disabled = false;
+                amt.readOnly = false;
+                amt.removeAttribute('disabled');
+                amt.removeAttribute('readonly');
+                amt.setAttribute('min', '0');
+                amt.setAttribute('step', '0.01');
+                
+                // Force styling to ensure it's clickable
+                amt.style.cssText = `
+                    pointer-events: auto !important;
+                    cursor: text !important;
+                    opacity: 1 !important;
+                    background: white !important;
+                    color: black !important;
+                    z-index: 9999 !important;
+                    position: relative !important;
+                    border: 2px solid #d1d5db !important;
+                    border-radius: 8px !important;
+                    padding: 1rem !important;
+                    font-size: 1.1rem !important;
+                    font-weight: 600 !important;
+                    width: 100% !important;
+                    max-width: 200px !important;
+                `;
+                
+                amt.tabIndex = 0;
+                
+                // Make sure all parent elements allow pointer events
+                const amountInputDiv = amt.parentElement;
+                if (amountInputDiv) {
+                    amountInputDiv.style.cssText = `
+                        pointer-events: auto !important;
+                        z-index: 9998 !important;
+                        position: relative !important;
+                    `;
+                }
+                
+                const converterForm = document.querySelector('.converter-form');
+                if (converterForm) {
+                    converterForm.style.cssText = `
+                        pointer-events: auto !important;
+                        z-index: 9997 !important;
+                        position: relative !important;
+                    `;
+                }
+                
+                const converterCard = document.querySelector('.converter-card');
+                if (converterCard) {
+                    converterCard.style.cssText = `
+                        pointer-events: auto !important;
+                        z-index: 9996 !important;
+                        position: relative !important;
+                    `;
+                }
+                
+                console.log('Amount input enabled:', {
+                    disabled: amt.disabled,
+                    readOnly: amt.readOnly,
+                    value: amt.value,
+                    placeholder: amt.placeholder,
+                    tabIndex: amt.tabIndex
+                });
+                
+                // Add event listeners with validation
+                amt.addEventListener('focus', (e) => {
+                    e.target.style.borderColor = '#3b82f6';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                });
+                
+                amt.addEventListener('blur', (e) => {
+                    e.target.style.borderColor = '#d1d5db';
+                    e.target.style.boxShadow = 'none';
+                });
+                
+                amt.addEventListener('input', (e) => {
+                    let value = parseFloat(e.target.value);
+                    
+                    // Prevent negative values
+                    if (value < 0) {
+                        e.target.value = '0';
+                        showMessage('Negative values are not allowed. Set to 0.', 'error');
+                        return;
+                    }
+                    
+                    // Auto-convert if value is valid
+                    if (value > 0) {
+                        convertCurrency();
+                    } else {
+                        fxResult.className = 'conversion-result';
+                        fxResult.innerHTML = `
+                            <div class="result-placeholder">
+                                <ion-icon name="arrow-forward-outline"></ion-icon>
+                                <span>Enter amount and click convert</span>
+                            </div>
+                        `;
+                    }
+                });
+                
+                amt.addEventListener('keydown', (e) => {
+                    // Prevent negative sign
+                    if (e.key === '-' || e.key === 'e' || e.key === 'E') {
+                        e.preventDefault();
+                        showMessage('Negative values and scientific notation are not allowed.', 'error');
+                        return;
+                    }
+                });
+                
+                amt.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.target.focus();
+                    e.target.select();
+                });
+                
+                // Add paste event to prevent negative values
+                amt.addEventListener('paste', (e) => {
+                    setTimeout(() => {
+                        let value = parseFloat(e.target.value);
+                        if (value < 0) {
+                            e.target.value = '0';
+                            showMessage('Negative values are not allowed. Set to 0.', 'error');
+                        }
+                    }, 10);
+                });
+                
+                // Test if input is actually working
+                setTimeout(() => {
+                    amt.focus();
+                    console.log('Amount input focused after timeout');
+                }, 1000);
+                
+            } else {
+                console.error('Amount input element not found!');
+            }
+            
+            // Test the service first
+            console.log('Testing currency service...');
+            CurrencyService.getRates('ZAR').then(data => {
+                console.log('Currency service test successful:', data);
+                loadRates();
+            }).catch(error => {
+                console.error('Currency service test failed:', error);
+                // Still try to load rates (will use mock data)
+            loadRates();
+            });
+        }
+
+        // Event listeners
+        if (saveBtn) {
+            saveBtn.onclick = (e) => {
+                e.preventDefault();
+                console.log('Save button clicked, selected currency:', select.value);
+                try {
+                    CurrencyService.setDefaultCurrency(select.value);
+                    from.value = select.value;
+                    loadRates();
+                    showMessage('Default currency updated successfully!', 'success');
+                    console.log('Default currency saved successfully');
+                } catch (error) {
+                    console.error('Error saving default currency:', error);
+                    showMessage('Error saving currency. Please try again.', 'error');
+                }
+            };
+            console.log('Save button event listener added');
+        } else {
+            console.error('Save button element not found!');
+        }
+
+        refreshBtn.onclick = loadRates;
+        convertBtn.onclick = convertCurrency;
+        swapBtn.onclick = swapCurrencies;
+        
+
+        // Real-time conversion on amount change
+        if (amt) {
+            amt.addEventListener('input', (e) => {
+                console.log('Amount input event:', e.target.value);
+                if (amt.value && !isNaN(amt.value) && amt.value > 0) {
+                    convertCurrency();
+                } else {
+                    fxResult.className = 'conversion-result';
+                    fxResult.innerHTML = `
+                        <div class="result-placeholder">
+                            <ion-icon name="arrow-forward-outline"></ion-icon>
+                            <span>Enter amount and click convert</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            amt.addEventListener('keydown', (e) => {
+                console.log('Amount keydown event:', e.key);
+            });
+            
+            amt.addEventListener('keyup', (e) => {
+                console.log('Amount keyup event:', e.key);
+            });
+        }
+
+        // Auto-convert when currency changes
+        from.addEventListener('change', () => {
+            if (amt.value) convertCurrency();
+        });
+
+        to.addEventListener('change', () => {
+            if (amt.value) convertCurrency();
+        });
+
+        // Function to detect and fix blocking elements
+        function detectAndFixBlockingElements() {
+            console.log('Detecting blocking elements...');
+            
+            // Check for elements with high z-index that might be blocking
+            const allElements = document.querySelectorAll('*');
+            const blockingElements = [];
+            
+            allElements.forEach(el => {
+                const computedStyle = window.getComputedStyle(el);
+                const zIndex = parseInt(computedStyle.zIndex);
+                const position = computedStyle.position;
+                
+                if (zIndex > 5000 && (position === 'fixed' || position === 'absolute')) {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.width > 100 && rect.height > 100) {
+                        blockingElements.push({
+                            element: el,
+                            zIndex: zIndex,
+                            position: position,
+                            rect: rect,
+                            className: el.className,
+                            id: el.id
+                        });
+                    }
+                }
+            });
+            
+            console.log('Potential blocking elements:', blockingElements);
+            
+            // Fix sidebar overlay if it's blocking
+            const sidebarOverlay = document.querySelector('.sidebar-overlay');
+            if (sidebarOverlay) {
+                const overlayStyle = window.getComputedStyle(sidebarOverlay);
+                if (overlayStyle.visibility === 'visible' || overlayStyle.opacity > 0) {
+                    console.log('Sidebar overlay is active, removing it');
+                    sidebarOverlay.style.visibility = 'hidden';
+                    sidebarOverlay.style.opacity = '0';
+                    sidebarOverlay.style.pointerEvents = 'none';
+                }
+            }
+            
+            // Ensure currency section is accessible
+            const currencySections = document.querySelectorAll('.currency-section');
+            currencySections.forEach(section => {
+                section.style.zIndex = '10000';
+                section.style.pointerEvents = 'auto';
+                section.style.position = 'relative';
+            });
+            
+            console.log('Blocking elements detection complete');
+        }
+
+        // Initialize on page load
+        init();
+        
+        // Detect and fix blocking elements
+        detectAndFixBlockingElements();
+        
+        // Additional initialization to ensure input works
+        document.addEventListener('DOMContentLoaded', function() {
+            if (amt) {
+                // Ensure input field is properly enabled
+                amt.disabled = false;
+                amt.readOnly = false;
+                amt.removeAttribute('disabled');
+                amt.removeAttribute('readonly');
+                amt.setAttribute('min', '0');
+                
+                // Apply styling to ensure it's clickable
+                amt.style.cssText = `
+                    pointer-events: auto !important;
+                    cursor: text !important;
+                    opacity: 1 !important;
+                    background: white !important;
+                    color: black !important;
+                    z-index: 9999 !important;
+                    position: relative !important;
+                    border: 2px solid #d1d5db !important;
+                    border-radius: 8px !important;
+                    padding: 1rem !important;
+                    font-size: 1.1rem !important;
+                    font-weight: 600 !important;
+                    width: 100% !important;
+                    max-width: 200px !important;
+                    user-select: text !important;
+                    -webkit-user-select: text !important;
+                    -moz-user-select: text !important;
+                    -ms-user-select: text !important;
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LunoVoice AI - Enhanced Voice Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .voice-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .voice-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .voice-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .voice-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+        }
+        
+        .voice-controls {
+            padding: 30px;
+        }
+        
+        .voice-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .voice-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .voice-button.listening {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-connected { background-color: #28a745; }
+        .status-disconnected { background-color: #dc3545; }
+        .status-connecting { background-color: #ffc107; }
+        
+        .command-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .command-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .financial-context {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .context-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .context-item:last-child {
+            border-bottom: none;
+        }
+        
+        .response-area {
+            min-height: 200px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px dashed #dee2e6;
+        }
+        
+        .response-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #495057;
+        }
+        
+        .typing-indicator {
+            display: none;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .typing-indicator.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="voice-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="voice-card">
+                        <!-- Header -->
+                        <div class="voice-header">
+                            <div class="voice-avatar">
+                                <i class="fas fa-microphone"></i>
+                            </div>
+                            <h2>Nia - Your AI Voice Assistant</h2>
+                            <p class="mb-0">Enhanced with Gemini Live API for real-time conversation</p>
+                            <div class="mt-3">
+                                <span id="connectionStatus" class="status-indicator status-disconnected"></span>
+                                <span id="statusText">Disconnected</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Voice Controls -->
+                        <div class="voice-controls text-center">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button id="voiceButton" class="voice-button" onclick="toggleVoice()">
+                                        <i class="fas fa-microphone"></i>
+                                    </button>
+                                    <p class="mt-3 mb-0">Click to start/stop voice conversation</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <button id="testButton" class="btn btn-outline-primary btn-lg" onclick="testVoice()">
+                                        <i class="fas fa-play"></i> Test Voice
+                                    </button>
+                                    <p class="mt-3 mb-0">Test with sample commands</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Response Area -->
+                            <div class="response-area">
+                                <h5><i class="fas fa-comments"></i> AI Response</h5>
+                                <div id="responseText" class="response-text">
+                                    Click the microphone to start a conversation with Nia, your AI voice assistant.
+                                    <br><br>
+                                    <strong>Available Commands:</strong>
+                                    <ul class="mt-2">
+                                        <li>"What's my balance?"</li>
+                                        <li>"Show my transactions"</li>
+                                        <li>"Pay electricity bill"</li>
+                                        <li>"Set daily limit to R5000"</li>
+                                        <li>"What's my credit score?"</li>
+                                    </ul>
+                                </div>
+                                <div id="typingIndicator" class="typing-indicator">
+                                    <i class="fas fa-circle-notch fa-spin"></i> Nia is thinking...
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Financial Context -->
+                        <div class="financial-context">
+                            <h5><i class="fas fa-chart-line"></i> Your Financial Context</h5>
+                            <div class="context-item">
+                                <span><strong>Balance:</strong></span>
+                                <span id="userBalance"><%= context.balance ? context.balance.formatted_balance : 'R0.00' %></span>
+                            </div>
+                            <div class="context-item">
+                                <span><strong>Credit Score:</strong></span>
+                                <span id="userCreditScore"><%= context.credit_score ? context.credit_score.score : 'Not available' %></span>
+                            </div>
+                            <div class="context-item">
+                                <span><strong>Recent Transactions:</strong></span>
+                                <span id="transactionCount"><%= context.recent_transactions ? context.recent_transactions.length : 0 %></span>
+                            </div>
+                            <div class="context-item">
+                                <span><strong>Daily Limits:</strong></span>
+                                <span id="dailyLimits">Active</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Voice Commands -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-list"></i> Voice Commands</h5>
+                                <div class="command-list">
+                                    <% if (commands.balance) { %>
+                                        <div class="command-item">
+                                            <strong>Balance:</strong><br>
+                                            <% commands.balance.forEach(cmd => { %>
+                                                <small class="text-muted">• "<%= cmd %>"</small><br>
+                                            <% }); %>
+                                        </div>
+                                    <% } %>
+                                    
+                                    <% if (commands.transactions) { %>
+                                        <div class="command-item">
+                                            <strong>Transactions:</strong><br>
+                                            <% commands.transactions.forEach(cmd => { %>
+                                                <small class="text-muted">• "<%= cmd %>"</small><br>
+                                            <% }); %>
+                                        </div>
+                                    <% } %>
+                                    
+                                    <% if (commands.bills) { %>
+                                        <div class="command-item">
+                                            <strong>Bills:</strong><br>
+                                            <% commands.bills.forEach(cmd => { %>
+                                                <small class="text-muted">• "<%= cmd %>"</small><br>
+                                            <% }); %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-cog"></i> Voice Settings</h5>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Voice Speed</label>
+                                    <input type="range" class="form-range" id="voiceSpeed" min="0.5" max="2" step="0.1" value="1">
+                                    <small class="text-muted">Speed: <span id="speedValue">1.0</span>x</small>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Voice Volume</label>
+                                    <input type="range" class="form-range" id="voiceVolume" min="0" max="1" step="0.1" value="0.8">
+                                    <small class="text-muted">Volume: <span id="volumeValue">80</span>%</small>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Voice Selection</label>
+                                    <select class="form-select" id="voiceSelect">
+                                        <option value="auto">Auto-select best voice</option>
+                                    </select>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="resetSettings()">
+                                        <i class="fas fa-undo"></i> Reset
+                                    </button>
+                                    <button class="btn btn-outline-primary btn-sm" onclick="testSpeech()">
+                                        <i class="fas fa-volume-up"></i> Test Voice
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="stopSpeech()">
+                                        <i class="fas fa-stop"></i> Stop
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let isListening = false;
+        let recognition = null;
+        let voiceSessionActive = false;
+        
+        // Initialize voice recognition
+        function initVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+            } else if ('SpeechRecognition' in window) {
+                recognition = new SpeechRecognition();
+            } else {
+                console.error('Speech recognition not supported');
+                return false;
+            }
+            
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+            
+            recognition.onstart = function() {
+                console.log('Voice recognition started');
+                isListening = true;
+                updateVoiceButton();
+            };
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                console.log('Voice input:', transcript);
+                processVoiceInput(transcript);
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Voice recognition error:', event.error);
+                isListening = false;
+                updateVoiceButton();
+            };
+            
+            recognition.onend = function() {
+                console.log('Voice recognition ended');
+                isListening = false;
+                updateVoiceButton();
+            };
+            
+            return true;
+        }
+        
+        // Toggle voice listening
+        function toggleVoice() {
+            if (!recognition) {
+                if (!initVoiceRecognition()) {
+                    alert('Voice recognition not supported in this browser');
+                    return;
+                }
+            }
+            
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+        
+        // Update voice button appearance
+        function updateVoiceButton() {
+            const button = document.getElementById('voiceButton');
+            const icon = button.querySelector('i');
+            
+            if (isListening) {
+                button.classList.add('listening');
+                icon.className = 'fas fa-stop';
+            } else {
+                button.classList.remove('listening');
+                icon.className = 'fas fa-microphone';
+            }
+        }
+        
+        // Process voice input
+        async function processVoiceInput(transcript) {
+            const responseArea = document.getElementById('responseText');
+            const typingIndicator = document.getElementById('typingIndicator');
+            
+            // Show what was heard
+            responseArea.innerHTML = `<strong>You said:</strong> "${transcript}"<br><br>`;
+            typingIndicator.classList.add('show');
+            
+            try {
+                // Send to voice service
+                const response = await fetch('/api/voice-ai/process-command', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        command: transcript
+                    })
+                });
+                
+                // Check if response is ok and content type is JSON
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    throw new Error(`Expected JSON response but got: ${contentType}. Response: ${text.substring(0, 100)}...`);
+                }
+                
+                const result = await response.json();
+                typingIndicator.classList.remove('show');
+                
+                if (result.success) {
+                    // Display the AI response - extract the actual text
+                    const aiResponse = typeof result.response === 'string' 
+                        ? result.response 
+                        : result.response?.response || result.response?.text || result.response?.message || JSON.stringify(result.response);
+                    responseArea.innerHTML += `<strong>Nia:</strong> ${aiResponse}`;
+                    
+                    // Convert response to speech
+                    speakText(aiResponse);
+                } else {
+                    responseArea.innerHTML += `<strong>Error:</strong> ${result.error}`;
+                    speakText(`Sorry, I encountered an error: ${result.error}`);
+                }
+            } catch (error) {
+                typingIndicator.classList.remove('show');
+                responseArea.innerHTML += `<strong>Error:</strong> Failed to process command: ${error.message}`;
+                speakText(`Sorry, I couldn't process your request: ${error.message}`);
+            }
+        }
+        
+        // Ultra-realistic text-to-speech function with advanced voice synthesis
+        function speakText(text) {
+            // Ensure text is a string
+            if (typeof text !== 'string') {
+                if (typeof text === 'object' && text !== null) {
+                    // Try to extract text from response object
+                    text = text.response || text.text || text.message || JSON.stringify(text);
+                } else {
+                    text = String(text);
+                }
+            }
+            
+            if ('speechSynthesis' in window) {
+                // Stop any current speech
+                speechSynthesis.cancel();
+                
+                // Wait for voices to load
+                if (speechSynthesis.getVoices().length === 0) {
+                    speechSynthesis.addEventListener('voiceschanged', () => {
+                        speakText(text);
+                    });
+                    return;
+                }
+                
+                const voices = speechSynthesis.getVoices();
+                console.log('🎤 Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+                
+                // Ultra-realistic voice selection with priority order
+                const ultraRealisticVoices = [
+                    // Windows 11/10 Neural Voices (most realistic)
+                    'Microsoft Zira Desktop - English (United States)',
+                    'Microsoft Hazel Desktop - English (Great Britain)',
+                    'Microsoft Susan Desktop - English (United States)',
+                    'Microsoft Mark Desktop - English (United States)',
+                    
+                    // Google Cloud Voices (very realistic)
+                    'Google UK English Female',
+                    'Google US English Female',
+                    'Google UK English Male',
+                    'Google US English Male',
+                    
+                    // macOS Neural Voices
+                    'Samantha',
+                    'Karen',
+                    'Alex',
+                    'Victoria',
+                    
+                    // Windows SAPI5 Voices
+                    'Microsoft Zira Desktop',
+                    'Microsoft Hazel Desktop',
+                    'Microsoft Susan Desktop',
+                    'Microsoft Mark Desktop',
+                    'Zira',
+                    'Hazel',
+                    'Susan',
+                    'Mark',
+                    
+                    // Generic fallbacks
+                    'Female',
+                    'Woman',
+                    'English Female'
+                ];
+                
+                let selectedVoice = null;
+                
+                // Try to find the most realistic voice
+                for (const voiceName of ultraRealisticVoices) {
+                    selectedVoice = voices.find(voice => 
+                        voice.name === voiceName || 
+                        voice.name.includes(voiceName.split(' - ')[0]) ||
+                        voice.name.toLowerCase().includes(voiceName.toLowerCase().split(' - ')[0])
+                    );
+                    if (selectedVoice) {
+                        console.log(`🎯 Found ultra-realistic voice: ${selectedVoice.name}`);
+                        break;
+                    }
+                }
+                
+                // If still no voice, find any high-quality female voice
+                if (!selectedVoice) {
+                    selectedVoice = voices.find(voice => 
+                        (voice.name.toLowerCase().includes('female') ||
+                         voice.name.toLowerCase().includes('woman') ||
+                         voice.name.toLowerCase().includes('zira') ||
+                         voice.name.toLowerCase().includes('hazel') ||
+                         voice.name.toLowerCase().includes('samantha') ||
+                         voice.name.toLowerCase().includes('susan')) &&
+                        voice.lang.startsWith('en')
+                    );
+                }
+                
+                // Final fallback to any English voice
+                if (!selectedVoice) {
+                    selectedVoice = voices.find(voice => voice.lang.startsWith('en'));
+                }
+                
+                if (selectedVoice) {
+                    console.log(`🎤 Using voice: ${selectedVoice.name} (${selectedVoice.lang})`);
+                } else {
+                    console.log('🎤 Using default voice');
+                }
+                
+                // Create utterance with ultra-realistic settings
+                const utterance = new SpeechSynthesisUtterance(text);
+                
+                // Ultra-realistic voice configuration
+                utterance.voice = selectedVoice;
+                utterance.rate = 0.85; // Slower for more natural speech
+                utterance.volume = parseFloat(document.getElementById('voiceVolume').value);
+                utterance.pitch = 1.05; // Slightly higher for more natural sound
+                utterance.lang = 'en-ZA'; // South African English
+                
+                // Enhanced speech events
+                utterance.onstart = function() {
+                    console.log('🎤 Speaking with ultra-realistic voice:', text.substring(0, 50) + '...');
+                    console.log('🎵 Voice details:', {
+                        name: utterance.voice?.name || 'default',
+                        lang: utterance.voice?.lang || 'default',
+                        rate: utterance.rate,
+                        pitch: utterance.pitch,
+                        volume: utterance.volume
+                    });
+                };
+                
+                utterance.onend = function() {
+                    console.log('✅ Ultra-realistic speech completed');
+                };
+                
+                utterance.onerror = function(event) {
+                    console.error('❌ Speech synthesis error:', event.error);
+                };
+                
+                // Advanced natural speech with sentence-by-sentence processing
+                const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
+                
+                if (sentences.length > 1) {
+                    console.log(`🎵 Processing ${sentences.length} sentences with natural pauses`);
+                    
+                    let currentIndex = 0;
+                    const speakNext = () => {
+                        if (currentIndex < sentences.length) {
+                            const sentence = sentences[currentIndex].trim();
+                            const sentenceUtterance = new SpeechSynthesisUtterance(sentence);
+                            
+                            // Apply same settings to each sentence
+                            sentenceUtterance.voice = utterance.voice;
+                            sentenceUtterance.rate = utterance.rate;
+                            sentenceUtterance.volume = utterance.volume;
+                            sentenceUtterance.pitch = utterance.pitch;
+                            sentenceUtterance.lang = utterance.lang;
+                            
+                            sentenceUtterance.onstart = () => {
+                                console.log(`🎤 Speaking sentence ${currentIndex + 1}/${sentences.length}: ${sentence.substring(0, 30)}...`);
+                            };
+                            
+                            sentenceUtterance.onend = () => {
+                                currentIndex++;
+                                // Natural pause between sentences (300-500ms)
+                                const pause = Math.random() * 200 + 300;
+                                console.log(`⏸️ Natural pause: ${pause.toFixed(0)}ms`);
+                                setTimeout(speakNext, pause);
+                            };
+                            
+                            sentenceUtterance.onerror = (event) => {
+                                console.error(`❌ Sentence ${currentIndex + 1} error:`, event.error);
+                                currentIndex++;
+                                setTimeout(speakNext, 100);
+                            };
+                            
+                            speechSynthesis.speak(sentenceUtterance);
+                        } else {
+                            console.log('✅ All sentences completed with natural flow');
+                        }
+                    };
+                    
+                    speakNext();
+                } else {
+                    // Single sentence or short text
+                    speechSynthesis.speak(utterance);
+                }
+                
+            } else {
+                console.warn('❌ Speech synthesis not supported in this browser');
+                alert('Speech synthesis is not supported in your browser. Please use a modern browser like Chrome, Firefox, or Edge.');
+            }
+        }
+
+        // Listen for Gemini audio events
+        window.addEventListener('geminiAudioReady', function(event) {
+            const audioUrl = event.detail.audioUrl;
+            console.log('🎵 Playing Gemini realistic audio:', audioUrl);
+            
+            // Create and play audio element
+            const audio = new Audio(audioUrl);
+            audio.onloadeddata = function() {
+                console.log('🎵 Gemini audio loaded, playing...');
+                audio.play().catch(e => console.error('Audio play error:', e));
+            };
+            audio.onended = function() {
+                console.log('✅ Gemini audio finished playing');
+                URL.revokeObjectURL(audioUrl); // Clean up
+            };
+            audio.onerror = function(e) {
+                console.error('❌ Gemini audio error:', e);
+            };
+        });
+        
+        // Test voice with sample commands
+        async function testVoice() {
+            const testCommands = [
+                "What's my balance?",
+                "Show my recent transactions",
+                "What's my credit score?",
+                "Set daily limit to R5000"
+            ];
+            
+            const randomCommand = testCommands[Math.floor(Math.random() * testCommands.length)];
+            processVoiceInput(randomCommand);
+        }
+        
+        // Start voice session
+        async function startVoiceSession() {
+            try {
+                const response = await fetch('/api/voice-ai/start-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    voiceSessionActive = true;
+                    updateConnectionStatus('connected', 'Connected');
+                    console.log('Voice session started');
+                } else {
+                    console.error('Failed to start voice session:', result.error);
+                    updateConnectionStatus('disconnected', 'Failed to connect');
+                }
+            } catch (error) {
+                console.error('Error starting voice session:', error);
+                updateConnectionStatus('disconnected', 'Connection error');
+            }
+        }
+        
+        // Stop voice session
+        async function stopVoiceSession() {
+            try {
+                const response = await fetch('/api/voice-ai/stop-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    voiceSessionActive = false;
+                    updateConnectionStatus('disconnected', 'Disconnected');
+                    console.log('Voice session stopped');
+                }
+            } catch (error) {
+                console.error('Error stopping voice session:', error);
+            }
+        }
+        
+        // Update connection status
+        function updateConnectionStatus(status, text) {
+            const indicator = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('statusText');
+            
+            indicator.className = `status-indicator status-${status}`;
+            statusText.textContent = text;
+        }
+        
+        // Reset settings
+        function resetSettings() {
+            document.getElementById('voiceSpeed').value = 1;
+            document.getElementById('voiceVolume').value = 0.8;
+        }
+        
+        // Check voice service status
+        async function checkVoiceServiceStatus() {
+            try {
+                const response = await fetch('/api/voice-ai/status');
+                const result = await response.json();
+                
+                if (result.success && result.connected) {
+                    updateConnectionStatus('connected', 'Connected');
+                } else {
+                    updateConnectionStatus('disconnected', 'Service unavailable');
+                }
+            } catch (error) {
+                updateConnectionStatus('disconnected', 'Service error');
+            }
+        }
+        
+        // Load available voices
+        function loadVoices() {
+            const voices = speechSynthesis.getVoices();
+            console.log('Available voices:', voices.map(v => v.name));
+            
+            // Populate voice selection dropdown
+            const voiceSelect = document.getElementById('voiceSelect');
+            voiceSelect.innerHTML = '<option value="auto">Auto-select best voice</option>';
+            
+            voices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+            
+            return voices;
+        }
+        
+        // Test speech synthesis
+        function testSpeech() {
+            const testText = "Hello! I'm Nia, your AI voice assistant. How can I help you today?";
+            speakText(testText);
+        }
+        
+        // Stop speech synthesis
+        function stopSpeech() {
+            speechSynthesis.cancel();
+        }
+        
+        // Update voice settings display
+        function updateVoiceSettings() {
+            const speedValue = document.getElementById('speedValue');
+            const volumeValue = document.getElementById('volumeValue');
+            const speedSlider = document.getElementById('voiceSpeed');
+            const volumeSlider = document.getElementById('voiceVolume');
+            
+            speedValue.textContent = speedSlider.value;
+            volumeValue.textContent = Math.round(volumeSlider.value * 100);
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initVoiceRecognition();
+            checkVoiceServiceStatus();
+            loadVoices();
+            
+            // Load voices when they become available
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = loadVoices;
+            }
+            
+            // Add event listeners for voice settings
+            document.getElementById('voiceSpeed').addEventListener('input', updateVoiceSettings);
+            document.getElementById('voiceVolume').addEventListener('input', updateVoiceSettings);
+            
+            // Initialize voice settings display
+            updateVoiceSettings();
+            
+            // Auto-start voice session
+            setTimeout(startVoiceSession, 1000);
+            
+            // Welcome message
+            setTimeout(() => {
+                speakText("Hello! I'm Nia, your AI voice assistant. I'm ready to help you with your financial needs. Try asking me about your balance, transactions, or any other financial questions!");
+            }, 2000);
+            
+            // Check status every 30 seconds
+            setInterval(checkVoiceServiceStatus, 30000);
+        });
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (voiceSessionActive) {
+                stopVoiceSession();
+            }
+        });
+    </script>
+
+    <!-- Navigation Bar -->
+    <%- include("partials/floating-nav") %>
+    
+    <script src="/js/floatingNav.js"></script>
+</body>
+</html>

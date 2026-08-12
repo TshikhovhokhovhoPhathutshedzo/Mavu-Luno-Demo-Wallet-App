@@ -1,0 +1,2460 @@
+<%- include("partials/head") %>
+<body>
+    <main class="main">
+        <section class="main-card">
+            <div class="main-card-top">
+                <!-- heading -->
+                <header class="user-head">
+                    <div class="user-head-left">
+                        <div class="user-name">
+                            <span>Settings</span>
+                            <span class="date">Manage your account preferences</span>
+                        </div>
+                    </div>
+                    <div class="user-head-right">
+                        <a href="/" class="user-head-icon" role="button">
+                            <i class="bi bi-house"></i>
+                        </a>
+                    </div>
+                </header>
+            </div>
+            
+            <div class="main-card-bottom">
+                <!-- SECURITY SECTION -->
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <div class="settings-icon">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                        <div class="settings-title">
+                            <h3>Security</h3>
+                            <p>Manage your security settings</p>
+                        </div>
+                        <button class="settings-edit-btn" id="edit-security-btn">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </div>
+                    <div class="settings-content">
+                        <div class="settings-item">
+                            <span class="settings-label">2FA</span>
+                            <span class="settings-value">Enabled</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Email Alerts</span>
+                            <span class="settings-value">On</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Security Questions</span>
+                            <span class="settings-value">Set</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- NOTIFY SECTION -->
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <div class="settings-icon">
+                            <i class="bi bi-bell"></i>
+                        </div>
+                        <div class="settings-title">
+                            <h3>Notifications</h3>
+                            <p>Manage your notification preferences</p>
+                        </div>
+                        <button class="settings-edit-btn" id="edit-notify-btn">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </div>
+                    <div class="settings-content">
+                        <div class="settings-item">
+                            <span class="settings-label">Push Notifications</span>
+                            <span class="settings-value">Enabled</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">In-App Alerts</span>
+                            <span class="settings-value">On</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Email Notifications</span>
+                            <span class="settings-value">Active</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- APPEARANCE / THEME SECTION -->
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <div class="settings-icon">
+                            <i class="bi bi-moon-stars"></i>
+                        </div>
+                        <div class="settings-title">
+                            <h3>Appearance</h3>
+                            <p>Switch between light and dark mode</p>
+                        </div>
+                        <div class="settings-edit-btn" style="display:flex; align-items:center; gap:8px;">
+                            <label class="switch">
+                                <input type="checkbox" id="theme-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-content">
+                        <div class="settings-item">
+                            <span class="settings-label">Theme</span>
+                            <span class="settings-value" id="theme-label">Light</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- FACE LOGIN SECTION -->
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <div class="settings-icon">
+                            <i class="bi bi-camera"></i>
+                        </div>
+                        <div class="settings-title">
+                            <h3>Face Recognition</h3>
+                            <p>Set up face login for quick access</p>
+                        </div>
+                        <button class="settings-edit-btn" id="edit-face-btn">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </div>
+                    <div class="settings-content">
+                        <div class="settings-item">
+                            <span class="settings-label">Face Login</span>
+                            <span class="settings-value" id="face-status">Not Set</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Face Auth Status</span>
+                            <span class="settings-value" id="face-auth-status">Checking...</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Last Updated</span>
+                            <span class="settings-value" id="face-last-updated">Never</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Security Level</span>
+                            <span class="settings-value">High</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- BEHAVIORAL BIOMETRICS SECTION -->
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <div class="settings-icon">
+                            <i class="bi bi-fingerprint"></i>
+                        </div>
+                        <div class="settings-title">
+                            <h3>Behavioral Biometrics</h3>
+                            <p>Pattern authentication for enhanced security</p>
+                        </div>
+                        <button class="settings-edit-btn" id="edit-pattern-btn">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </div>
+                    <div class="settings-content">
+                        <div class="settings-item">
+                            <span class="settings-label">Pattern Login</span>
+                            <span class="settings-value" id="pattern-status">Not Set</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Pattern Type</span>
+                            <span class="settings-value" id="pattern-type">None</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Learning Status</span>
+                            <span class="settings-value">Inactive</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- PROFILE SECTION -->
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <div class="settings-icon">
+                            <i class="bi bi-person-circle"></i>
+                        </div>
+                        <div class="settings-title">
+                            <h3>Profile</h3>
+                            <p>Manage your personal information</p>
+                        </div>
+                        <button class="settings-edit-btn" id="edit-profile-btn">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </div>
+                    <div class="settings-content">
+                        <div class="settings-item">
+                            <span class="settings-label">Email</span>
+                            <span class="settings-value"><%- user.email ? user.email.replace(/[<>]/g, '') : '' %></span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Username</span>
+                            <span class="settings-value"><%- user.username ? user.username.replace(/[<>]/g, '') : '' %></span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Account Number</span>
+                            <span class="settings-value"><%- user.account_number || 'Not assigned' %></span>
+                        </div>
+                    </div>
+                </div>
+    
+                <!-- PASSWORD SECTION -->
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <div class="settings-icon">
+                            <i class="bi bi-key"></i>
+                        </div>
+                        <div class="settings-title">
+                            <h3>Password</h3>
+                            <p>Manage your account password</p>
+                        </div>
+                        <button class="settings-edit-btn" id="edit-password-btn">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </div>
+                    <div class="settings-content">
+                        <div class="settings-item">
+                            <span class="settings-label">Password</span>
+                            <span class="settings-value">••••••••</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Last Changed</span>
+                            <span class="settings-value" id="password-last-changed">Never</span>
+                        </div>
+                        <div class="settings-item">
+                            <span class="settings-label">Strength</span>
+                            <span class="settings-value">Strong</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+  </section>
+</main>
+<!-- Modals -->
+<div id="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.35); z-index:9999;"></div>
+<div id="security-modal" class="modern-modal" style="display:none;">
+  <div class="modern-modal-content">
+    <span class="modern-modal-icon"><i class="bi bi-shield-lock"></i></span>
+    <div class="modern-modal-title">Edit Security Settings</div>
+    <div class="modern-modal-subtitle">Update your security preferences below.</div>
+    <form>
+      <div class="modern-modal-group">
+        <label class="modern-modal-label">2FA</label>
+        <div class="modern-modal-radio-group">
+          <label class="modern-radio"><input type="radio" name="2fa" checked> Enabled</label>
+          <label class="modern-radio"><input type="radio" name="2fa"> Disabled</label>
+        </div>
+      </div>
+      <div class="modern-modal-group">
+        <label class="modern-modal-label">Email Alerts</label>
+        <div class="modern-modal-radio-group">
+          <label class="modern-radio"><input type="radio" name="email_alerts" checked> On</label>
+          <label class="modern-radio"><input type="radio" name="email_alerts"> Off</label>
+        </div>
+      </div>
+      <div class="modern-modal-group">
+        <label class="modern-modal-label">Security Question 1</label>
+        <select class="modern-modal-input" name="security_question_1">
+          <option value="pet">What is the name of your first pet?</option>
+          <option value="school">What was the name of your primary school?</option>
+          <option value="city">In what city were you born?</option>
+          <option value="mother">What is your mother's maiden name?</option>
+          <option value="car">What was your first car?</option>
+        </select>
+        <input type="text" class="modern-modal-input" name="security_answer_1" placeholder="Your answer">
+      </div>
+      <div class="modern-modal-group">
+        <label class="modern-modal-label">Security Question 2</label>
+        <select class="modern-modal-input" name="security_question_2">
+          <option value="pet">What is the name of your first pet?</option>
+          <option value="school">What was the name of your primary school?</option>
+          <option value="city">In what city were you born?</option>
+          <option value="mother">What is your mother's maiden name?</option>
+          <option value="car">What was your first car?</option>
+        </select>
+        <input type="text" class="modern-modal-input" name="security_answer_2" placeholder="Your answer">
+      </div>
+      <div class="modern-modal-group">
+        <label class="modern-modal-label">Security Question 3</label>
+        <select class="modern-modal-input" name="security_question_3">
+          <option value="pet">What is the name of your first pet?</option>
+          <option value="school">What was the name of your primary school?</option>
+          <option value="city">In what city were you born?</option>
+          <option value="mother">What is your mother's maiden name?</option>
+          <option value="car">What was your first car?</option>
+        </select>
+        <input type="text" class="modern-modal-input" name="security_answer_3" placeholder="Your answer">
+      </div>
+      <button type="submit" class="modern-modal-btn">Save</button>
+      <div class="modern-modal-cancel" onclick="closeModal()">Cancel</div>
+    </form>
+  </div>
+</div>
+<div id="notify-modal" class="modern-modal" style="display:none;">
+  <div class="modern-modal-content">
+    <span class="modern-modal-icon"><i class="bi bi-bell"></i></span>
+    <div class="modern-modal-title">Edit Notification Settings</div>
+    <div class="modern-modal-subtitle">Manage your notification preferences.</div>
+    <form>
+      <div class="modern-modal-group">
+        <label class="modern-modal-label">Push Notifications</label>
+        <div class="modern-modal-radio-group">
+          <label class="modern-radio"><input type="radio" name="push" checked> Enabled</label>
+          <label class="modern-radio"><input type="radio" name="push"> Disabled</label>
+        </div>
+      </div>
+      <div class="modern-modal-group">
+        <label class="modern-modal-label">In-App Alerts</label>
+        <div class="modern-modal-radio-group">
+          <label class="modern-radio"><input type="radio" name="inapp" checked> On</label>
+          <label class="modern-radio"><input type="radio" name="inapp"> Off</label>
+        </div>
+      </div>
+      <button type="submit" class="modern-modal-btn">Save</button>
+      <div class="modern-modal-cancel" onclick="closeModal()">Cancel</div>
+    </form>
+  </div>
+</div>
+<div id="profile-modal" class="modern-modal" style="display:none;">
+  <div class="modern-modal-content">
+    <span class="modern-modal-icon"><i class="bi bi-person-circle"></i></span>
+    <div class="modern-modal-title">Edit Profile</div>
+    <div class="modern-modal-subtitle">Update your profile information.</div>
+    <form>
+      <div class="modern-modal-group">
+        <label class="modern-modal-label">Email</label>
+        <input type="email" class="modern-modal-input" id="profile-email" value="<%- user.email ? user.email.replace(/[<>]/g, '') : '' %>" autocomplete="email">
+        <div id="email-error" class="input-error" style="color:#dc3545; font-size:0.9em; display:none;"></div>
+      </div>
+      <div class="modern-modal-group">
+        <label class="modern-modal-label">Username</label>
+        <input type="text" class="modern-modal-input" id="profile-username" value="<%- user.username ? user.username.replace(/[<>]/g, '') : '' %>" autocomplete="username">
+        <div id="username-error" class="input-error" style="color:#dc3545; font-size:0.9em; display:none;"></div>
+      </div>
+      <button type="submit" class="modern-modal-btn" id="profile-save-btn" disabled>Save</button>
+      <div class="modern-modal-cancel" onclick="closeModal()">Cancel</div>
+    </form>
+  </div>
+</div>
+
+<!-- Password Change Modal -->
+<div id="password-modal" class="modern-modal" style="display:none;">
+  <div class="modern-modal-content">
+    <span class="modern-modal-icon"><i class="bi bi-key"></i></span>
+    <div class="modern-modal-title">Change Password</div>
+    <div class="modern-modal-subtitle">Update your account password securely.</div>
+    <form id="password-form">
+      <div class="modern-modal-group">
+        <label class="modern-modal-label">Current Password</label>
+        <input type="password" class="modern-modal-input" id="current-password" name="currentPassword" required>
+        <div id="current-password-error" class="input-error" style="color:#dc3545; font-size:0.9em; display:none;"></div>
+      </div>
+      <div class="modern-modal-group">
+        <label class="modern-modal-label">New Password</label>
+        <input type="password" class="modern-modal-input" id="new-password" name="newPassword" required>
+        <div id="new-password-error" class="input-error" style="color:#dc3545; font-size:0.9em; display:none;"></div>
+        <div id="password-strength" style="margin-top: 8px; font-size: 0.9em;"></div>
+      </div>
+      <div class="modern-modal-group">
+        <label class="modern-modal-label">Confirm New Password</label>
+        <input type="password" class="modern-modal-input" id="confirm-password" name="confirmPassword" required>
+        <div id="confirm-password-error" class="input-error" style="color:#dc3545; font-size:0.9em; display:none;"></div>
+      </div>
+      <button type="submit" class="modern-modal-btn" id="password-save-btn">Change Password</button>
+      <div class="modern-modal-cancel" onclick="closeModal()">Cancel</div>
+    </form>
+  </div>
+</div>
+
+<!-- Face Login Modal -->
+<div id="face-modal" class="modern-modal" style="display:none;">
+  <div class="modern-modal-content">
+    <span class="modern-modal-icon"><i class="bi bi-camera"></i></span>
+    <div class="modern-modal-title">Face Login Setup</div>
+    <div class="modern-modal-subtitle">Enroll your face for secure biometric authentication</div>
+    
+    <!-- Step 1: Instructions -->
+    <div id="face-step-1" class="face-step">
+      <div class="face-instructions">
+        <h4>📸 How it works:</h4>
+        <ul>
+          <li>Take 3-5 photos of your face from different angles</li>
+          <li>Ensure good lighting and clear visibility</li>
+          <li>Remove glasses, hats, or face coverings</li>
+          <li>Look directly at the camera</li>
+        </ul>
+        <div class="face-status-info">
+          <span id="face-current-status">Status: Not enrolled</span>
+        </div>
+        <div class="face-help-info" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #ffc107;">
+          <h5 style="margin: 0 0 8px 0; color: #856404;">🔧 Troubleshooting:</h5>
+          <p style="margin: 0; font-size: 0.9em; color: #666;">If face enrollment doesn't work, click "Test Service" to check if the face recognition service is running. If not, run the microservice first.</p>
+        </div>
+      </div>
+      <div class="face-actions">
+        <button id="face-enroll-btn" class="modern-modal-btn">Start Enrollment</button>
+        <button id="face-delete-btn" class="modern-modal-btn" style="background:#dc3545; display:none;">Delete Face Data</button>
+        <button id="face-test-microservice-btn" class="modern-modal-btn-secondary" style="font-size:0.9em;">Test Service</button>
+        <button id="face-cancel-btn" class="modern-modal-btn-secondary">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Camera Capture -->
+    <div id="face-step-2" class="face-step" style="display:none;">
+      <div class="face-camera-container">
+        <video id="face-video" width="320" height="240" autoplay muted style="border-radius:12px; background:#222; width:100%; max-width:320px;"></video>
+        <canvas id="face-canvas" style="display:none;"></canvas>
+      </div>
+      <div class="face-capture-info">
+        <p id="face-capture-text">Position your face in the camera and click "Capture"</p>
+        <div id="face-capture-progress">
+          <span id="face-captured-count">0</span> / <span id="face-total-needed">5</span> photos captured
+        </div>
+      </div>
+      <div class="face-actions">
+        <button id="face-capture-btn" class="modern-modal-btn">Capture Photo</button>
+        <button id="face-finish-btn" class="modern-modal-btn" style="display:none;">Finish Enrollment</button>
+        <button id="face-back-btn" class="modern-modal-btn-secondary">Back</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Processing -->
+    <div id="face-step-3" class="face-step" style="display:none;">
+      <div class="face-processing">
+        <div class="spinner"></div>
+        <p>Processing your face data...</p>
+        <p id="face-processing-text">Creating secure biometric template</p>
+      </div>
+    </div>
+
+    <!-- Error Display -->
+    <div id="face-error" style="color:#dc3545; font-size:0.95em; margin:10px 0; display:none;"></div>
+  </div>
+</div>
+
+<!-- Behavioral Biometrics Modal -->
+<div id="pattern-modal" class="modern-modal" style="display:none;">
+  <div class="modern-modal-content">
+    <span class="modern-modal-icon"><i class="bi bi-fingerprint"></i></span>
+    <div class="modern-modal-title">Behavioral Biometrics Setup</div>
+    <div class="modern-modal-subtitle">Create a secure pattern for authentication</div>
+    
+    <!-- Error Display -->
+    <div id="pattern-error" style="color:#dc3545; font-size:0.95em; margin:10px 0; display:none;"></div>
+    
+    <!-- Step 1: Pattern Type Selection -->
+    <div id="pattern-step-1" class="pattern-step">
+      <div class="pattern-instructions">
+        <h4>🎯 Choose Pattern Type:</h4>
+        <div class="pattern-type-grid">
+          <div class="pattern-type-option" data-type="swipe">
+            <div class="pattern-type-icon">👆</div>
+            <div class="pattern-type-name">Swipe Pattern</div>
+            <div class="pattern-type-desc">Draw a pattern by swiping</div>
+          </div>
+          <div class="pattern-type-option" data-type="tap">
+            <div class="pattern-type-icon">👆</div>
+            <div class="pattern-type-name">Tap Pattern</div>
+            <div class="pattern-type-desc">Tap specific points</div>
+          </div>
+          <div class="pattern-type-option" data-type="draw">
+            <div class="pattern-type-icon">✏️</div>
+            <div class="pattern-type-name">Draw Pattern</div>
+            <div class="pattern-type-desc">Draw a shape or symbol</div>
+          </div>
+          <div class="pattern-type-option" data-type="gesture">
+            <div class="pattern-type-icon">🤚</div>
+            <div class="pattern-type-name">Gesture Pattern</div>
+            <div class="pattern-type-desc">Use hand gestures</div>
+          </div>
+          <div class="pattern-type-option" data-type="typing">
+            <div class="pattern-type-icon">⌨️</div>
+            <div class="pattern-type-name">Typing Pattern</div>
+            <div class="pattern-type-desc">Type with rhythm</div>
+          </div>
+        </div>
+        <div class="pattern-status-info">
+          <span id="pattern-current-status">Status: Not set</span>
+        </div>
+      </div>
+      <div class="pattern-actions">
+        <button id="pattern-setup-btn" class="modern-modal-btn" style="display:none;">Setup Pattern</button>
+        <button id="pattern-delete-btn" class="modern-modal-btn" style="background:#dc3545; display:none;">Delete Pattern</button>
+        <button id="pattern-cancel-btn" class="modern-modal-btn-secondary">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Pattern Setup -->
+    <div id="pattern-step-2" class="pattern-step" style="display:none;">
+      <div class="pattern-setup-container">
+        <div class="pattern-canvas-container">
+          <canvas id="pattern-canvas" width="300" height="300" style="border:2px solid #1a73e8; border-radius:8px; background:#f8f9fa;"></canvas>
+          <div class="pattern-canvas-overlay" id="pattern-canvas-overlay">
+            <div class="pattern-instruction-text">Draw your pattern here</div>
+          </div>
+        </div>
+        <div class="pattern-setup-info">
+          <p id="pattern-setup-text">Draw your pattern 3 times to complete setup</p>
+          <div id="pattern-setup-progress">
+            <span id="pattern-attempt-count">0</span> / <span id="pattern-total-attempts">3</span> attempts
+          </div>
+          <div class="pattern-similarity-info" id="pattern-similarity" style="display:none;">
+            <span>Similarity: <span id="pattern-similarity-score">0%</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-actions">
+        <button id="pattern-clear-btn" class="modern-modal-btn-secondary">Clear</button>
+        <button id="pattern-submit-btn" class="modern-modal-btn">Submit Pattern</button>
+        <button id="pattern-back-btn" class="modern-modal-btn-secondary">Back</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Pattern Verification -->
+    <div id="pattern-step-3" class="pattern-step" style="display:none;">
+      <div class="pattern-verification-container">
+        <div class="pattern-canvas-container">
+          <canvas id="pattern-verify-canvas" width="300" height="300" style="border:2px solid #1a73e8; border-radius:8px; background:#f8f9fa;"></canvas>
+          <div class="pattern-canvas-overlay" id="pattern-verify-overlay">
+            <div class="pattern-instruction-text">Draw your pattern to verify</div>
+          </div>
+        </div>
+        <div class="pattern-verification-info">
+          <p id="pattern-verify-text">Draw your pattern to test verification</p>
+          <div class="pattern-similarity-info">
+            <span>Similarity: <span id="pattern-verify-similarity">0%</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="pattern-actions">
+        <button id="pattern-verify-btn" class="modern-modal-btn">Test Verification</button>
+        <button id="pattern-verify-back-btn" class="modern-modal-btn-secondary">Back</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Processing -->
+    <div id="pattern-step-4" class="pattern-step" style="display:none;">
+      <div class="pattern-processing">
+        <div class="spinner"></div>
+        <p>Processing your pattern...</p>
+        <p id="pattern-processing-text">Creating secure biometric template</p>
+      </div>
+    </div>
+
+    <!-- Error Display -->
+    <div id="pattern-error" style="color:#dc3545; font-size:0.95em; margin:10px 0; display:none;"></div>
+  </div>
+</div>
+
+<style>
+/* Toggle switch */
+.switch { position: relative; display: inline-block; width: 48px; height: 26px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .2s; border-radius: 26px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .2s; border-radius: 50%; }
+input:checked + .slider { background-color: #2563eb; }
+input:checked + .slider:before { transform: translateX(22px); }
+.card-bottom-settings {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 18px;
+}
+.card-details-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  flex: 1;
+}
+.edit-btn-settings {
+  margin-top: 18px;
+  align-self: flex-end;
+  background: linear-gradient(135deg, #2563eb 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(38,99,235,0.13), 0 1.5px 4px rgba(0,0,0,0.08);
+  transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+  cursor: pointer;
+}
+.edit-btn-settings:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #2563eb 100%);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 28px rgba(38,99,235,0.18), 0 2px 8px rgba(0,0,0,0.12);
+}
+.modern-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(38,99,235,0.13), 0 2px 8px rgba(0,0,0,0.10);
+  z-index: 10000;
+  min-width: 340px;
+  max-width: 95vw;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1.5px solid #f0f0f0;
+  animation: fadeIn 0.2s;
+}
+.modern-modal-content {
+  width: 100%;
+  padding: 36px 28px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.modern-modal-icon {
+  font-size: 2.2rem;
+  color: var(--primary-accent);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modern-modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.modern-modal-subtitle {
+  font-size: 1rem;
+  color: #888;
+  margin-bottom: 22px;
+  text-align: center;
+}
+.modern-modal-group {
+  width: 100%;
+  margin-bottom: 18px;
+}
+.modern-modal-label {
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 8px;
+  display: block;
+}
+.modern-modal-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #e0e0e0;
+  background: #fafbfc;
+  font-size: 1rem;
+  color: #181818;
+  margin-top: 6px;
+  transition: border 0.18s;
+}
+.modern-modal-input:focus {
+  border: 1.5px solid var(--primary-accent);
+  outline: none;
+}
+.modern-modal-radio-group {
+  display: flex;
+  gap: 18px;
+  margin-top: 8px;
+}
+.modern-radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  color: #222;
+  font-weight: 500;
+}
+.modern-modal-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #2563eb 0%, #2563eb 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 13px 0;
+  font-size: 1.08rem;
+  font-weight: 700;
+  margin-top: 10px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(38,99,235,0.08);
+  transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+  cursor: pointer;
+}
+.modern-modal-btn:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #764ba2 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 28px rgba(38,99,235,0.18), 0 2px 8px rgba(0,0,0,0.12);
+}
+.modern-modal-cancel {
+  width: 100%;
+  text-align: center;
+  color: #888;
+  font-size: 1rem;
+  margin-top: 2px;
+  cursor: pointer;
+  transition: color 0.18s;
+}
+.modern-modal-cancel:hover {
+  color: var(--primary-accent);
+  text-decoration: underline;
+}
+@media (max-width: 600px) {
+  .modern-modal {
+    min-width: 90vw;
+    padding: 0;
+  }
+  .modern-modal-content {
+    padding: 18px 4vw 18px 4vw;
+  }
+  .modern-modal-title {
+    font-size: 1.1rem;
+  }
+  .modern-modal-btn {
+    font-size: 0.98rem;
+    padding: 10px 0;
+  }
+}
+
+/* Face Modal Styles */
+.face-step {
+  width: 100%;
+}
+
+.face-instructions {
+  margin-bottom: 20px;
+}
+
+.face-instructions h4 {
+  color: #222;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.face-instructions ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 15px 0;
+}
+
+.face-instructions li {
+  padding: 5px 0;
+  color: #666;
+  position: relative;
+  padding-left: 20px;
+}
+
+.face-instructions li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: bold;
+}
+
+.face-status-info {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 4px solid #2563eb;
+}
+
+.face-help-info {
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+  border-left: 4px solid #ffc107;
+}
+
+.face-help-info h5 {
+  margin: 0 0 8px 0;
+  color: #856404;
+}
+
+.face-help-info p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.face-camera-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.face-capture-info {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.face-capture-info p {
+  margin: 0 0 10px 0;
+  color: #666;
+}
+
+#face-capture-progress {
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.face-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.face-actions .modern-modal-btn {
+  flex: 1;
+  min-width: 120px;
+}
+
+.face-actions .modern-modal-btn-secondary {
+  flex: 1;
+  min-width: 120px;
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #e0e0e0;
+}
+
+.face-processing {
+  text-align: center;
+  padding: 20px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.face-processing p {
+  margin: 5px 0;
+  color: #666;
+}
+
+/* Behavioral Biometrics Styles */
+.pattern-step {
+  display: block;
+}
+
+.pattern-instructions {
+  margin-bottom: 20px;
+}
+
+.pattern-instructions h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.1em;
+}
+
+.pattern-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.pattern-type-option {
+  padding: 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+
+.pattern-type-option:hover {
+  border-color: #1a73e8;
+  background: #f8f9fa;
+}
+
+.pattern-type-option.selected {
+  border-color: #1a73e8;
+  background: #e3f2fd;
+}
+
+.pattern-type-icon {
+  font-size: 2em;
+  margin-bottom: 8px;
+}
+
+.pattern-type-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.pattern-type-desc {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.pattern-status-info {
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin-top: 15px;
+  font-size: 0.95em;
+  color: #666;
+}
+
+.pattern-setup-container,
+.pattern-verification-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.pattern-canvas-container {
+  position: relative;
+  display: inline-block;
+}
+
+.pattern-canvas-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(248, 249, 250, 0.9);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.pattern-instruction-text {
+  color: #666;
+  font-size: 0.95em;
+  text-align: center;
+}
+
+.pattern-setup-info,
+.pattern-verification-info {
+  text-align: center;
+}
+
+.pattern-setup-info p,
+.pattern-verification-info p {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 0.95em;
+}
+
+.pattern-setup-progress {
+  font-weight: 600;
+  color: #1a73e8;
+  margin-bottom: 10px;
+}
+
+.pattern-similarity-info {
+  padding: 8px 12px;
+  background: #e8f5e8;
+  border-radius: 6px;
+  font-size: 0.9em;
+  color: #2e7d32;
+}
+
+.pattern-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pattern-actions .modern-modal-btn {
+  min-width: 120px;
+}
+
+.pattern-actions .modern-modal-btn-secondary {
+  min-width: 100px;
+}
+
+.pattern-processing {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.pattern-processing .spinner {
+  margin: 0 auto 20px auto;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🔧 Settings page loaded - DOMContentLoaded fired');
+  console.log('🔧 JavaScript is executing!');
+  
+  // Test if buttons exist
+  const securityBtn = document.getElementById('edit-security-btn');
+  const notifyBtn = document.getElementById('edit-notify-btn');
+  const faceBtn = document.getElementById('edit-face-btn');
+  const patternBtn = document.getElementById('edit-pattern-btn');
+  const profileBtn = document.getElementById('edit-profile-btn');
+  const passwordBtn = document.getElementById('edit-password-btn');
+  
+  console.log('🔧 Button elements found:', {
+    security: !!securityBtn,
+    notify: !!notifyBtn,
+    face: !!faceBtn,
+    pattern: !!patternBtn,
+    profile: !!profileBtn,
+    password: !!passwordBtn
+  });
+
+  // Test if buttons are clickable
+  if (securityBtn) {
+    console.log('🔧 Security button details:', {
+      tagName: securityBtn.tagName,
+      className: securityBtn.className,
+      id: securityBtn.id,
+      disabled: securityBtn.disabled,
+      style: securityBtn.style.cssText,
+      computedStyle: window.getComputedStyle(securityBtn).pointerEvents
+    });
+    
+    // Test if button is actually clickable
+    securityBtn.style.pointerEvents = 'auto';
+    securityBtn.style.cursor = 'pointer';
+    securityBtn.style.zIndex = '1000';
+    securityBtn.style.position = 'relative';
+  }
+
+  // Simple button click handlers
+  if (securityBtn) {
+    console.log('🔧 Security button found, adding event listener');
+    
+    // Add multiple event listeners to test
+    securityBtn.addEventListener('mousedown', function(e) {
+      console.log('🔧 Security button mousedown!');
+    });
+    
+    securityBtn.addEventListener('mouseup', function(e) {
+      console.log('🔧 Security button mouseup!');
+    });
+    
+    securityBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('🔧 Security button clicked!');
+      console.log('🔧 Attempting to show modal...');
+      
+      const overlay = document.getElementById('modal-overlay');
+      const modal = document.getElementById('security-modal');
+      
+      console.log('🔧 Overlay element:', overlay);
+      console.log('🔧 Modal element:', modal);
+      
+      if (overlay) {
+        overlay.style.display = 'block';
+        console.log('🔧 Overlay shown');
+      } else {
+        console.log('❌ Overlay not found!');
+      }
+      
+      if (modal) {
+        modal.style.display = 'block';
+        console.log('🔧 Modal shown');
+      } else {
+        console.log('❌ Modal not found!');
+      }
+    });
+  } else {
+    console.log('❌ Security button NOT found!');
+  }
+
+  if (notifyBtn) {
+    console.log('🔧 Notify button found, adding event listener');
+    notifyBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('🔧 Notify button clicked!');
+      document.getElementById('modal-overlay').style.display = 'block';
+      document.getElementById('notify-modal').style.display = 'block';
+    });
+  } else {
+    console.log('❌ Notify button NOT found!');
+  }
+
+  if (faceBtn) {
+    faceBtn.addEventListener('click', function() {
+      console.log('🔧 Face button clicked!');
+      document.getElementById('modal-overlay').style.display = 'block';
+      document.getElementById('face-modal').style.display = 'block';
+    });
+  }
+
+  if (patternBtn) {
+    patternBtn.addEventListener('click', function() {
+      console.log('🔧 Pattern button clicked!');
+      document.getElementById('modal-overlay').style.display = 'block';
+      document.getElementById('pattern-modal').style.display = 'block';
+    });
+  }
+
+  if (profileBtn) {
+    profileBtn.addEventListener('click', function() {
+      console.log('🔧 Profile button clicked!');
+      document.getElementById('modal-overlay').style.display = 'block';
+      document.getElementById('profile-modal').style.display = 'block';
+    });
+  }
+
+  if (passwordBtn) {
+    passwordBtn.addEventListener('click', function() {
+      console.log('🔧 Password button clicked!');
+      document.getElementById('modal-overlay').style.display = 'block';
+      document.getElementById('password-modal').style.display = 'block';
+    });
+  }
+  
+  function closeModal() {
+    document.getElementById('modal-overlay').style.display = 'none';
+    document.getElementById('security-modal').style.display = 'none';
+    document.getElementById('notify-modal').style.display = 'none';
+    document.getElementById('profile-modal').style.display = 'none';
+    document.getElementById('password-modal').style.display = 'none';
+    document.getElementById('face-modal').style.display = 'none';
+    document.getElementById('pattern-modal').style.display = 'none';
+    // Reset fields and errors
+    const emailInput = document.getElementById('profile-email');
+    const usernameInput = document.getElementById('profile-username');
+    if (emailInput && usernameInput) {
+      emailInput.value = emailInput.defaultValue;
+      usernameInput.value = usernameInput.defaultValue;
+      document.getElementById('email-error').style.display = 'none';
+      document.getElementById('username-error').style.display = 'none';
+      document.getElementById('profile-save-btn').disabled = true;
+    }
+    // Reset password form
+    const passwordForm = document.getElementById('password-form');
+    if (passwordForm) {
+      passwordForm.reset();
+      document.getElementById('current-password-error').style.display = 'none';
+      document.getElementById('new-password-error').style.display = 'none';
+      document.getElementById('confirm-password-error').style.display = 'none';
+      document.getElementById('password-strength').innerHTML = '';
+    }
+  }
+
+  // Close modal when clicking overlay
+  document.getElementById('modal-overlay').addEventListener('click', closeModal);
+  
+  // Close modal when clicking cancel buttons
+  document.querySelectorAll('.modern-modal-cancel').forEach(function(btn) {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Toast notification function
+  function showToast(message, isSuccess = true) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${isSuccess ? '#4CAF50' : '#f44336'};
+      color: white;
+      padding: 12px 20px;
+      border-radius: 4px;
+      z-index: 10001;
+      font-size: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      document.body.removeChild(toast);
+    }, 3000);
+  }
+
+  // Theme toggle functionality
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('change', function() {
+      console.log('🔧 Theme toggle clicked!');
+      if (this.checked) {
+        document.body.classList.add('dark-theme');
+        localStorage.setItem('theme', 'dark');
+        showToast('🌙 Dark mode enabled', true);
+      } else {
+        document.body.classList.remove('dark-theme');
+        localStorage.setItem('theme', 'light');
+        showToast('☀️ Light mode enabled', true);
+      }
+    });
+    
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      themeToggle.checked = true;
+      document.body.classList.add('dark-theme');
+    }
+  }
+
+  // Form submission handlers
+  const securityForm = document.querySelector('#security-modal form');
+  if (securityForm) {
+    securityForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      console.log('🔧 Security form submitted!');
+      showToast('✅ Security settings saved!', true);
+      closeModal();
+    });
+  }
+
+  const notifyForm = document.querySelector('#notify-modal form');
+  if (notifyForm) {
+    notifyForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      console.log('🔧 Notification form submitted!');
+      showToast('✅ Notification settings saved!', true);
+      closeModal();
+    });
+  }
+
+  const profileForm = document.querySelector('#profile-modal form');
+  if (profileForm) {
+    profileForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      console.log('🔧 Profile form submitted!');
+      showToast('✅ Profile updated successfully!', true);
+      closeModal();
+    });
+  }
+
+  const passwordForm = document.querySelector('#password-modal form');
+  if (passwordForm) {
+    passwordForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      console.log('🔧 Password form submitted!');
+      showToast('✅ Password updated successfully!', true);
+      closeModal();
+    });
+  }
+
+  // --- Profile Modal Logic ---
+  // Variables already declared above, just get references
+  const emailInput = document.getElementById('profile-email');
+  const usernameInput = document.getElementById('profile-username');
+  const saveBtn = document.getElementById('profile-save-btn');
+  const emailError = document.getElementById('email-error');
+  const usernameError = document.getElementById('username-error');
+  let originalEmail = emailInput ? emailInput.value : '';
+  let originalUsername = usernameInput ? usernameInput.value : '';
+
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+  function validateUsername(username) {
+    return /^[a-zA-Z0-9]{3,30}$/.test(username);
+  }
+
+  async function checkUsernameUnique(username) {
+    // Call backend endpoint to check uniqueness
+    try {
+      console.log('🔍 Checking username uniqueness:', {
+        requestedUsername: username,
+        originalUsername: originalUsername,
+        trimmedRequested: username.trim(),
+        trimmedOriginal: originalUsername.trim(),
+        areEqual: username.trim() === originalUsername.trim(),
+        areEqualCaseInsensitive: username.trim().toLowerCase() === originalUsername.trim().toLowerCase()
+      });
+      
+      // If the username is the same as the original, it's always unique
+      if (username.trim() === originalUsername.trim()) {
+        console.log('✅ Username unchanged, considering unique');
+        return true;
+      }
+      
+      const res = await fetch(`/check-username?username=${encodeURIComponent(username)}`);
+      const data = await res.json();
+      console.log('Username check response:', data);
+      return data.unique;
+    } catch (error) {
+      console.error('Username check error:', error);
+      return false;
+    }
+  }
+  async function checkEmailUnique(email) {
+    try {
+      console.log('🔍 Checking email uniqueness:', {
+        requestedEmail: email,
+        originalEmail: originalEmail,
+        trimmedRequested: email.trim(),
+        trimmedOriginal: originalEmail.trim(),
+        areEqual: email.trim() === originalEmail.trim(),
+        areEqualCaseInsensitive: email.trim().toLowerCase() === originalEmail.trim().toLowerCase()
+      });
+      
+      // If the email is the same as the original, it's always unique
+      if (email.trim() === originalEmail.trim()) {
+        console.log('✅ Email unchanged, considering unique');
+        return true;
+      }
+      
+      const res = await fetch(`/check-email?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+      console.log('Email check response:', data);
+      return data.unique;
+    } catch (error) {
+      console.error('Email check error:', error);
+      return false;
+    }
+  }
+
+  async function validateFields() {
+    let valid = true;
+    let changed = false;
+    // Email
+    const email = emailInput.value.trim();
+    if (email !== originalEmail) changed = true;
+    if (!validateEmail(email)) {
+      emailError.textContent = 'Invalid email format.';
+      emailError.style.display = 'block';
+      valid = false;
+    } else {
+      // Only check uniqueness if changed
+      if (email !== originalEmail) {
+        const unique = await checkEmailUnique(email);
+        if (!unique) {
+          emailError.textContent = '❌ This email is already in use.';
+          emailError.style.display = 'block';
+          valid = false;
+        } else {
+          emailError.textContent = '✅ Email is available.';
+          emailError.style.display = 'block';
+          emailError.style.color = '#28a745';
+        }
+      } else {
+        emailError.style.display = 'none';
+      }
+    }
+    // Username
+    const username = usernameInput.value.trim();
+    if (username !== originalUsername) changed = true;
+    if (!validateUsername(username)) {
+      usernameError.textContent = 'Username must be 3-30 alphanumeric characters.';
+      usernameError.style.display = 'block';
+      valid = false;
+    } else {
+      if (username !== originalUsername) {
+        const unique = await checkUsernameUnique(username);
+        if (!unique) {
+          usernameError.textContent = '❌ This username is already in use.';
+          usernameError.style.display = 'block';
+          valid = false;
+        } else {
+          usernameError.textContent = '✅ Username is available.';
+          usernameError.style.display = 'block';
+          usernameError.style.color = '#28a745';
+        }
+      } else {
+        usernameError.style.display = 'none';
+      }
+    }
+    // Enable Save only if valid and changed
+    saveBtn.disabled = !(valid && changed);
+  }
+
+  if (emailInput && usernameInput) {
+    emailInput.addEventListener('input', validateFields);
+    usernameInput.addEventListener('input', validateFields);
+  }
+
+  // Handle Save (submit)
+  if (profileForm) {
+    profileForm.onsubmit = async function(e) {
+      e.preventDefault();
+      saveBtn.disabled = true;
+      const email = emailInput.value.trim();
+      const username = usernameInput.value.trim();
+      const changes = {};
+      if (email !== originalEmail) changes.email = email;
+      if (username !== originalUsername) changes.username = username;
+      if (Object.keys(changes).length === 0) return;
+      try {
+        const res = await fetch('/settings/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(changes)
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('✅ Profile updated successfully', true);
+          closeModal();
+          setTimeout(() => window.location.reload(), 1200);
+        } else {
+          showToast(data.message || 'Something went wrong. Try again later.', false);
+        }
+      } catch (err) {
+        showToast('Something went wrong. Try again later.', false);
+      } finally {
+        saveBtn.disabled = false;
+      }
+    };
+  }
+
+  // Toast logic
+  // Theme toggle logic (using existing themeToggle variable)
+  const themeLabel = document.getElementById('theme-label');
+  function applyTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    themeLabel.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+  }
+  try {
+    const saved = localStorage.getItem('theme') || '';
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    themeToggle.checked = theme === 'dark';
+    applyTheme(theme);
+  } catch(e) {}
+  themeToggle.addEventListener('change', function(){
+    const theme = this.checked ? 'dark' : 'light';
+    applyTheme(theme);
+    try { localStorage.setItem('theme', theme); } catch(e) {}
+  });
+  function showToast(msg, success) {
+    let toast = document.getElementById('profile-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'profile-toast';
+      toast.style.position = 'fixed';
+      toast.style.bottom = '30px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.background = success ? '#28a745' : '#dc3545';
+      toast.style.color = '#fff';
+      toast.style.padding = '12px 24px';
+      toast.style.borderRadius = '8px';
+      toast.style.fontWeight = 'bold';
+      toast.style.zIndex = 99999;
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 2500);
+  }
+
+  // Security Settings (using existing variables)
+  const securityModal = document.getElementById('security-modal');
+  const editSecurityBtn = document.getElementById('edit-security-btn');
+  // securityForm already declared above
+
+  if (editSecurityBtn) {
+    editSecurityBtn.addEventListener('click', async () => {
+    console.log('🔧 Security button clicked!');
+    // Load current security questions
+    try {
+      const response = await fetch('/security-questions');
+      const data = await response.json();
+      
+      if (data.success && data.questions) {
+        // Pre-fill the form with current questions if available
+        const questionSelects = securityForm.querySelectorAll('select[name^="security_question"]');
+        data.questions.forEach((question, index) => {
+          if (questionSelects[index]) {
+            // Find the option that matches the current question
+            const options = questionSelects[index].options;
+            for (let option of options) {
+              if (option.textContent.includes(question) || option.value === question) {
+                option.selected = true;
+                break;
+              }
+            }
+          }
+        });
+      }
+      
+      securityModal.style.display = 'block';
+      document.getElementById('modal-overlay').style.display = 'block';
+    } catch (error) {
+      console.error('Error loading security questions:', error);
+      securityModal.style.display = 'block';
+      document.getElementById('modal-overlay').style.display = 'block';
+    }
+    });
+  }
+
+  securityForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(securityForm);
+    
+    const securityData = {
+      question1: formData.get('security_question_1'),
+      answer1: formData.get('security_answer_1'),
+      question2: formData.get('security_question_2'),
+      answer2: formData.get('security_answer_2'),
+      question3: formData.get('security_question_3'),
+      answer3: formData.get('security_answer_3')
+    };
+
+    try {
+      const response = await fetch('/settings/security-questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(securityData)
+      });
+
+      if (response.ok) {
+        showToast('✅ Security settings updated successfully!', true);
+        closeModal();
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        const data = await response.json();
+        showToast(data.message || '❌ Failed to update security settings', false);
+      }
+    } catch (error) {
+      console.error('Security update error:', error);
+      showToast('❌ Error updating security settings', false);
+    }
+  });
+
+  // Notification Settings (using existing variables)
+  const notifyModal = document.getElementById('notify-modal');
+  const editNotifyBtn = document.getElementById('edit-notify-btn');
+  // notifyForm already declared above
+
+  if (editNotifyBtn) {
+    editNotifyBtn.addEventListener('click', async () => {
+    console.log('🔧 Notify button clicked!');
+    // Load current notification settings
+    try {
+      const response = await fetch('/api/notification-settings');
+      const settings = await response.json();
+      
+      // Set current values in the form
+      const pushRadios = notifyForm.querySelectorAll('input[name="push"]');
+      const inappRadios = notifyForm.querySelectorAll('input[name="inapp"]');
+      
+      pushRadios[0].checked = settings.push_enabled;
+      pushRadios[1].checked = !settings.push_enabled;
+      inappRadios[0].checked = settings.inapp_enabled;
+      inappRadios[1].checked = !settings.inapp_enabled;
+      
+      notifyModal.style.display = 'block';
+      document.getElementById('modal-overlay').style.display = 'block';
+    } catch (error) {
+      console.error('Error loading notification settings:', error);
+      notifyModal.style.display = 'block';
+      document.getElementById('modal-overlay').style.display = 'block';
+    }
+    });
+  }
+
+  notifyForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(notifyForm);
+    
+    // Get the selected radio button values
+    const pushRadios = notifyForm.querySelectorAll('input[name="push"]');
+    const inappRadios = notifyForm.querySelectorAll('input[name="inapp"]');
+    
+    const pushEnabled = pushRadios[0].checked; // First radio is "Enabled"
+    const inappEnabled = inappRadios[0].checked; // First radio is "On"
+    
+    const notificationData = {
+      push_enabled: pushEnabled,
+      inapp_enabled: inappEnabled
+    };
+
+    try {
+      const response = await fetch('/api/notification-settings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(notificationData)
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        showToast('✅ Notification settings updated successfully!', true);
+        closeModal();
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        showToast(data.message || '❌ Failed to update notification settings', false);
+      }
+    } catch (error) {
+      console.error('Notification update error:', error);
+      showToast('❌ Error updating notification settings', false);
+    }
+  });
+
+  // Close modal function
+  function closeModal() {
+    document.querySelectorAll('.modern-modal').forEach(modal => {
+      modal.style.display = 'none';
+    });
+    document.getElementById('modal-overlay').style.display = 'none';
+  }
+
+  // Close modal when clicking overlay
+  document.getElementById('modal-overlay').addEventListener('click', closeModal);
+
+  // Face Login Settings (using existing variables)
+  const faceModal = document.getElementById('face-modal');
+  const faceStatus = document.getElementById('face-status');
+  const faceLastUpdated = document.getElementById('face-last-updated');
+  const faceCurrentStatus = document.getElementById('face-current-status');
+  const editFaceBtn = document.getElementById('edit-face-btn');
+  
+  let faceStream = null;
+  let capturedImages = [];
+  let currentStep = 1;
+
+  // Load face status on page load - DISABLED TO STOP LOOP
+  async function loadFaceStatus() {
+    try {
+      const response = await fetch('/api/face/status');
+      const data = await response.json();
+      
+      if (data.enabled) {
+        faceStatus.textContent = 'Enabled';
+        faceStatus.style.color = '#10b981';
+        faceCurrentStatus.textContent = 'Status: Enrolled';
+        document.getElementById('face-delete-btn').style.display = 'inline-block';
+        document.getElementById('face-enroll-btn').textContent = 'Re-enroll Face';
+      } else {
+        faceStatus.textContent = 'Not Set';
+        faceStatus.style.color = '#6b7280';
+        faceCurrentStatus.textContent = 'Status: Not enrolled';
+        document.getElementById('face-delete-btn').style.display = 'none';
+        document.getElementById('face-enroll-btn').textContent = 'Start Enrollment';
+      }
+    } catch (error) {
+      console.error('Error loading face status:', error);
+    }
+  }
+
+  // Initialize face status
+  loadFaceStatus();
+
+  if (editFaceBtn) {
+    editFaceBtn.addEventListener('click', () => {
+      console.log('🔧 Face button clicked!');
+      faceModal.style.display = 'block';
+      document.getElementById('modal-overlay').style.display = 'block';
+      currentStep = 1;
+      showFaceStep(1);
+    });
+  }
+
+  // Face enrollment
+  document.getElementById('face-enroll-btn').addEventListener('click', async () => {
+    currentStep = 2;
+    showFaceStep(2);
+    capturedImages = [];
+    
+    try {
+      faceStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      document.getElementById('face-video').srcObject = faceStream;
+      updateCaptureProgress();
+    } catch (error) {
+      showFaceError('Camera access denied. Please allow camera access and try again.');
+    }
+  });
+
+  // Face deletion
+  document.getElementById('face-delete-btn').addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to delete your face data? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/face', {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        showToast('✅ Face data deleted successfully!', true);
+        loadFaceStatus();
+        closeModal();
+      } else {
+        const data = await response.json();
+        showToast(data.message || '❌ Failed to delete face data', false);
+      }
+    } catch (error) {
+      console.error('Face deletion error:', error);
+      showToast('❌ Error deleting face data', false);
+    }
+  });
+
+  // Test microservice connectivity
+  document.getElementById('face-test-microservice-btn').addEventListener('click', async () => {
+    const testBtn = document.getElementById('face-test-microservice-btn');
+    const originalText = testBtn.textContent;
+    testBtn.textContent = 'Testing...';
+    testBtn.disabled = true;
+
+    try {
+      const response = await fetch('http://localhost:5001/health');
+      if (response.ok) {
+        showToast('✅ Face recognition service is running!', true);
+      } else {
+        showToast('❌ Face recognition service is not responding properly', false);
+      }
+    } catch (error) {
+      console.error('Microservice test error:', error);
+      
+      // Show detailed error message with instructions
+      const errorDiv = document.getElementById('face-error');
+      errorDiv.innerHTML = `
+        <div style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 15px; margin: 10px 0;">
+          <h5 style="margin: 0 0 10px 0; color: #721c24;">❌ Face Recognition Service Not Available</h5>
+          <p style="margin: 0 0 10px 0; color: #721c24;">The face recognition microservice is not running. To start it:</p>
+          <ol style="margin: 0 0 10px 0; padding-left: 20px; color: #721c24;">
+            <li>Open a new <strong>Command Prompt</strong> (not PowerShell)</li>
+            <li>Navigate to: <code>C:\\Users\\TSHIKHOVHOKHOVHO\\Desktop\\LunoBackend</code></li>
+            <li>Run: <code>start-face-microservice.cmd</code></li>
+            <li>Wait for "Running on http://0.0.0.0:5001" message</li>
+            <li>Click "Test Service" again</li>
+          </ol>
+          <p style="margin: 0; font-size: 0.9em; color: #721c24;">
+            <strong>Note:</strong> This uses TensorFlow for advanced face recognition. Use CMD instead of PowerShell to avoid execution policy issues.
+          </p>
+        </div>
+      `;
+      errorDiv.style.display = 'block';
+    } finally {
+      testBtn.textContent = originalText;
+      testBtn.disabled = false;
+    }
+  });
+
+  // Face capture
+  document.getElementById('face-capture-btn').addEventListener('click', () => {
+    const video = document.getElementById('face-video');
+    const canvas = document.getElementById('face-canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    capturedImages.push(imageData);
+
+    updateCaptureProgress();
+
+    if (capturedImages.length >= 5) {
+      document.getElementById('face-capture-btn').style.display = 'none';
+      document.getElementById('face-finish-btn').style.display = 'inline-block';
+      document.getElementById('face-capture-text').textContent = 'Great! Click "Finish Enrollment" to save your face data.';
+    }
+  });
+
+  // Finish enrollment
+  document.getElementById('face-finish-btn').addEventListener('click', async () => {
+    if (capturedImages.length < 3) {
+      showFaceError('Please capture at least 3 photos for enrollment.');
+      return;
+    }
+
+    currentStep = 3;
+    showFaceStep(3);
+
+    try {
+      // First, check if microservice is available
+      console.log('Checking microservice connectivity...');
+      let microserviceAvailable = false;
+      
+      try {
+        const response = await fetch('http://localhost:5001/health', { 
+          method: 'GET',
+          mode: 'cors'
+        });
+        microserviceAvailable = response.ok;
+      } catch (error) {
+        console.log('Microservice not available:', error.message);
+        microserviceAvailable = false;
+      }
+
+      if (!microserviceAvailable) {
+        // Show detailed instructions for starting the microservice
+        const errorDiv = document.getElementById('face-error');
+        errorDiv.innerHTML = `
+          <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 15px; margin: 10px 0;">
+            <h5 style="margin: 0 0 10px 0; color: #856404;">🔧 Troubleshooting:</h5>
+            <p style="margin: 0 0 10px 0; color: #856404;">If face enrollment doesn't work, click "Test Service" to check if the face recognition service is running. If not, run the microservice first.</p>
+          </div>
+        `;
+        errorDiv.style.display = 'block';
+        currentStep = 2;
+        showFaceStep(2);
+        return;
+      }
+
+      console.log('Sending enrollment request with', capturedImages.length, 'images');
+      
+      const response = await fetch('/api/face/enroll', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ images: capturedImages })
+      });
+
+      console.log('Enrollment response status:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Server error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Enrollment response data:', data);
+
+      if (data.success) {
+        showToast('✅ Face enrollment successful! You can now use face login.', true);
+        loadFaceStatus();
+        closeModal();
+      } else {
+        throw new Error(data.message || 'Face enrollment failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Face enrollment error:', error);
+      
+      let errorMessage = 'Error during enrollment. Please try again.';
+      
+      if (error.message.includes('microservice')) {
+        errorMessage = 'Face recognition service is not available. Please contact support.';
+      } else if (error.message.includes('camera')) {
+        errorMessage = 'Camera access issue. Please check camera permissions.';
+      } else if (error.message.includes('network')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      showFaceError(errorMessage);
+      currentStep = 2;
+      showFaceStep(2);
+    }
+  });
+
+  // Navigation buttons
+  document.getElementById('face-back-btn').addEventListener('click', () => {
+    if (currentStep === 2) {
+      currentStep = 1;
+      showFaceStep(1);
+      if (faceStream) {
+        faceStream.getTracks().forEach(track => track.stop());
+        faceStream = null;
+      }
+      document.getElementById('face-video').srcObject = null;
+    }
+  });
+
+  document.getElementById('face-cancel-btn').addEventListener('click', () => {
+    if (faceStream) {
+      faceStream.getTracks().forEach(track => track.stop());
+      faceStream = null;
+    }
+    closeModal();
+  });
+
+  // Helper functions
+  function showFaceStep(step) {
+    document.querySelectorAll('.face-step').forEach(s => s.style.display = 'none');
+    document.getElementById(`face-step-${step}`).style.display = 'block';
+    document.getElementById('face-error').style.display = 'none';
+  }
+
+  function updateCaptureProgress() {
+    document.getElementById('face-captured-count').textContent = capturedImages.length;
+    document.getElementById('face-total-needed').textContent = '5';
+  }
+
+  function showFaceError(message) {
+    const errorDiv = document.getElementById('face-error');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+  }
+
+  // Behavioral Biometrics Settings (using existing variables)
+  const patternModal = document.getElementById('pattern-modal');
+  const patternStatus = document.getElementById('pattern-status');
+  const patternType = document.getElementById('pattern-type');
+  const patternCurrentStatus = document.getElementById('pattern-current-status');
+  const editPatternBtn = document.getElementById('edit-pattern-btn');
+  
+  let selectedPatternType = null;
+  let patternAttempts = [];
+  let currentPatternStep = 1;
+  let patternCanvas = null;
+  let patternCtx = null;
+  let isDrawing = false;
+  let currentPattern = [];
+
+  // Load pattern status on page load
+  async function loadPatternStatus() {
+    try {
+      const response = await fetch('/api/biometrics/patterns');
+      const data = await response.json();
+      
+      if (data.patterns && data.patterns.length > 0) {
+        const activePattern = data.patterns.find(p => p.active);
+        if (activePattern) {
+          patternStatus.textContent = 'Enabled';
+          patternStatus.style.color = '#10b981';
+          patternType.textContent = activePattern.type.charAt(0).toUpperCase() + activePattern.type.slice(1);
+          patternCurrentStatus.textContent = 'Status: Pattern set';
+          document.getElementById('pattern-delete-btn').style.display = 'inline-block';
+        } else {
+          patternStatus.textContent = 'Not Set';
+          patternStatus.style.color = '#6b7280';
+          patternType.textContent = 'None';
+          patternCurrentStatus.textContent = 'Status: Not set';
+          document.getElementById('pattern-delete-btn').style.display = 'none';
+        }
+      } else {
+        patternStatus.textContent = 'Not Set';
+        patternStatus.style.color = '#6b7280';
+        patternType.textContent = 'None';
+        patternCurrentStatus.textContent = 'Status: Not set';
+        document.getElementById('pattern-delete-btn').style.display = 'none';
+      }
+    } catch (error) {
+      console.error('Error loading pattern status:', error);
+    }
+  }
+
+  // Initialize pattern status
+  loadPatternStatus();
+
+  if (editPatternBtn) {
+    editPatternBtn.addEventListener('click', () => {
+      console.log('🔧 Pattern button clicked!');
+      patternModal.style.display = 'block';
+      document.getElementById('modal-overlay').style.display = 'block';
+      currentPatternStep = 1;
+      showPatternStep(1);
+    });
+  }
+
+  // Pattern type selection
+  document.querySelectorAll('.pattern-type-option').forEach(option => {
+    option.addEventListener('click', () => {
+      document.querySelectorAll('.pattern-type-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+      selectedPatternType = option.dataset.type;
+      
+      // Show setup button when pattern type is selected
+      document.getElementById('pattern-setup-btn').style.display = 'inline-block';
+    });
+  });
+
+  // Setup pattern button
+  document.getElementById('pattern-setup-btn').addEventListener('click', () => {
+    if (!selectedPatternType) {
+      showPatternError('Please select a pattern type first.');
+      return;
+    }
+
+    currentPatternStep = 2;
+    showPatternStep(2);
+    patternAttempts = [];
+    currentPattern = [];
+    
+    // Initialize canvas
+    patternCanvas = document.getElementById('pattern-canvas');
+    patternCtx = patternCanvas.getContext('2d');
+    setupPatternCanvas();
+  });
+
+  // Pattern submit button (for step 2)
+  document.getElementById('pattern-submit-btn').addEventListener('click', async () => {
+    if (patternAttempts.length === 0) {
+      showPatternError('Please draw a pattern first.');
+      return;
+    }
+
+    // Submit pattern to backend
+    await submitPattern();
+  });
+
+  // Pattern deletion
+  document.getElementById('pattern-delete-btn').addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to delete your pattern? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/biometrics/patterns', {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        showToast('✅ Pattern deleted successfully!', true);
+        loadPatternStatus();
+        closeModal();
+      } else {
+        const data = await response.json();
+        showToast(data.message || '❌ Failed to delete pattern', false);
+      }
+    } catch (error) {
+      console.error('Pattern deletion error:', error);
+      showToast('❌ Error deleting pattern', false);
+    }
+  });
+
+  // Pattern verification
+  document.getElementById('pattern-verify-btn').addEventListener('click', async () => {
+    if (currentPattern.length === 0) {
+      showPatternError('Please draw a pattern first.');
+      return;
+    }
+
+    try {
+      const patternData = {
+        coordinates: currentPattern.map(p => [p.x, p.y]),
+        timing: calculatePatternTiming(currentPattern),
+        pressure: currentPattern.map(p => p.pressure || 0.5)
+      };
+
+      const response = await fetch('/api/biometrics/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          patternType: selectedPatternType,
+          patternData: patternData
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        document.getElementById('pattern-verify-similarity').textContent = 
+          Math.round(data.similarity * 100) + '%';
+        showToast('✅ Pattern verification successful!', true);
+      } else {
+        showPatternError('Pattern verification failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Pattern verification error:', error);
+      showPatternError('Error during verification. Please try again.');
+    }
+  });
+
+  // Navigation buttons
+  document.getElementById('pattern-back-btn').addEventListener('click', () => {
+    if (currentPatternStep === 2) {
+      currentPatternStep = 1;
+      showPatternStep(1);
+      resetPatternCanvas();
+    }
+  });
+
+  document.getElementById('pattern-cancel-btn').addEventListener('click', () => {
+    closeModal();
+  });
+
+  // Helper functions
+  function showPatternStep(step) {
+    document.querySelectorAll('.pattern-step').forEach(s => s.style.display = 'none');
+    document.getElementById(`pattern-step-${step}`).style.display = 'block';
+    document.getElementById('pattern-error').style.display = 'none';
+  }
+
+  function setupPatternCanvas() {
+    patternCtx.strokeStyle = '#1a73e8';
+    patternCtx.lineWidth = 3;
+    patternCtx.lineCap = 'round';
+    patternCtx.lineJoin = 'round';
+    
+    patternCanvas.addEventListener('mousedown', startDrawing);
+    patternCanvas.addEventListener('mousemove', draw);
+    patternCanvas.addEventListener('mouseup', stopDrawing);
+    patternCanvas.addEventListener('touchstart', handleTouch);
+    patternCanvas.addEventListener('touchmove', handleTouch);
+    patternCanvas.addEventListener('touchend', stopDrawing);
+  }
+
+  function startDrawing(e) {
+    isDrawing = true;
+    const point = getCanvasPoint(e);
+    currentPattern = [point];
+    patternCtx.beginPath();
+    patternCtx.moveTo(point.x, point.y);
+  }
+
+  function draw(e) {
+    if (!isDrawing) return;
+    const point = getCanvasPoint(e);
+    currentPattern.push(point);
+    patternCtx.lineTo(point.x, point.y);
+    patternCtx.stroke();
+  }
+
+  function stopDrawing() {
+    isDrawing = false;
+    if (currentPattern.length > 0) {
+      patternAttempts.push([...currentPattern]);
+      updatePatternProgress();
+    }
+  }
+
+  function handleTouch(e) {
+    e.preventDefault();
+    if (e.type === 'touchstart') {
+      startDrawing(e.touches[0]);
+    } else if (e.type === 'touchmove') {
+      draw(e.touches[0]);
+    }
+  }
+
+  function getCanvasPoint(e) {
+    const rect = patternCanvas.getBoundingClientRect();
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+      timestamp: Date.now(),
+      pressure: e.pressure || 0.5
+    };
+  }
+
+  function calculatePatternTiming(pattern) {
+    const timings = [];
+    for (let i = 1; i < pattern.length; i++) {
+      timings.push(pattern[i].timestamp - pattern[i-1].timestamp);
+    }
+    return timings;
+  }
+
+  function updatePatternProgress() {
+    document.getElementById('pattern-attempt-count').textContent = patternAttempts.length;
+    document.getElementById('pattern-total-attempts').textContent = '3';
+    
+    if (patternAttempts.length >= 3) {
+      // Submit pattern to backend
+      submitPattern();
+    }
+  }
+
+  function resetPatternCanvas() {
+    patternCtx.clearRect(0, 0, patternCanvas.width, patternCanvas.height);
+    currentPattern = [];
+    patternAttempts = [];
+    updatePatternProgress();
+  }
+
+  async function submitPattern() {
+    try {
+      const patternData = {
+        coordinates: patternAttempts[0].map(p => [p.x, p.y]),
+        timing: calculatePatternTiming(patternAttempts[0]),
+        pressure: patternAttempts[0].map(p => p.pressure || 0.5)
+      };
+
+      const response = await fetch('/api/biometrics/setup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          patternType: selectedPatternType,
+          patternData: patternData
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        showToast('✅ Pattern setup successful!', true);
+        loadPatternStatus();
+        closeModal();
+      } else {
+        showPatternError(data.message || 'Pattern setup failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Pattern setup error:', error);
+      showPatternError('Error during pattern setup. Please try again.');
+    }
+  }
+
+  function showPatternError(message) {
+    const errorDiv = document.getElementById('pattern-error');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+  }
+
+  // Password Change Functionality (using existing variables)
+  const currentPasswordInput = document.getElementById('current-password');
+  const newPasswordInput = document.getElementById('new-password');
+  const confirmPasswordInput = document.getElementById('confirm-password');
+  const passwordStrengthDiv = document.getElementById('password-strength');
+
+  // Password strength validation
+  function validatePasswordStrength(password) {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    let strength = 0;
+    let feedback = [];
+
+    if (password.length >= minLength) strength++;
+    else feedback.push(`At least ${minLength} characters`);
+
+    if (hasUpperCase) strength++;
+    else feedback.push('One uppercase letter');
+
+    if (hasLowerCase) strength++;
+    else feedback.push('One lowercase letter');
+
+    if (hasNumbers) strength++;
+    else feedback.push('One number');
+
+    if (hasSpecialChar) strength++;
+    else feedback.push('One special character');
+
+    return { strength, feedback, isValid: strength >= 4 };
+  }
+
+  // Update password strength indicator
+  newPasswordInput.addEventListener('input', function() {
+    const password = this.value;
+    const validation = validatePasswordStrength(password);
+    
+    let strengthText = '';
+    let strengthColor = '';
+    
+    if (password.length === 0) {
+      strengthText = '';
+    } else if (validation.strength <= 2) {
+      strengthText = 'Weak';
+      strengthColor = '#dc3545';
+    } else if (validation.strength === 3) {
+      strengthText = 'Fair';
+      strengthColor = '#ffc107';
+    } else if (validation.strength === 4) {
+      strengthText = 'Good';
+      strengthColor = '#28a745';
+    } else {
+      strengthText = 'Strong';
+      strengthColor = '#20c997';
+    }
+
+    if (strengthText) {
+      passwordStrengthDiv.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="color: ${strengthColor}; font-weight: bold;">${strengthText}</span>
+          <div style="flex: 1; height: 4px; background: #e9ecef; border-radius: 2px; overflow: hidden;">
+            <div style="width: ${(validation.strength / 5) * 100}%; height: 100%; background: ${strengthColor}; transition: width 0.3s;"></div>
+          </div>
+        </div>
+        ${validation.feedback.length > 0 ? `<div style="font-size: 0.8em; color: #6c757d; margin-top: 4px;">Missing: ${validation.feedback.join(', ')}</div>` : ''}
+      `;
+    } else {
+      passwordStrengthDiv.innerHTML = '';
+    }
+  });
+
+  // Password form submission
+  passwordForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const currentPassword = currentPasswordInput.value;
+    const newPassword = newPasswordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+
+    // Reset error messages
+    document.getElementById('current-password-error').style.display = 'none';
+    document.getElementById('new-password-error').style.display = 'none';
+    document.getElementById('confirm-password-error').style.display = 'none';
+
+    let hasErrors = false;
+
+    // Validate current password
+    if (!currentPassword) {
+      document.getElementById('current-password-error').textContent = 'Current password is required';
+      document.getElementById('current-password-error').style.display = 'block';
+      hasErrors = true;
+    }
+
+    // Validate new password
+    const passwordValidation = validatePasswordStrength(newPassword);
+    if (!newPassword) {
+      document.getElementById('new-password-error').textContent = 'New password is required';
+      document.getElementById('new-password-error').style.display = 'block';
+      hasErrors = true;
+    } else if (!passwordValidation.isValid) {
+      document.getElementById('new-password-error').textContent = 'Password does not meet security requirements';
+      document.getElementById('new-password-error').style.display = 'block';
+      hasErrors = true;
+    }
+
+    // Validate password confirmation
+    if (!confirmPassword) {
+      document.getElementById('confirm-password-error').textContent = 'Please confirm your new password';
+      document.getElementById('confirm-password-error').style.display = 'block';
+      hasErrors = true;
+    } else if (newPassword !== confirmPassword) {
+      document.getElementById('confirm-password-error').textContent = 'Passwords do not match';
+      document.getElementById('confirm-password-error').style.display = 'block';
+      hasErrors = true;
+    }
+
+    if (hasErrors) return;
+
+    // Disable submit button
+    const submitBtn = document.getElementById('password-save-btn');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Changing Password...';
+
+    try {
+      const response = await fetch('/settings/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        showToast('✅ Password changed successfully!', true);
+        closeModal();
+        // Update last changed date
+        document.getElementById('password-last-changed').textContent = new Date().toLocaleDateString();
+      } else {
+        showToast(data.message || '❌ Failed to change password', false);
+        if (data.error === 'current_password_incorrect') {
+          document.getElementById('current-password-error').textContent = 'Current password is incorrect';
+          document.getElementById('current-password-error').style.display = 'block';
+        }
+      }
+    } catch (error) {
+      console.error('Password change error:', error);
+      showToast('❌ Error changing password. Please try again.', false);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  });
+
+  // Face Authentication Functions
+  async function checkFaceAuthStatus() {
+    try {
+      const response = await fetch('/api/face/status');
+      const data = await response.json();
+      
+      if (data.success) {
+        const statusElement = document.getElementById('face-auth-status');
+        const faceStatusElement = document.getElementById('face-status');
+        
+        if (data.face_auth_enabled) {
+          statusElement.textContent = 'Enabled';
+          statusElement.style.color = '#28a745';
+          faceStatusElement.textContent = 'Active';
+          faceStatusElement.style.color = '#28a745';
+        } else {
+          statusElement.textContent = 'Disabled';
+          statusElement.style.color = '#dc3545';
+          faceStatusElement.textContent = 'Not Set';
+          faceStatusElement.style.color = '#6c757d';
+        }
+      }
+    } catch (error) {
+      console.error('Error checking face auth status:', error);
+      document.getElementById('face-auth-status').textContent = 'Error';
+      document.getElementById('face-auth-status').style.color = '#dc3545';
+    }
+  }
+
+  // Face authentication edit button handler - already handled above
+
+  function showFaceAuthSettingsModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = 
+      '<div class="modal-content">' +
+        '<div class="modal-header">' +
+          '<h3>Face Authentication Settings</h3>' +
+          '<button class="modal-close" onclick="this.closest(\'.modal\').remove()">&times;</button>' +
+        '</div>' +
+        '<div class="modal-body">' +
+          '<p>Face authentication is currently enabled for your account.</p>' +
+          '<div class="face-auth-options">' +
+            '<button class="btn btn-primary" onclick="window.location.href=\'/api/face/settings\'">' +
+              '<i class="fas fa-cog"></i> Manage Settings' +
+            '</button>' +
+            '<button class="btn btn-danger" onclick="disableFaceAuth()">' +
+              '<i class="fas fa-times"></i> Disable Face Auth' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(modal);
+  }
+
+  async function disableFaceAuth() {
+    if (!confirm('Are you sure you want to disable face authentication? You will need to re-enroll your face to use it again.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/face/settings/disable', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        showToast('✅ Face authentication disabled successfully', true);
+        checkFaceAuthStatus(); // Refresh status
+        document.querySelector('.modal').remove();
+      } else {
+        showToast(data.message || '❌ Failed to disable face authentication', false);
+      }
+    } catch (error) {
+      console.error('Error disabling face auth:', error);
+      showToast('❌ Error disabling face authentication', false);
+    }
+  }
+
+  // Check face auth status on page load
+  checkFaceAuthStatus();
+
+  console.log('🔧 All settings functionality initialized successfully!');
+  }); // Close DOMContentLoaded event listener
+</script>
+
+<!-- Include anomaly verification script -->
+<script src="/js/anomalyVerification.js"></script>
+<link rel="stylesheet" href="/style/anomalyVerification.css">
+
+<%- include("partials/floating-nav") %>
+
+<script src="/js/floatingNav.js"></script>
+<script src="/js/notificationManager.js"></script> 

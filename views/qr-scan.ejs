@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan QR Code - Luno Wallet</title>
+    <link rel="stylesheet" href="/style/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        .scan-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .scan-header {
+            margin-bottom: 2rem;
+        }
+
+        .scan-header h1 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .scan-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .camera-container {
+            position: relative;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px dashed #e9ecef;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #video {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            border-radius: 10px;
+            background: #000;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 3px solid #3498db;
+            border-radius: 10px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .camera-overlay::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border: 2px solid rgba(52, 152, 219, 0.3);
+            border-radius: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        .camera-overlay::after {
+            content: 'Position QR code here';
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #3498db;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .scanning-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(52, 152, 219, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: pulse 1.5s infinite;
+        }
+
+        .capture-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .scan-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .scan-status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-weight: 600;
+        }
+
+        .scan-status.scanning {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .scan-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .scan-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .scan-result {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: left;
+            display: none;
+        }
+
+        .scan-result h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .result-value {
+            color: #6c757d;
+            font-family: monospace;
+        }
+
+        .loading {
+            display: none;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .manual-input {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            display: none;
+        }
+
+        .manual-input h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .form-text {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        .upload-qr-container {
+            margin: 1rem 0;
+            padding: 1rem;
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            background: #f8f9fa;
+            text-align: center;
+        }
+
+        .upload-qr-container:hover {
+            border-color: #2980b9;
+            background: #e3f2fd;
+        }
+
+        .upload-qr-container.dragover {
+            border-color: #27ae60;
+            background: #e8f5e8;
+        }
+
+        .upload-instructions {
+            text-align: center;
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .upload-instructions small {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .scan-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .scan-controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+
+            .camera-overlay {
+                width: 150px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern Sidebar Navigation -->
+    <div class="sidebar-container" id="sidebarContainer">
+        <!-- Visible Toggle Button -->
+        <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
+            <ion-icon name="menu-outline"></ion-icon>
+        </button>
+        
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <!-- Header Section -->
+            <div class="sidebar-header">
+                <div class="brand-section">
+                    <div class="brand-logo">LU</div>
+                    <div class="brand-text">
+                        <div class="brand-name">LunoBank</div>
+                        <div class="brand-subtitle">Banking App</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Section -->
+            <div class="sidebar-search">
+                <div class="search-input">
+                    <ion-icon name="search-outline"></ion-icon>
+                    <input type="text" placeholder="Search...">
+                </div>
+            </div>
+
+            <!-- Navigation Items -->
+            <div class="sidebar-nav">
+                <a href="/" class="nav-item" data-tooltip="Dashboard">
+                    <ion-icon name="home-outline"></ion-icon>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                
+                <a href="/transactions" class="nav-item" data-tooltip="Transactions">
+                    <ion-icon name="bar-chart-outline"></ion-icon>
+                    <span class="nav-text">Transactions</span>
+                </a>
+                
+                <a href="/ai/chat" class="nav-item" data-tooltip="AI Assistant">
+                    <ion-icon name="chatbubble-outline"></ion-icon>
+                    <span class="nav-text">AI Assistant</span>
+                </a>
+                
+                <a href="/analytics" class="nav-item" data-tooltip="Analytics">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span class="nav-text">Analytics</span>
+                </a>
+                
+                <a href="/statement" class="nav-item" data-tooltip="Bank Statement">
+                    <ion-icon name="document-text-outline"></ion-icon>
+                    <span class="nav-text">Statement</span>
+                </a>
+                
+                <a href="/marketplace" class="nav-item marketplace-item" data-tooltip="Marketplace">
+                    <ion-icon name="heart-outline"></ion-icon>
+                    <span class="nav-text">Marketplace</span>
+                </a>
+                
+                <a href="/currency" class="nav-item" data-tooltip="Currency">
+                    <ion-icon name="wallet-outline"></ion-icon>
+                    <span class="nav-text">Currency</span>
+                </a>
+                
+                <a href="/voice" class="nav-item" data-tooltip="Voice">
+                    <ion-icon name="share-outline"></ion-icon>
+                    <span class="nav-text">Voice</span>
+                </a>
+                
+                <a href="/predictions" class="nav-item" data-tooltip="Predictions">
+                    <ion-icon name="trending-up-outline"></ion-icon>
+                    <span class="nav-text">Predictions</span>
+                </a>
+                
+                <a href="/limits" class="nav-item" data-tooltip="Limits">
+                    <ion-icon name="speedometer-outline"></ion-icon>
+                    <span class="nav-text">Limits</span>
+                </a>
+                
+                <a href="/budget" class="nav-item" data-tooltip="Budget">
+                    <ion-icon name="pie-chart-outline"></ion-icon>
+                    <span class="nav-text">Budget</span>
+                </a>
+                
+                <a href="/bills" class="nav-item" data-tooltip="Bills">
+                    <ion-icon name="receipt-outline"></ion-icon>
+                    <span class="nav-text">Bills</span>
+                </a>
+                
+                <a href="/qr" class="nav-item" data-tooltip="QR Code">
+                    <ion-icon name="qr-code-outline"></ion-icon>
+                    <span class="nav-text">My QR Code</span>
+                </a>
+                
+                <a href="/qr/scan" class="nav-item active" data-tooltip="Scan QR">
+                    <ion-icon name="scan-outline"></ion-icon>
+                    <span class="nav-text">Scan QR Code</span>
+                </a>
+                
+                <a href="/deepface-auth/enrollment" class="nav-item" data-tooltip="Face Setup">
+                    <ion-icon name="camera-outline"></ion-icon>
+                    <span class="nav-text">Face Setup</span>
+                </a>
+            </div>
+
+            <!-- Footer Section -->
+            <div class="sidebar-footer">
+                <a href="/settings" class="nav-item" data-tooltip="Settings">
+                    <ion-icon name="settings-outline"></ion-icon>
+                    <span class="nav-text">Settings</span>
+                </a>
+                
+                <a href="/authorized/logout" class="nav-item logout-item" data-tooltip="Logout">
+                    <ion-icon name="log-out-outline"></ion-icon>
+                    <span class="nav-text">Logout</span>
+                </a>
+                
+                <div class="dark-mode-toggle" data-tooltip="Dark mode">
+                    <div class="toggle-label">
+                        <ion-icon name="moon-outline"></ion-icon>
+                        <span class="nav-text">Dark mode</span>
+                    </div>
+                    <div class="toggle-switch" id="darkModeToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    </div>
+
+    <main class="main">
+        <div class="container">
+            <div class="scan-container">
+            <div class="scan-header">
+                <h1>📷 Scan QR Code</h1>
+                <p>Point your camera at a QR code to identify the recipient</p>
+            </div>
+
+            <div id="scan-status" class="scan-status scanning">
+                <p>📷 Camera ready - Position QR code in the frame and click "Capture QR Code"</p>
+            </div>
+
+            <div class="camera-container">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="capture-canvas" style="display: none;"></canvas>
+                <div class="camera-overlay"></div>
+                <div id="scanning-indicator" class="scanning-indicator" style="display: none;">
+                    🔍 Scanning...
+                </div>
+                <div id="capture-indicator" class="capture-indicator" style="display: none;">
+                    📸 Capturing...
+                </div>
+            </div>
+
+            <div class="upload-instructions">
+                <p><small>💡 You can also drag and drop a QR code image here, or use the upload button above</small></p>
+            </div>
+
+            <div class="scan-controls">
+                <button id="capture-btn" class="btn btn-primary">
+                    📷 Capture QR Code
+                </button>
+                <button id="upload-qr-btn" class="btn btn-secondary">
+                    📷 Upload QR Code
+                </button>
+                <a href="/qr" class="btn btn-secondary">
+                    🔗 My QR Code
+                </a>
+                <a href="/" class="btn btn-secondary">
+                    🏠 Back to Dashboard
+                </a>
+            </div>
+
+
+            <!-- Hidden file input for QR code upload -->
+            <input type="file" id="qr-file-input" accept="image/*" style="display: none;">
+
+            <div id="loading" class="loading">
+                <p>🔄 Processing QR code...</p>
+            </div>
+
+            <div id="scan-result" class="scan-result">
+                <h4>👤 Recipient Found</h4>
+                <div class="result-row">
+                    <span class="result-label">Name:</span>
+                    <span class="result-value" id="recipient-name"></span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Username:</span>
+                    <span class="result-value" id="recipient-username"></span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Account Number:</span>
+                    <span class="result-value" id="recipient-account"></span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Status:</span>
+                    <span class="result-value" id="recipient-status"></span>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <button id="send-payment" class="btn btn-success">
+                        💸 Send Payment
+                    </button>
+                    <button id="scan-another" class="btn btn-secondary">
+                        🔄 Scan Another
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qr-scanner/1.4.2/qr-scanner.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('video');
+            const scanStatus = document.getElementById('scan-status');
+            const captureBtn = document.getElementById('capture-btn');
+            const captureCanvas = document.getElementById('capture-canvas');
+            const captureIndicator = document.getElementById('capture-indicator');
+            const loading = document.getElementById('loading');
+            const scanResult = document.getElementById('scan-result');
+            const recipientName = document.getElementById('recipient-name');
+            const recipientUsername = document.getElementById('recipient-username');
+            const recipientAccount = document.getElementById('recipient-account');
+            const recipientStatus = document.getElementById('recipient-status');
+            const sendPaymentBtn = document.getElementById('send-payment');
+            const scanAnotherBtn = document.getElementById('scan-another');
+            const uploadQrBtn = document.getElementById('upload-qr-btn');
+            const qrFileInput = document.getElementById('qr-file-input');
+
+            let currentRecipient = null;
+
+            // Initialize camera for capture mode
+            function initCamera() {
+                console.log('Initializing camera for capture mode...');
+                
+                // Start camera stream
+                navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                }).then(stream => {
+                    video.srcObject = stream;
+                    video.play();
+                    console.log('Camera initialized successfully');
+                    
+                    // Update status
+                    scanStatus.className = 'scan-status scanning';
+                    scanStatus.innerHTML = '<p>📷 Camera ready - Click "Capture QR Code" to take a photo</p>';
+                }).catch(error => {
+                    console.error('Error accessing camera:', error);
+                    scanStatus.className = 'scan-status error';
+                    
+                    if (error.name === 'NotAllowedError') {
+                        scanStatus.innerHTML = '<p>❌ Camera access denied. Please allow camera access and try again.</p>';
+                    } else if (error.name === 'NotFoundError') {
+                        scanStatus.innerHTML = '<p>❌ No camera found. Please check your device has a camera.</p>';
+                    } else if (error.name === 'NotSupportedError') {
+                        scanStatus.innerHTML = '<p>❌ Camera not supported. Please use a modern browser.</p>';
+                    } else {
+                        scanStatus.innerHTML = `<p>❌ Camera error: ${error.message}</p>`;
+                    }
+                });
+            }
+
+            // Capture photo and process QR code
+            async function captureQRCode() {
+                try {
+                    console.log('📸 Capturing QR code...');
+                    
+                    // Show capture indicator
+                    captureIndicator.style.display = 'block';
+                    captureBtn.disabled = true;
+                    captureBtn.textContent = '📸 Capturing...';
+                    
+                    // Wait a moment for camera to stabilize
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Set canvas dimensions to match video
+                    captureCanvas.width = video.videoWidth;
+                    captureCanvas.height = video.videoHeight;
+                    
+                    // Draw video frame to canvas
+                    const context = captureCanvas.getContext('2d');
+                    context.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+                    
+                    // Get image data
+                    const imageData = context.getImageData(0, 0, captureCanvas.width, captureCanvas.height);
+                    
+                    // Use jsQR to decode the QR code
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
+                    
+                    if (code) {
+                        console.log('✅ QR Code detected in captured image:', code.data);
+                        scanStatus.className = 'scan-status success';
+                        scanStatus.innerHTML = '<p>✅ QR code detected! Processing...</p>';
+                        
+                        // Process the QR code data
+                        await handleQRResult(code.data);
+                    } else {
+                        throw new Error('No QR code found in the captured image. Please try again with a clearer QR code.');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error capturing QR code:', error);
+                    scanStatus.className = 'scan-status error';
+                    scanStatus.innerHTML = `<p>❌ ${error.message}</p>`;
+                } finally {
+                    // Hide capture indicator and reset button
+                    captureIndicator.style.display = 'none';
+                    captureBtn.disabled = false;
+                    captureBtn.textContent = '📷 Capture QR Code';
+                }
+            }
+
+            // Handle QR code scan result
+            async function handleQRResult(qrData) {
+                try {
+                    console.log('Processing QR code data:', qrData);
+                    loading.style.display = 'block';
+                    scanStatus.className = 'scan-status';
+                    scanStatus.innerHTML = '<p>🔄 Processing QR code...</p>';
+
+                    const response = await fetch('/qr/scan', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ qrData: qrData })
+                    });
+
+                    console.log('QR scan response status:', response.status);
+                    const data = await response.json();
+                    console.log('QR scan response data:', data);
+
+                    if (data.success) {
+                        currentRecipient = data.recipient;
+                        displayRecipient(data.recipient);
+                    } else {
+                        throw new Error(data.message || 'Invalid QR code');
+                    }
+                } catch (error) {
+                    console.error('Error processing QR code:', error);
+                    scanStatus.className = 'scan-status error';
+                    scanStatus.innerHTML = `<p>❌ ${error.message}</p>`;
+                } finally {
+                    loading.style.display = 'none';
+                }
+            }
+
+            // Display recipient information
+            function displayRecipient(recipient) {
+                recipientName.textContent = recipient.name || 'N/A';
+                recipientUsername.textContent = recipient.username;
+                recipientAccount.textContent = recipient.account_number;
+                recipientStatus.textContent = recipient.is_active ? 'Active' : 'Inactive';
+                
+                scanResult.style.display = 'block';
+                scanStatus.className = 'scan-status success';
+                scanStatus.innerHTML = '<p>✅ Recipient found successfully!</p>';
+            }
+
+
+
+            // Send payment
+            function sendPayment() {
+                if (currentRecipient) {
+                    // Redirect to payment page with recipient account number pre-filled
+                    window.location.href = `/?recipient_account=${currentRecipient.account_number}`;
+                }
+            }
+
+
+            // Upload and process QR code from file
+            function uploadQRCode() {
+                console.log('📷 Upload QR code button clicked');
+                qrFileInput.click();
+            }
+
+            // Handle drag and drop for QR code upload
+            function setupDragAndDrop() {
+                const scanContainer = document.querySelector('.scan-container');
+                
+                // Prevent default drag behaviors
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    scanContainer.addEventListener(eventName, preventDefaults, false);
+                    document.body.addEventListener(eventName, preventDefaults, false);
+                });
+
+                // Highlight drop area when item is dragged over it
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    scanContainer.addEventListener(eventName, highlight, false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    scanContainer.addEventListener(eventName, unhighlight, false);
+                });
+
+                // Handle dropped files
+                scanContainer.addEventListener('drop', handleDrop, false);
+
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                function highlight(e) {
+                    scanContainer.classList.add('dragover');
+                }
+
+                function unhighlight(e) {
+                    scanContainer.classList.remove('dragover');
+                }
+
+                function handleDrop(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+
+                    if (files.length > 0) {
+                        const file = files[0];
+                        if (file.type.startsWith('image/')) {
+                            console.log('📷 File dropped:', file.name);
+                            processUploadedQRCode(file);
+                        } else {
+                            scanStatus.className = 'scan-status error';
+                            scanStatus.innerHTML = '<p>❌ Please drop an image file (PNG, JPG, etc.)</p>';
+                        }
+                    }
+                }
+            }
+
+            // Process uploaded QR code image
+            async function processUploadedQRCode(file) {
+                try {
+                    console.log('📷 Processing uploaded QR code image:', file.name);
+                    
+                    // Show loading
+                    loading.style.display = 'block';
+                    scanStatus.className = 'scan-status';
+                    scanStatus.innerHTML = '<p>🔄 Processing uploaded QR code...</p>';
+
+                    // Create image element to load the file
+                    const img = new Image();
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+
+                    // Load image
+                    img.onload = async function() {
+                        try {
+                            // Set canvas dimensions to match image
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            
+                            // Draw image on canvas
+                            context.drawImage(img, 0, 0);
+                            
+                            // Get image data
+                            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                            
+                            // Use jsQR to decode the QR code
+                            const code = jsQR(imageData.data, imageData.width, imageData.height);
+                            
+                            if (code) {
+                                console.log('✅ QR code detected in uploaded image:', code.data);
+                                scanStatus.className = 'scan-status success';
+                                scanStatus.innerHTML = '<p>✅ QR code detected! Processing...</p>';
+                                
+                                // Process the QR code data
+                                await handleQRResult(code.data);
+                            } else {
+                                throw new Error('No QR code found in the uploaded image');
+                            }
+                        } catch (error) {
+                            console.error('Error processing QR code from image:', error);
+                            scanStatus.className = 'scan-status error';
+                            scanStatus.innerHTML = `<p>❌ ${error.message}</p>`;
+                        } finally {
+                            loading.style.display = 'none';
+                        }
+                    };
+
+                    img.onerror = function() {
+                        console.error('Error loading uploaded image');
+                        scanStatus.className = 'scan-status error';
+                        scanStatus.innerHTML = '<p>❌ Error loading uploaded image. Please try a different file.</p>';
+                        loading.style.display = 'none';
+                    };
+
+                    // Load the image
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+
+                } catch (error) {
+                    console.error('Error in processUploadedQRCode:', error);
+                    scanStatus.className = 'scan-status error';
+                    scanStatus.innerHTML = '<p>❌ Error processing uploaded QR code.</p>';
+                    loading.style.display = 'none';
+                }
+            }
+
+            // Event listeners
+            captureBtn.addEventListener('click', captureQRCode);
+            uploadQrBtn.addEventListener('click', uploadQRCode);
+            qrFileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    processUploadedQRCode(file);
+                }
+            });
+            sendPaymentBtn.addEventListener('click', sendPayment);
+            scanAnotherBtn.addEventListener('click', () => {
+                scanResult.style.display = 'none';
+                scanStatus.className = 'scan-status scanning';
+                scanStatus.innerHTML = '<p>📷 Camera ready - Click "Capture QR Code" to take a photo</p>';
+            });
+
+            // Initialize camera for capture mode
+            initCamera();
+            
+            // Setup drag and drop
+            setupDragAndDrop();
+        });
+    </script>
+
+    <!-- Navigation JavaScript -->
+    <script src="/js/floatingNav.js"></script>
+</body>
+</html>

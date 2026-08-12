@@ -1,0 +1,5 @@
+{"audio_filepath": "test_audio/airtime_1.wav", "transcript": "Recharge my phone 0712345678 with R50"}
+{"audio_filepath": "test_audio/electric_1.wav", "transcript": "Pay electricity meter 1234567890 for R150"}
+{"audio_filepath": "test_audio/water_1.wav", "transcript": "Pay water meter 01234 R60"}
+{"audio_filepath": "test_audio/balance_1.wav", "transcript": "What is my current balance"}
+{"audio_filepath": "test_audio/transactions_1.wav", "transcript": "Show my recent transactions"}

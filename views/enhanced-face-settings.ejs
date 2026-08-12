@@ -1,0 +1,769 @@
+<%- include("partials/head") %>
+<style>
+    .face-settings-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+        min-height: calc(100vh - 120px);
+    }
+
+    .settings-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .settings-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .settings-header h2 {
+        margin: 0 0 10px 0;
+        font-size: 2rem;
+        font-weight: 600;
+    }
+
+    .settings-header p {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+
+    .settings-content {
+        padding: 40px;
+    }
+
+    .status-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .status-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .status-card.enabled {
+        border-color: #28a745;
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    }
+
+    .status-card.disabled {
+        border-color: #dc3545;
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    }
+
+    .status-card.pending {
+        border-color: #ffc107;
+        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    }
+
+    .status-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+
+    .status-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #495057;
+    }
+
+    .status-description {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .settings-section {
+        margin-bottom: 40px;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .settings-form {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-disable {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: 15px;
+    }
+
+    .btn-disable:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    }
+
+    .logs-section {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 30px;
+    }
+
+    .logs-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .logs-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .logs-table th,
+    .logs-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .logs-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .logs-table tr:hover {
+        background: #f8f9fa;
+    }
+
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-failed {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .confidence-bar {
+        width: 100px;
+        height: 6px;
+        background: #e9ecef;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .confidence-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #dc3545 0%, #ffc107 50%, #28a745 100%);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+
+    .empty-logs {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+    }
+
+    .empty-logs i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #dee2e6;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .btn-test {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-test:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    .btn-enroll {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+
+    .btn-enroll:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(23, 162, 184, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .status-message {
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+
+    .status-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .status-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .status-info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+
+    @media (max-width: 768px) {
+        .face-settings-container {
+            padding: 10px;
+        }
+        
+        .settings-content {
+            padding: 20px;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .logs-table {
+            font-size: 0.9rem;
+        }
+        
+        .logs-table th,
+        .logs-table td {
+            padding: 10px;
+        }
+    }
+</style>
+
+<div class="face-settings-container">
+    <!-- Status Messages -->
+    <div id="statusMessage" class="status-message" style="display: none;"></div>
+
+    <!-- Status Overview -->
+    <div class="settings-card">
+        <div class="settings-header">
+            <h2>🔐 Face Authentication Settings</h2>
+            <p>Manage your face verification preferences and security settings</p>
+        </div>
+
+        <div class="settings-content">
+            <div class="status-overview">
+                <div class="status-card <%= faceAuthStatus.verification_status %>">
+                    <div class="status-icon">
+                        <% if (faceAuthStatus.verification_status === 'enabled') { %>
+                            <i class="bi bi-shield-check"></i>
+                        <% } else if (faceAuthStatus.verification_status === 'pending_enrollment') { %>
+                            <i class="bi bi-clock"></i>
+                        <% } else { %>
+                            <i class="bi bi-shield-x"></i>
+                        <% } %>
+                    </div>
+                    <div class="status-title">
+                        <%= faceAuthStatus.verification_status === 'enabled' ? 'Enabled' : 
+                            faceAuthStatus.verification_status === 'pending_enrollment' ? 'Pending Setup' : 'Disabled' %>
+                    </div>
+                    <div class="status-description">
+                        <%= faceAuthStatus.verification_status === 'enabled' ? 'Face authentication is active' : 
+                            faceAuthStatus.verification_status === 'pending_enrollment' ? 'Complete setup to enable' : 'Face authentication is not set up' %>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div class="status-title">Face Records</div>
+                    <div class="status-description">
+                        <%= faceAuthStatus.face_records_count || 0 %> face(s) enrolled
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="status-title">Confidence Threshold</div>
+                    <div class="status-description">
+                        <%= (faceAuthStatus.confidence_threshold * 100).toFixed(0) %>% similarity required
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-icon">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+                    <div class="status-title">Liveness Check</div>
+                    <div class="status-description">
+                        <%= faceAuthStatus.require_liveness_check ? 'Enabled' : 'Disabled' %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <% if (faceAuthStatus.verification_status === 'enabled') { %>
+                    <button id="testServiceBtn" class="btn-test">
+                        <i class="bi bi-play-circle"></i>
+                        Test Service
+                    </button>
+                <% } else if (faceAuthStatus.verification_status === 'pending_enrollment') { %>
+                    <a href="/api/face/enroll" class="btn-enroll">
+                        <i class="bi bi-person-plus"></i>
+                        Complete Setup
+                    </a>
+                <% } else { %>
+                    <a href="/api/face/enroll" class="btn-enroll">
+                        <i class="bi bi-person-plus"></i>
+                        Set Up Face Auth
+                    </a>
+                <% } %>
+                
+                <button id="refreshStatusBtn" class="btn-test">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Refresh Status
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Configuration -->
+    <% if (faceAuthStatus.verification_status === 'enabled') { %>
+    <div class="settings-card">
+        <div class="settings-content">
+            <div class="settings-section">
+                <h3 class="section-title">
+                    <i class="bi bi-gear"></i>
+                    Security Settings
+                </h3>
+                
+                <form id="settingsForm" class="settings-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="confidenceThreshold">Confidence Threshold (%)</label>
+                            <input type="range" id="confidenceThreshold" name="confidence_threshold" 
+                                   min="50" max="95" step="5" 
+                                   value="<%= (faceAuthStatus.confidence_threshold * 100) %>">
+                            <div class="form-text">Current: <span id="thresholdValue"><%= (faceAuthStatus.confidence_threshold * 100) %>%</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="maxAttempts">Max Attempts per Hour</label>
+                            <select id="maxAttempts" name="max_attempts_per_hour">
+                                <option value="5" <%= faceAuthStatus.max_attempts_per_hour === 5 ? 'selected' : '' %>>5 attempts</option>
+                                <option value="10" <%= faceAuthStatus.max_attempts_per_hour === 10 ? 'selected' : '' %>>10 attempts</option>
+                                <option value="15" <%= faceAuthStatus.max_attempts_per_hour === 15 ? 'selected' : '' %>>15 attempts</option>
+                                <option value="20" <%= faceAuthStatus.max_attempts_per_hour === 20 ? 'selected' : '' %>>20 attempts</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="requireLiveness" name="require_liveness_check" 
+                                   <%= faceAuthStatus.require_liveness_check ? 'checked' : '' %>>
+                            <label for="requireLiveness">Require liveness detection</label>
+                        </div>
+                        <div class="form-text">Prevents spoofing with photos or videos</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="allowMultipleFaces" name="allow_multiple_faces">
+                            <label for="allowMultipleFaces">Allow multiple face records</label>
+                        </div>
+                        <div class="form-text">Store multiple face templates for better accuracy</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="autoUpdatePrimary" name="auto_update_primary" checked>
+                            <label for="autoUpdatePrimary">Auto-update primary face</label>
+                        </div>
+                        <div class="form-text">Automatically update the primary face with better quality images</div>
+                    </div>
+                    
+                    <button type="submit" class="btn-save">
+                        <i class="bi bi-check-circle"></i>
+                        Save Settings
+                    </button>
+                    
+                    <button type="button" id="disableFaceAuthBtn" class="btn-disable">
+                        <i class="bi bi-x-circle"></i>
+                        Disable Face Auth
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <% } %>
+
+    <!-- Verification Logs -->
+    <div class="settings-card">
+        <div class="settings-content">
+            <div class="settings-section">
+                <div class="logs-header">
+                    <h3 class="section-title">
+                        <i class="bi bi-list-check"></i>
+                        Recent Verification Logs
+                    </h3>
+                    <button id="refreshLogsBtn" class="btn-test">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Refresh
+                    </button>
+                </div>
+                
+                <div class="logs-section">
+                    <% if (faceLogs && faceLogs.length > 0) { %>
+                        <table class="logs-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Confidence</th>
+                                    <th>Liveness</th>
+                                    <th>Processing Time</th>
+                                    <th>IP Address</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% faceLogs.forEach(log => { %>
+                                    <tr>
+                                        <td><%= new Date(log.created_at).toLocaleString() %></td>
+                                        <td>
+                                            <span class="status-badge status-<%= log.success ? 'success' : 'failed' %>">
+                                                <%= log.success ? 'Success' : 'Failed' %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="confidence-bar">
+                                                <div class="confidence-fill" style="width: <%= (log.confidence_score * 100) %>%"></div>
+                                            </div>
+                                            <%= (log.confidence_score * 100).toFixed(1) %>%
+                                        </td>
+                                        <td><%= (log.liveness_score * 100).toFixed(1) %>%</td>
+                                        <td><%= log.processing_time_ms %>ms</td>
+                                        <td><%= log.client_ip %></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <div class="empty-logs">
+                            <i class="bi bi-inbox"></i>
+                            <h4>No verification logs yet</h4>
+                            <p>Your face verification attempts will appear here</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+class FaceSettings {
+    constructor() {
+        this.initializeElements();
+        this.bindEvents();
+    }
+
+    initializeElements() {
+        this.statusMessage = document.getElementById('statusMessage');
+        this.settingsForm = document.getElementById('settingsForm');
+        this.confidenceThreshold = document.getElementById('confidenceThreshold');
+        this.thresholdValue = document.getElementById('thresholdValue');
+        this.testServiceBtn = document.getElementById('testServiceBtn');
+        this.refreshStatusBtn = document.getElementById('refreshStatusBtn');
+        this.refreshLogsBtn = document.getElementById('refreshLogsBtn');
+        this.disableFaceAuthBtn = document.getElementById('disableFaceAuthBtn');
+    }
+
+    bindEvents() {
+        if (this.confidenceThreshold) {
+            this.confidenceThreshold.addEventListener('input', (e) => {
+                this.thresholdValue.textContent = e.target.value + '%';
+            });
+        }
+
+        if (this.settingsForm) {
+            this.settingsForm.addEventListener('submit', (e) => this.updateSettings(e));
+        }
+
+        if (this.testServiceBtn) {
+            this.testServiceBtn.addEventListener('click', () => this.testService());
+        }
+
+        if (this.refreshStatusBtn) {
+            this.refreshStatusBtn.addEventListener('click', () => this.refreshStatus());
+        }
+
+        if (this.refreshLogsBtn) {
+            this.refreshLogsBtn.addEventListener('click', () => this.refreshLogs());
+        }
+
+        if (this.disableFaceAuthBtn) {
+            this.disableFaceAuthBtn.addEventListener('click', () => this.disableFaceAuth());
+        }
+    }
+
+    async updateSettings(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this.settingsForm);
+        const settings = {
+            confidence_threshold: parseFloat(formData.get('confidence_threshold')) / 100,
+            max_attempts_per_hour: parseInt(formData.get('max_attempts_per_hour')),
+            require_liveness_check: formData.get('require_liveness_check') === 'on',
+            allow_multiple_faces: formData.get('allow_multiple_faces') === 'on',
+            auto_update_primary: formData.get('auto_update_primary') === 'on'
+        };
+
+        try {
+            const response = await fetch('/api/face/settings/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(settings)
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showStatus('Settings updated successfully!', 'success');
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            console.error('Error updating settings:', error);
+            this.showStatus('Failed to update settings. Please try again.', 'error');
+        }
+    }
+
+    async testService() {
+        try {
+            this.showStatus('Testing face recognition service...', 'info');
+            
+            const response = await fetch('/api/face/test');
+            const result = await response.json();
+            
+            if (result.success && result.microserviceHealth) {
+                this.showStatus('Face recognition service is running properly!', 'success');
+            } else {
+                this.showStatus('Face recognition service is unavailable.', 'error');
+            }
+        } catch (error) {
+            console.error('Error testing service:', error);
+            this.showStatus('Failed to test service. Please try again.', 'error');
+        }
+    }
+
+    async refreshStatus() {
+        try {
+            this.showStatus('Refreshing status...', 'info');
+            window.location.reload();
+        } catch (error) {
+            console.error('Error refreshing status:', error);
+            this.showStatus('Failed to refresh status.', 'error');
+        }
+    }
+
+    async refreshLogs() {
+        try {
+            this.showStatus('Refreshing logs...', 'info');
+            window.location.reload();
+        } catch (error) {
+            console.error('Error refreshing logs:', error);
+            this.showStatus('Failed to refresh logs.', 'error');
+        }
+    }
+
+    async disableFaceAuth() {
+        if (!confirm('Are you sure you want to disable face authentication? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            this.showStatus('Disabling face authentication...', 'info');
+            
+            const response = await fetch('/api/face/settings/disable', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showStatus('Face authentication has been disabled.', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            console.error('Error disabling face auth:', error);
+            this.showStatus('Failed to disable face authentication.', 'error');
+        }
+    }
+
+    showStatus(message, type) {
+        this.statusMessage.textContent = message;
+        this.statusMessage.className = `status-message status-${type}`;
+        this.statusMessage.style.display = 'block';
+        
+        setTimeout(() => {
+            this.statusMessage.style.display = 'none';
+        }, 5000);
+    }
+}
+
+// Initialize face settings when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    new FaceSettings();
+});
+</script>
+
+<%- include("partials/floating-nav") %>

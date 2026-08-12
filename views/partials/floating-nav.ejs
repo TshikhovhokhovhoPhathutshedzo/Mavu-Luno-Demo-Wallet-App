@@ -1,0 +1,207 @@
+<!-- Modern Sidebar Navigation -->
+<div class="sidebar-container" id="sidebarContainer">
+    <!-- Visible Toggle Button -->
+    <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
+        <ion-icon name="menu-outline"></ion-icon>
+    </button>
+    
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <!-- Header Section -->
+        <div class="sidebar-header">
+            <div class="brand-section">
+                <div class="brand-logo">LU</div>
+                <div class="brand-text">
+                    <div class="brand-name">LunoBank</div>
+                    <div class="brand-subtitle">Banking App</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="sidebar-search">
+            <div class="search-input">
+                <ion-icon name="search-outline"></ion-icon>
+                <input type="text" placeholder="Search...">
+            </div>
+        </div>
+
+        <!-- Navigation Items -->
+        <div class="sidebar-nav">
+            <a href="/" class="nav-item <%= active === "home" ? "active" : "" %>" data-tooltip="Dashboard">
+                <ion-icon name="home-outline"></ion-icon>
+                <span class="nav-text">Dashboard</span>
+            </a>
+            
+            <a href="/transactions" class="nav-item <%= active === "transactions" ? "active" : "" %>" data-tooltip="Transactions">
+                <ion-icon name="bar-chart-outline"></ion-icon>
+                <span class="nav-text">Transactions</span>
+            </a>
+            
+            <a href="/ai/chat" class="nav-item <%= active === "chat" ? "active" : "" %>" data-tooltip="AI Assistant">
+                <ion-icon name="chatbubble-outline"></ion-icon>
+                <span class="nav-text">AI Assistant</span>
+            </a>
+            
+            <a href="/analytics" class="nav-item <%= active === "analytics" ? "active" : "" %>" data-tooltip="Analytics">
+                <ion-icon name="time-outline"></ion-icon>
+                <span class="nav-text">Analytics</span>
+            </a>
+            
+            <a href="/statement" class="nav-item <%= active === "statement" ? "active" : "" %>" data-tooltip="Bank Statement">
+                <ion-icon name="document-text-outline"></ion-icon>
+                <span class="nav-text">Statement</span>
+            </a>
+            
+            <a href="/marketplace" class="nav-item marketplace-item <%= active === "marketplace" ? "active" : "" %>" data-tooltip="Marketplace">
+                <ion-icon name="heart-outline"></ion-icon>
+                <span class="nav-text">Marketplace</span>
+            </a>
+            
+            <a href="/currency" class="nav-item <%= active === "currency" ? "active" : "" %>" data-tooltip="Currency">
+                <ion-icon name="wallet-outline"></ion-icon>
+                <span class="nav-text">Currency</span>
+            </a>
+            
+            <a href="/voice" class="nav-item <%= active === "voice" ? "active" : "" %>" data-tooltip="Voice">
+                <ion-icon name="share-outline"></ion-icon>
+                <span class="nav-text">Voice</span>
+            </a>
+            
+            <a href="/predictions" class="nav-item <%= active === "predictions" ? "active" : "" %>" data-tooltip="Predictions">
+                <ion-icon name="trending-up-outline"></ion-icon>
+                <span class="nav-text">Predictions</span>
+            </a>
+            
+            <a href="/limits" class="nav-item <%= active === "limits" ? "active" : "" %>" data-tooltip="Limits">
+                <ion-icon name="speedometer-outline"></ion-icon>
+                <span class="nav-text">Limits</span>
+            </a>
+            
+            <a href="/budget" class="nav-item <%= active === "budget" ? "active" : "" %>" data-tooltip="Budget">
+                <ion-icon name="pie-chart-outline"></ion-icon>
+                <span class="nav-text">Budget</span>
+            </a>
+            
+            <a href="/bills" class="nav-item <%= active === "bills" ? "active" : "" %>" data-tooltip="Bills">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <span class="nav-text">Bills</span>
+            </a>
+            
+            <a href="/deepface-auth/enrollment" class="nav-item <%= active === "face-setup" ? "active" : "" %>" data-tooltip="Face Setup">
+                <ion-icon name="camera-outline"></ion-icon>
+                <span class="nav-text">Face Setup</span>
+            </a>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="sidebar-footer">
+            <a href="/settings" class="nav-item <%= active === "settings" ? "active" : "" %>" data-tooltip="Settings">
+                <ion-icon name="settings-outline"></ion-icon>
+                <span class="nav-text">Settings</span>
+            </a>
+            
+            <a href="/authorized/logout" class="nav-item logout-item" data-tooltip="Logout">
+                <ion-icon name="log-out-outline"></ion-icon>
+                <span class="nav-text">Logout</span>
+            </a>
+            
+            <div class="dark-mode-toggle" data-tooltip="Dark mode">
+                <div class="toggle-label">
+                    <ion-icon name="moon-outline"></ion-icon>
+                    <span class="nav-text">Dark mode</span>
+                </div>
+                <div class="toggle-switch" id="darkModeToggle">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+</div>
+
+<script>
+// Fallback sidebar script
+(function() {
+    console.log('Fallback sidebar script loading...');
+    
+    function initSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const sidebarContainer = document.getElementById('sidebarContainer');
+        const main = document.querySelector('.main');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        
+        console.log('Fallback: Elements found:', {
+            sidebar: !!sidebar,
+            toggleBtn: !!sidebarToggleBtn,
+            overlay: !!sidebarOverlay,
+            container: !!sidebarContainer,
+            main: !!main,
+            darkMode: !!darkModeToggle
+        });
+        
+        if (sidebar && sidebarToggleBtn) {
+            // Main toggle button to show/hide sidebar
+            sidebarToggleBtn.addEventListener('click', function() {
+                console.log('Fallback: Toggle visibility clicked');
+                const isActive = sidebar.classList.contains('active');
+                
+                if (isActive) {
+                    sidebar.classList.remove('active');
+                    if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+                    if (sidebarContainer) sidebarContainer.classList.remove('active');
+                    if (main) main.classList.remove('sidebar-open');
+                } else {
+                    sidebar.classList.add('active');
+                    if (sidebarOverlay) sidebarOverlay.classList.add('active');
+                    if (sidebarContainer) sidebarContainer.classList.add('active');
+                    if (main) main.classList.add('sidebar-open');
+                }
+            });
+            
+            
+            // Overlay click to close
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    sidebarOverlay.classList.remove('active');
+                    if (sidebarContainer) sidebarContainer.classList.remove('active');
+                    if (main) main.classList.remove('sidebar-open');
+                });
+            }
+            
+            // Dark mode toggle
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('click', function() {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    const newTheme = isDark ? 'light' : 'dark';
+                    
+                    document.documentElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    darkModeToggle.classList.toggle('active', newTheme === 'dark');
+                });
+            }
+            
+            
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            if (darkModeToggle) {
+                darkModeToggle.classList.toggle('active', savedTheme === 'dark');
+            }
+            
+            console.log('Fallback: Sidebar initialized');
+        }
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSidebar);
+    } else {
+        initSidebar();
+    }
+})();
+</script>

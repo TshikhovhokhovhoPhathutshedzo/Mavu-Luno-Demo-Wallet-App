@@ -1,0 +1,158 @@
+<%- include("partials/head") %>
+<body>
+    <main class="main">
+        <section class="main-card">
+            <div class="main-card-top">
+                <header class="user-head">
+                    <div class="user-head-left">
+                        <div class="user-name">
+                            <span>Scan QR</span>
+                            <span class="date">Pay or request money via QR</span>
+                        </div>
+                    </div>
+                    <div class="user-head-right">
+                        <a href="/" class="user-head-icon" role="button">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    </div>
+                </header>
+            </div>
+            <div class="main-card-bottom" style="display:flex; flex-direction:column; gap:16px;">
+                <div id="qr-container" style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+                    <video id="qr-video" playsinline style="width:100%; max-width:420px; border-radius:12px; background:#111; aspect-ratio:3/4; object-fit:cover;"></video>
+                    <div id="qr-status" style="font-size:0.95rem; color:#4b5563;">Point your camera at a QR code</div>
+                    <button id="toggle-camera" class="dep-with-card" style="padding:10px 14px;">Switch Camera</button>
+                </div>
+                <div id="qr-result" style="display:none; background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:12px;"></div>
+            </div>
+        </section>
+    </main>
+    <%- include("partials/nav-bar") %>
+
+    <script>
+    (function(){
+        let stream = null;
+        let useRear = true;
+        let processing = false;
+        const video = document.getElementById('qr-video');
+        const statusEl = document.getElementById('qr-status');
+        const resultEl = document.getElementById('qr-result');
+        const toggleBtn = document.getElementById('toggle-camera');
+
+        async function startCamera() {
+            stopCamera();
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: useRear ? { ideal: 'environment' } : 'user' },
+                    audio: false
+                });
+                video.srcObject = stream;
+                await video.play();
+                statusEl.textContent = 'Scanning...';
+                scanLoop();
+            } catch (e) {
+                statusEl.textContent = 'Camera access denied. Please allow camera access.';
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
+            }
+        }
+
+        function drawFrame() {
+            const canvas = drawFrame._canvas || (drawFrame._canvas = document.createElement('canvas'));
+            const ctx = drawFrame._ctx || (drawFrame._ctx = canvas.getContext('2d'));
+            const vw = video.videoWidth, vh = video.videoHeight;
+            if (!vw || !vh) return null;
+            canvas.width = vw; canvas.height = vh;
+            ctx.drawImage(video, 0, 0, vw, vh);
+            return canvas;
+        }
+
+        // Lightweight QR decoding via browser BarcodeDetector if available (fast)
+        const detector = ('BarcodeDetector' in window) ? new BarcodeDetector({ formats: ['qr_code'] }) : null;
+
+        async function scanLoop() {
+            if (!video || video.readyState < 2) {
+                requestAnimationFrame(scanLoop);
+                return;
+            }
+            if (processing) { requestAnimationFrame(scanLoop); return; }
+            processing = true;
+            try {
+                let code = null;
+                if (detector) {
+                    const codes = await detector.detect(video);
+                    if (codes && codes.length > 0) {
+                        code = codes[0].rawValue || codes[0].rawData || null;
+                    }
+                }
+                // Fallback: no explicit JS decoder included to keep bundle light.
+                if (code) {
+                    onDetected(code);
+                }
+            } catch (e) {
+                // ignore per frame errors
+            } finally {
+                processing = false;
+                requestAnimationFrame(scanLoop);
+            }
+        }
+
+        function onDetected(value) {
+            try {
+                const data = JSON.parse(value);
+                // Expected formats: {type:'pay', account:'123456789', amount: 10.5} or {type:'request', account:'...', amount:...}
+                resultEl.style.display = 'block';
+                resultEl.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                    <div>
+                        <div style="font-weight:700;">QR Detected</div>
+                        <div style="color:#475569; font-size:0.95rem;">${data.type || 'unknown'} · ${data.account || ''} · ${data.amount ? 'R'+Number(data.amount).toFixed(2) : ''}</div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        ${data.type === 'pay' && data.account ? `<button id="qr-pay" class="submit-btn" style="padding:8px 12px;">Pay</button>` : ''}
+                        ${data.type === 'request' && data.account ? `<button id="qr-request" class="submit-btn" style="padding:8px 12px;">Send</button>` : ''}
+                    </div>
+                </div>`;
+                if (data.type === 'pay' && data.account) {
+                    document.getElementById('qr-pay').onclick = async () => {
+                        const amount = Number(data.amount || 0);
+                        const res = await fetch('/api/payments/initiate', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ receiverAccountNumber: data.account, amount })
+                        });
+                        const j = await res.json();
+                        alert(j.success ? 'Verification code sent to email. Complete payment in modal on Home.' : (j.message || 'Failed to initiate'));
+                    };
+                }
+                if (data.type === 'request' && data.account) {
+                    document.getElementById('qr-request').onclick = () => {
+                        window.location.href = '/';
+                        setTimeout(() => alert('Open Send Money and paste account: '+ data.account), 300);
+                    };
+                }
+            } catch (e) {
+                // Non-JSON payloads could be URLs or strings
+                resultEl.style.display = 'block';
+                resultEl.textContent = 'Scanned: ' + value;
+            }
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            useRear = !useRear; startCamera();
+        });
+
+        window.addEventListener('pageshow', startCamera);
+        window.addEventListener('pagehide', stopCamera);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) stopCamera(); else startCamera();
+        });
+    })();
+    </script>
+</body>
+</html>
+
+
