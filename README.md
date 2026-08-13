@@ -84,67 +84,67 @@ Below are the sample screenshots included in `sample images/`. Each image shows 
 
 1. Screenshot 2026-08-12 190201.png
 
-![Dashboard](sample%20images/Screenshot%202026-08-12%20190201.png)
+![Dashboard](sample images/Screenshot 2026-08-12 190201.png)
 
 Description: Home dashboard showing account balance and quick actions. Interact by clicking **Send**, **Request**, or **QR** buttons. Use the top menu to navigate to `Transactions`, `Budgets`, and `Settings`.
 
 2. Screenshot 2026-08-12 190249.png
 
-![Send Money](sample%20images/Screenshot%202026-08-12%20190249.png)
+![Send Money](sample images/Screenshot 2026-08-12 190249.png)
 
 Description: Send Money screen. Enter recipient phone/email or scan a QR code, type amount, and confirm. The app will show the transaction preview and request PIN or face verification if enabled.
 
 3. Screenshot 2026-08-13 181552.png
 
-![QR Payment](sample%20images/Screenshot%202026-08-13%20181552.png)
+![QR Payment](sample images/Screenshot 2026-08-13 181552.png)
 
 Description: QR payment flow. Tap **Scan QR** to open the camera, align the QR inside the frame, and confirm payment details once decoded.
 
 4. Screenshot 2026-08-13 181605.png
 
-![Face Verification Prompt](sample%20images/Screenshot%202026-08-13%20181605.png)
+![Face Verification Prompt](sample images/Screenshot 2026-08-13 181605.png)
 
 Description: Face verification request. Allow camera access when prompted. Hold your face steady and follow on-screen guidance until capture completes.
 
 5. Screenshot 2026-08-13 181653.png
 
-![Face Capture Success](sample%20images/Screenshot%202026-08-13%20181653.png)
+![Face Capture Success](sample images/Screenshot 2026-08-13 181653.png)
 
 Description: Face capture success and verification in progress. The UI shows a progress indicator; wait for the verification result (success/failure).
 
 6. Screenshot 2026-08-13 181706.png
 
-![Verification Result](sample%20images/Screenshot%202026-08-13%20181706.png)
+![Verification Result](sample images/Screenshot 2026-08-13 181706.png)
 
 Description: Verification result and confidence score from the DeepFace microservice. When verified, the transaction proceeds; on failure, the user may retry or use an alternate auth method.
 
 7. Screenshot 2026-08-13 181726.png
 
-![Transactions History](sample%20images/Screenshot%202026-08-13%20181726.png)
+![Transactions History](sample images/Screenshot 2026-08-13 181726.png)
 
 Description: Transaction history list. Tap any entry to view details, dispute, or repeat payment. Use filters to find transactions by date or type.
 
 8. Screenshot 2026-08-13 181746.png
 
-![Notifications](sample%20images/Screenshot%202026-08-13%20181746.png)
+![Notifications](sample images/Screenshot 2026-08-13 181746.png)
 
 Description: In-app notifications center. Swipe or click a notification to mark it read. Notification examples: payment received, failed transfer, verification required.
 
 9. Screenshot 2026-08-13 181859.png
 
-![Voice Assistant](sample%20images/Screenshot%202026-08-13%20181859.png)
+![Voice Assistant](sample images/Screenshot 2026-08-13 181859.png)
 
 Description: Voice assistant UI. Tap the microphone button and speak commands like "Send 50 to Alice" or "Show my recent transactions." Ensure microphone permissions are granted.
 
 10. Screenshot 2026-08-13 181923.png
 
-![Settings & Security](sample%20images/Screenshot%202026-08-13%20181923.png)
+![Settings & Security](sample images/Screenshot 2026-08-13 181923.png)
 
 Description: Settings screen where users manage security questions, change PIN, toggle face/voice auth, and configure notification preferences.
 
 11. Screenshot 2026-08-13 182209.png
 
-![Daily Limits & Budgets](sample%20images/Screenshot%202026-08-13%20182209.png)
+![Daily Limits & Budgets](sample images/Screenshot 2026-08-13 182209.png)
 
 Description: Daily limits and budgeting dashboard. Adjust monthly budgets and view spending categories. Alerts are triggered when approaching limits.
 
